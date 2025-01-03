@@ -1,5 +1,5 @@
 import { AxiosError } from 'axios'
-import { Provider } from '../type/connection.type'
+import { Provider } from '../type/provider.type'
 
 type ProviderHttpResponse = {
   status: number

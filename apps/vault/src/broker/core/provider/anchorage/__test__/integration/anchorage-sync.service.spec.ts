@@ -21,8 +21,9 @@ import { AddressService } from '../../../../service/address.service'
 import { ConnectionService } from '../../../../service/connection.service'
 import { KnownDestinationService } from '../../../../service/known-destination.service'
 import { WalletService } from '../../../../service/wallet.service'
-import { ActiveConnectionWithCredentials, Provider } from '../../../../type/connection.type'
+import { ConnectionWithCredentials } from '../../../../type/connection.type'
 import {
+  Provider,
   SyncContext,
   SyncOperationType,
   isCreateOperation,
@@ -39,7 +40,7 @@ import {
   getVaultHandlers
 } from '../server-mock/server'
 
-const toConnectionAssociation = (connection: ActiveConnectionWithCredentials) => ({
+const toConnectionAssociation = (connection: ConnectionWithCredentials) => ({
   clientId: connection.clientId,
   connectionId: connection.connectionId,
   createdAt: connection.createdAt,
@@ -54,16 +55,17 @@ const toConnectionAssociation = (connection: ActiveConnectionWithCredentials) =>
 describe(AnchorageSyncService.name, () => {
   let app: INestApplication
   let module: TestingModule
-  let testPrismaService: TestPrismaService
-  let anchorageSyncService: AnchorageSyncService
-  let connectionService: ConnectionService
-  let connection: ActiveConnectionWithCredentials
-  let knownDestinationService: KnownDestinationService
-  let addressService: AddressService
-  let provisionService: ProvisionService
-  let clientService: ClientService
-  let walletService: WalletRepository
+
   let accountService: AccountService
+  let addressService: AddressService
+  let anchorageSyncService: AnchorageSyncService
+  let clientService: ClientService
+  let connection: ConnectionWithCredentials
+  let connectionService: ConnectionService
+  let knownDestinationService: KnownDestinationService
+  let provisionService: ProvisionService
+  let testPrismaService: TestPrismaService
+  let walletService: WalletRepository
 
   const mockServer = setupMockServer(getHandlers())
 
@@ -98,8 +100,8 @@ describe(AnchorageSyncService.name, () => {
     accountService = module.get(AccountService)
     addressService = module.get(AddressService)
     knownDestinationService = module.get(KnownDestinationService)
-    provisionService = module.get<ProvisionService>(ProvisionService)
-    clientService = module.get<ClientService>(ClientService)
+    provisionService = module.get(ProvisionService)
+    clientService = module.get(ClientService)
 
     await testPrismaService.truncateAll()
   })

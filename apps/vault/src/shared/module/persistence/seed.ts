@@ -3,11 +3,12 @@ import { ConfigService } from '@narval/config-module'
 import { LoggerService } from '@narval/nestjs-shared'
 import { ed25519PrivateKeySchema, ed25519PublicKeySchema } from '@narval/signature'
 import { PrismaClient } from '@prisma/client/vault'
-import { ConnectionStatus, Provider } from 'apps/vault/src/broker/core/type/connection.type'
 import { ConnectionSeedService } from 'apps/vault/src/broker/persistence/connection.seed'
-import { ConnectionRepository } from 'apps/vault/src/broker/persistence/repository/connection.repository'
 import { Config, load } from 'apps/vault/src/main.config'
 import { v4 } from 'uuid'
+import { ConnectionStatus } from '../../../broker/core/type/connection.type'
+import { Provider } from '../../../broker/core/type/provider.type'
+import { ConnectionRepository } from '../../../broker/persistence/repository/connection.repository'
 import { PrismaService } from './service/prisma.service'
 
 const prisma = new PrismaClient()
@@ -193,7 +194,7 @@ async function main() {
   const config = new ConfigService<Config>(load())
   const prismaService = new PrismaService(config, logger)
   const connRepository = new ConnectionRepository(prismaService)
-  const connSeed = new ConnectionSeedService(logger, connRepository)
+  const connSeed = new ConnectionSeedService(connRepository)
 
   logger.log('Seeding Vault database with Anchorage provider data')
 

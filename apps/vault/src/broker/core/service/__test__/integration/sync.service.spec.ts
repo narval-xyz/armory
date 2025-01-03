@@ -18,9 +18,9 @@ import { testClient } from '../../../../__test__/util/mock-data'
 import { SyncRepository } from '../../../../persistence/repository/sync.repository'
 import { WalletRepository } from '../../../../persistence/repository/wallet.repository'
 import { ANCHORAGE_TEST_API_BASE_URL } from '../../../provider/anchorage/__test__/server-mock/server'
-import { ActiveConnectionWithCredentials, Provider } from '../../../type/connection.type'
+import { Connection, ConnectionWithCredentials } from '../../../type/connection.type'
 import { Account, Address, KnownDestination, Wallet } from '../../../type/indexed-resources.type'
-import { SyncOperationType, SyncResult } from '../../../type/provider.type'
+import { Provider, SyncOperationType, SyncResult } from '../../../type/provider.type'
 import { Sync, SyncStatus } from '../../../type/sync.type'
 import { AccountService } from '../../account.service'
 import { AddressService } from '../../address.service'
@@ -28,18 +28,6 @@ import { ConnectionService } from '../../connection.service'
 import { KnownDestinationService } from '../../known-destination.service'
 import { SyncService } from '../../sync.service'
 import { WalletService } from '../../wallet.service'
-
-const toConnectionAssociation = (connection: ActiveConnectionWithCredentials) => ({
-  clientId: connection.clientId,
-  connectionId: connection.connectionId,
-  createdAt: connection.createdAt,
-  label: undefined,
-  provider: connection.provider,
-  revokedAt: undefined,
-  status: connection.status,
-  updatedAt: connection.updatedAt,
-  url: connection.url
-})
 
 describe(SyncService.name, () => {
   let app: INestApplication
@@ -49,7 +37,7 @@ describe(SyncService.name, () => {
   let accountService: AccountService
   let addressService: AddressService
   let clientService: ClientService
-  let connection: ActiveConnectionWithCredentials
+  let connection: ConnectionWithCredentials
   let connectionService: ConnectionService
   let knownDestinationService: KnownDestinationService
   let provisionService: ProvisionService
@@ -141,7 +129,7 @@ describe(SyncService.name, () => {
       walletOne = {
         accounts: [],
         clientId: connection.clientId,
-        connections: [toConnectionAssociation(connection)],
+        connections: [Connection.parse(connection)],
         createdAt: new Date('2023-01-01T00:00:00Z'),
         externalId: 'external-id-one',
         label: 'wallet one',
@@ -152,7 +140,7 @@ describe(SyncService.name, () => {
       walletTwo = {
         accounts: [],
         clientId: connection.clientId,
-        connections: [toConnectionAssociation(connection)],
+        connections: [Connection.parse(connection)],
         createdAt: new Date('2024-01-01T00:00:00Z'),
         externalId: 'external-id-two',
         label: 'wallet two',
@@ -211,7 +199,7 @@ describe(SyncService.name, () => {
         address: 'known-destination-one-address',
         assetId: 'USDC',
         clientId,
-        connections: [toConnectionAssociation(connection)],
+        connections: [Connection.parse(connection)],
         createdAt: new Date('2023-01-01T00:00:00Z'),
         externalClassification: null,
         externalId: 'known-destination-one-external-id',
@@ -225,7 +213,7 @@ describe(SyncService.name, () => {
         address: 'known-destination-two-address',
         assetId: 'USDC',
         clientId,
-        connections: [toConnectionAssociation(connection)],
+        connections: [Connection.parse(connection)],
         createdAt: new Date('2024-01-01T00:00:00Z'),
         externalClassification: null,
         externalId: 'known-destination-two-external-id',

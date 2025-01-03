@@ -6,7 +6,7 @@ import { PermissionGuard } from '../../../../shared/decorator/permission-guard.d
 import { VaultPermission } from '../../../../shared/type/domain.type'
 import { ConnectionService } from '../../../core/service/connection.service'
 import { SyncService } from '../../../core/service/sync.service'
-import { ActiveConnectionWithCredentials, ConnectionStatus } from '../../../core/type/connection.type'
+import { ConnectionStatus } from '../../../core/type/connection.type'
 import { StartSyncDto } from '../dto/request/start-sync.dto'
 import { PaginatedSyncsDto } from '../dto/response/paginated-syncs.dto'
 import { SyncStartedDto } from '../dto/response/sync-started.dto'
@@ -25,7 +25,8 @@ export class SyncController {
   ) {}
 
   @Post()
-  @PermissionGuard(VaultPermission.CONNECTION_READ) // Sync is a read operation even though it's a POST.
+  // Sync is a read operation even though it's a POST.
+  @PermissionGuard(VaultPermission.CONNECTION_READ)
   @ApiOperation({
     summary: 'Start a synchronization process',
     description: 'This endpoint starts synchronization process for the client.'
@@ -37,23 +38,19 @@ export class SyncController {
   })
   async start(@ClientId() clientId: string, @Body() body: StartSyncDto): Promise<SyncStartedDto> {
     if (body.connectionId) {
-      const connection = await this.connectionService.findById(clientId, body.connectionId, true)
-      const data = await this.syncService.start([connection as ActiveConnectionWithCredentials])
+      const connection = await this.connectionService.findWithCredentialsById(clientId, body.connectionId)
+      const data = await this.syncService.start([connection])
 
       return SyncStartedDto.create({ data })
     }
 
-    const { data: connections } = await this.connectionService.findAll(
-      clientId,
-      {
-        filters: {
-          status: ConnectionStatus.ACTIVE
-        }
-      },
-      true
-    )
+    const { data: connections } = await this.connectionService.findAllWithCredentials(clientId, {
+      filters: {
+        status: ConnectionStatus.ACTIVE
+      }
+    })
 
-    const data = await this.syncService.start(connections as ActiveConnectionWithCredentials[])
+    const data = await this.syncService.start(connections)
 
     return SyncStartedDto.create({ data })
   }

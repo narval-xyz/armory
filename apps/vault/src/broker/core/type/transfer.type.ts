@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { Provider } from './connection.type'
+import { Provider } from './provider.type'
 
 export const NetworkFeeAttribution = {
   ON_TOP: 'on_top',

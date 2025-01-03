@@ -1,17 +1,16 @@
 import { LoggerService } from '@narval/nestjs-shared'
-import { Ed25519PrivateKey } from '@narval/signature'
 import { Injectable } from '@nestjs/common'
 import { randomUUID } from 'crypto'
 import { uniq } from 'lodash'
 import { AnchorageClient } from '../../../http/client/anchorage.client'
-import { ConnectionInvalidException } from '../../exception/connection-invalid.exception'
 import { AccountService } from '../../service/account.service'
 import { AddressService } from '../../service/address.service'
 import { KnownDestinationService } from '../../service/known-destination.service'
 import { WalletService } from '../../service/wallet.service'
-import { ActiveConnection, ActiveConnectionWithCredentials, Connection, Provider } from '../../type/connection.type'
+import { Connection, ConnectionWithCredentials } from '../../type/connection.type'
 import { Address, KnownDestination, Wallet } from '../../type/indexed-resources.type'
 import {
+  Provider,
   ProviderSyncService,
   SyncContext,
   SyncOperationType,
@@ -19,6 +18,8 @@ import {
   isCreateOperation
 } from '../../type/provider.type'
 import { buildEmptyContext } from '../../util/provider-sync.util'
+import { AnchorageCredentialService } from './anchorage-credential.service'
+import { validateConnection } from './anchorage.util'
 
 @Injectable()
 export class AnchorageSyncService implements ProviderSyncService {
@@ -28,12 +29,12 @@ export class AnchorageSyncService implements ProviderSyncService {
     private readonly accountService: AccountService,
     private readonly addressService: AddressService,
     private readonly knownDestinationService: KnownDestinationService,
+    private readonly anchorageCredentialService: AnchorageCredentialService,
     private readonly logger: LoggerService
   ) {}
 
-  async sync(connection: ActiveConnectionWithCredentials): Promise<SyncResult> {
+  async sync(connection: ConnectionWithCredentials): Promise<SyncResult> {
     const initialContext = buildEmptyContext({ connection, now: new Date() })
-
     const syncWalletContext = await this.syncWallets(initialContext)
     const syncAccountContext = await this.syncAccounts(syncWalletContext)
     const syncAddressContext = await this.syncAddresses(syncAccountContext)
@@ -54,7 +55,7 @@ export class AnchorageSyncService implements ProviderSyncService {
       url: connection.url
     })
 
-    this.validateConnection(connection)
+    validateConnection(connection)
 
     const anchorageVaults = await this.anchorageClient.getVaults({
       url: connection.url,
@@ -68,7 +69,9 @@ export class AnchorageSyncService implements ProviderSyncService {
       }
     })
 
-    const existingWalletByExternalId = new Map(existingWallets.map((wallet) => [wallet.externalId, wallet]))
+    const existingWalletByExternalId = new Map<string, Wallet>(
+      existingWallets.map((wallet) => [wallet.externalId, wallet])
+    )
 
     const missingAnchorageVaults = anchorageVaults.filter(
       (anchorageVault) => !existingWalletByExternalId.has(anchorageVault.vaultId)
@@ -82,7 +85,7 @@ export class AnchorageSyncService implements ProviderSyncService {
         create: {
           accounts: [],
           clientId: connection.clientId,
-          connections: [ActiveConnection.parse(connection)],
+          connections: [Connection.parse(connection)],
           createdAt: now,
           externalId: vault.vaultId,
           label: vault.name,
@@ -106,7 +109,7 @@ export class AnchorageSyncService implements ProviderSyncService {
             ...existing,
             label: incoming.name,
             updatedAt: now,
-            connections: [...existing.connections, this.toConnectionAssociation(connection)]
+            connections: [...existing.connections, Connection.parse(connection)]
           })
         }
 
@@ -120,20 +123,6 @@ export class AnchorageSyncService implements ProviderSyncService {
     }
   }
 
-  private toConnectionAssociation(connection: Connection) {
-    return {
-      clientId: connection.clientId,
-      connectionId: connection.connectionId,
-      createdAt: connection.createdAt,
-      label: connection.label,
-      provider: connection.provider,
-      revokedAt: connection.revokedAt,
-      status: connection.status,
-      updatedAt: connection.updatedAt,
-      url: connection.url
-    }
-  }
-
   async syncAccounts(context: SyncContext): Promise<SyncContext> {
     const { connection } = context
 
@@ -143,7 +132,7 @@ export class AnchorageSyncService implements ProviderSyncService {
       url: connection.url
     })
 
-    this.validateConnection(connection)
+    validateConnection(connection)
 
     const anchorageWallets = await this.anchorageClient.getWallets({
       url: connection.url,
@@ -231,7 +220,7 @@ export class AnchorageSyncService implements ProviderSyncService {
       url: connection.url
     })
 
-    this.validateConnection(connection)
+    validateConnection(connection)
 
     const now = context.now || new Date()
 
@@ -330,7 +319,7 @@ export class AnchorageSyncService implements ProviderSyncService {
       url: connection.url
     })
 
-    this.validateConnection(connection)
+    validateConnection(connection)
 
     // Fetch current state from Anchorage
     const anchorageTrustedDestinations = await this.anchorageClient.getTrustedDestinations({
@@ -401,45 +390,6 @@ export class AnchorageSyncService implements ProviderSyncService {
     return {
       ...context,
       knownDestinations: [...createOperations, ...updateOperations, ...deleteOperations]
-    }
-  }
-
-  private validateConnection(
-    connection: ActiveConnectionWithCredentials
-  ): asserts connection is ActiveConnectionWithCredentials & {
-    url: string
-    credentials: {
-      apiKey: string
-      privateKey: Ed25519PrivateKey
-    }
-  } {
-    const context = {
-      clientId: connection.clientId,
-      connectionId: connection.connectionId,
-      provider: connection.provider,
-      status: connection.status,
-      url: connection.url
-    }
-
-    if (connection.provider !== Provider.ANCHORAGE) {
-      throw new ConnectionInvalidException({
-        message: 'Invalid connection provider for Anchorage',
-        context
-      })
-    }
-
-    if (!connection.url) {
-      throw new ConnectionInvalidException({
-        message: 'Cannot sync without a connection URL',
-        context
-      })
-    }
-
-    if (!connection.credentials?.apiKey && !connection.credentials?.privateKey) {
-      throw new ConnectionInvalidException({
-        message: 'Cannot sync without API key and/or signing key',
-        context
-      })
     }
   }
 }

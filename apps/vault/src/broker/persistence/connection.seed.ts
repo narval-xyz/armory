@@ -1,4 +1,3 @@
-import { LoggerService } from '@narval/nestjs-shared'
 import { hexSchema } from '@narval/policy-engine-shared'
 import { privateKeyToJwk } from '@narval/signature'
 import { Injectable } from '@nestjs/common'
@@ -11,10 +10,7 @@ const NARVAL_DEV_CLIENT = 'narval-dev-client'
 
 @Injectable()
 export class ConnectionSeedService extends SeedService {
-  constructor(
-    private logger: LoggerService,
-    private connectionRepository: ConnectionRepository
-  ) {
+  constructor(private connectionRepository: ConnectionRepository) {
     super()
   }
 

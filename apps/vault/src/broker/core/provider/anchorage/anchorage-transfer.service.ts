@@ -5,8 +5,8 @@ import { AnchorageClient } from '../../../http/client/anchorage.client'
 import { TransferRepository } from '../../../persistence/repository/transfer.repository'
 import { BrokerException } from '../../exception/broker.exception'
 import { TransferPartyService } from '../../service/transfer-party.service'
-import { ActiveConnectionWithCredentials, Provider } from '../../type/connection.type'
-import { ProviderTransferService } from '../../type/provider.type'
+import { ConnectionWithCredentials } from '../../type/connection.type'
+import { Provider, ProviderTransferService } from '../../type/provider.type'
 import {
   Destination,
   InternalTransfer,
@@ -19,6 +19,7 @@ import {
   isAddressDestination,
   isProviderSpecific
 } from '../../type/transfer.type'
+import { validateConnection } from './anchorage.util'
 
 @Injectable()
 export class AnchorageTransferService implements ProviderTransferService {
@@ -29,12 +30,14 @@ export class AnchorageTransferService implements ProviderTransferService {
     private readonly logger: LoggerService
   ) {}
 
-  async findById(connection: ActiveConnectionWithCredentials, transferId: string): Promise<Transfer> {
+  async findById(connection: ConnectionWithCredentials, transferId: string): Promise<Transfer> {
     this.logger.log('Find Anchorage transfer by ID', {
       clientId: connection.clientId,
       connectionId: connection.connectionId,
       transferId
     })
+
+    validateConnection(connection)
 
     const internalTransfer = await this.transferRepository.findById(connection.clientId, transferId)
 
@@ -101,12 +104,14 @@ export class AnchorageTransferService implements ProviderTransferService {
     })
   }
 
-  async send(connection: ActiveConnectionWithCredentials, sendTransfer: SendTransfer): Promise<InternalTransfer> {
+  async send(connection: ConnectionWithCredentials, sendTransfer: SendTransfer): Promise<InternalTransfer> {
     this.logger.log('Send Anchorage transfer', {
       clientId: connection.clientId,
       connectionId: connection.connectionId,
       sendTransfer
     })
+
+    validateConnection(connection)
 
     const source = await this.transferPartyService.resolve(connection.clientId, sendTransfer.source)
     const destination = await this.transferPartyService.resolve(connection.clientId, sendTransfer.destination)

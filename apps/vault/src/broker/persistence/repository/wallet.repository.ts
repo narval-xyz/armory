@@ -11,7 +11,7 @@ import { PrismaService } from '../../../shared/module/persistence/service/prisma
 import { NotFoundException } from '../../core/exception/not-found.exception'
 import { Account, UpdateWallet, Wallet } from '../../core/type/indexed-resources.type'
 import { AccountRepository } from './account.repository'
-import { ConnectionRepository, connectionSelectWithoutCredentials } from './connection.repository'
+import { ConnectionRepository, SELECT_WITHOUT_CREDENTIALS } from './connection.repository'
 
 type ProviderWalletsAndRelations = ProviderWallet & {
   connections: { connection: Partial<ProviderConnection> }[]
@@ -85,7 +85,7 @@ export class WalletRepository {
         connections: {
           include: {
             connection: {
-              select: connectionSelectWithoutCredentials
+              select: SELECT_WITHOUT_CREDENTIALS
             }
           }
         }
@@ -113,12 +113,13 @@ export class WalletRepository {
         connections: {
           include: {
             connection: {
-              select: connectionSelectWithoutCredentials
+              select: SELECT_WITHOUT_CREDENTIALS
             }
           }
         }
       }
     })
+
     if (!wallet) {
       throw new NotFoundException({
         message: 'Wallet not found',
@@ -160,7 +161,7 @@ export class WalletRepository {
         connections: {
           include: {
             connection: {
-              select: connectionSelectWithoutCredentials
+              select: SELECT_WITHOUT_CREDENTIALS
             }
           }
         }
@@ -192,7 +193,7 @@ export class WalletRepository {
         connections: {
           include: {
             connection: {
-              select: connectionSelectWithoutCredentials
+              select: SELECT_WITHOUT_CREDENTIALS
             }
           }
         }
@@ -256,7 +257,7 @@ export class WalletRepository {
         connections: {
           include: {
             connection: {
-              select: connectionSelectWithoutCredentials
+              select: SELECT_WITHOUT_CREDENTIALS
             }
           }
         },

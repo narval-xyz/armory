@@ -6,7 +6,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter'
 import { Test, TestingModule } from '@nestjs/testing'
 import { mock } from 'jest-mock-extended'
 import request from 'supertest'
-import { v4 } from 'uuid'
+import { v4 as uuid } from 'uuid'
 import { ClientService } from '../../../client/core/service/client.service'
 import { MainModule } from '../../../main.module'
 import { ProvisionService } from '../../../provision.service'
@@ -17,8 +17,9 @@ import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing
 import { ANCHORAGE_TEST_API_BASE_URL } from '../../core/provider/anchorage/__test__/server-mock/server'
 import { ConnectionService } from '../../core/service/connection.service'
 import { KnownDestinationService } from '../../core/service/known-destination.service'
-import { Provider } from '../../core/type/connection.type'
+import { Connection } from '../../core/type/connection.type'
 import { KnownDestination } from '../../core/type/indexed-resources.type'
+import { Provider } from '../../core/type/provider.type'
 import { getJwsd, testClient, testUserPrivateJwk } from '../util/mock-data'
 
 describe('KnownDestination', () => {
@@ -52,12 +53,13 @@ describe('KnownDestination', () => {
       .compile()
 
     app = module.createNestApplication()
-    testPrismaService = module.get(TestPrismaService)
-    provisionService = module.get<ProvisionService>(ProvisionService)
-    clientService = module.get<ClientService>(ClientService)
-    connectionService = module.get<ConnectionService>(ConnectionService)
 
-    knownDestinationService = module.get<KnownDestinationService>(KnownDestinationService)
+    testPrismaService = module.get(TestPrismaService)
+    provisionService = module.get(ProvisionService)
+    clientService = module.get(ClientService)
+    connectionService = module.get(ConnectionService)
+    knownDestinationService = module.get(KnownDestinationService)
+
     await testPrismaService.truncateAll()
   })
 
@@ -77,27 +79,31 @@ describe('KnownDestination', () => {
 
     await app.init()
 
-    const connection1 = await connectionService.create(testClient.clientId, {
-      connectionId: v4(),
-      provider: Provider.ANCHORAGE,
-      url: ANCHORAGE_TEST_API_BASE_URL,
-      createdAt: now,
-      credentials: {
-        apiKey: 'test-api-key',
-        privateKey: await privateKeyToHex(await generateJwk(Alg.EDDSA))
-      }
-    })
+    const connection1 = Connection.parse(
+      await connectionService.create(testClient.clientId, {
+        connectionId: uuid(),
+        provider: Provider.ANCHORAGE,
+        url: ANCHORAGE_TEST_API_BASE_URL,
+        createdAt: now,
+        credentials: {
+          apiKey: 'test-api-key',
+          privateKey: await privateKeyToHex(await generateJwk(Alg.EDDSA))
+        }
+      })
+    )
 
-    const connection2 = await connectionService.create(testClient.clientId, {
-      connectionId: v4(),
-      provider: Provider.ANCHORAGE,
-      url: ANCHORAGE_TEST_API_BASE_URL,
-      createdAt: now,
-      credentials: {
-        apiKey: 'test-api-key',
-        privateKey: await privateKeyToHex(await generateJwk(Alg.EDDSA))
-      }
-    })
+    const connection2 = Connection.parse(
+      await connectionService.create(testClient.clientId, {
+        connectionId: uuid(),
+        provider: Provider.ANCHORAGE,
+        url: ANCHORAGE_TEST_API_BASE_URL,
+        createdAt: now,
+        credentials: {
+          apiKey: 'test-api-key',
+          privateKey: await privateKeyToHex(await generateJwk(Alg.EDDSA))
+        }
+      })
+    )
 
     connection1Id = connection1.connectionId
     connection2Id = connection2.connectionId
@@ -359,7 +365,7 @@ describe('KnownDestination', () => {
     })
 
     it('returns 404 for unknown known destination', async () => {
-      const { status, body } = await request(app.getHttpServer())
+      const { status } = await request(app.getHttpServer())
         .get('/provider/known-destinations/unknown')
         .set(REQUEST_HEADER_CLIENT_ID, testClient.clientId)
         .set(

@@ -18,7 +18,8 @@ import { ANCHORAGE_TEST_API_BASE_URL, getHandlers } from '../../core/provider/an
 import { AnchorageSyncService } from '../../core/provider/anchorage/anchorage-sync.service'
 import { ConnectionService } from '../../core/service/connection.service'
 import { SyncService } from '../../core/service/sync.service'
-import { ActiveConnectionWithCredentials, Provider } from '../../core/type/connection.type'
+import { ConnectionWithCredentials } from '../../core/type/connection.type'
+import { Provider } from '../../core/type/provider.type'
 import { SyncStatus } from '../../core/type/sync.type'
 import { setupMockServer } from '../../shared/__test__/mock-server'
 import { SyncStartedEvent } from '../../shared/event/sync-started.event'
@@ -35,7 +36,7 @@ describe('Sync', () => {
   let anchorageSyncServiceMock: MockProxy<AnchorageSyncService>
   let provisionService: ProvisionService
   let clientService: ClientService
-  let activeConnection: ActiveConnectionWithCredentials
+  let connection: ConnectionWithCredentials
 
   const url = ANCHORAGE_TEST_API_BASE_URL
 
@@ -92,7 +93,7 @@ describe('Sync', () => {
     await provisionService.provision()
     await clientService.save(testClient)
 
-    activeConnection = await connectionService.create(clientId, {
+    connection = await connectionService.create(clientId, {
       connectionId: uuid(),
       provider: Provider.ANCHORAGE,
       url,
@@ -132,10 +133,11 @@ describe('Sync', () => {
         .send()
 
       const { data: syncs } = await syncService.findAll(clientId)
+      const credentials = await connectionService.findCredentials(connection)
 
       expect(eventEmitterMock.emit).toHaveBeenCalledWith(
         SyncStartedEvent.EVENT_NAME,
-        new SyncStartedEvent(syncs[0], activeConnection)
+        new SyncStartedEvent(syncs[0], { ...connection, credentials })
       )
     })
 
@@ -184,11 +186,11 @@ describe('Sync', () => {
           await getJwsd({
             userPrivateJwk: testUserPrivateJwk,
             requestUrl: '/provider/syncs',
-            payload: { connectionId: activeConnection.connectionId },
+            payload: { connectionId: connection.connectionId },
             htm: 'POST'
           })
         )
-        .send({ connectionId: activeConnection.connectionId })
+        .send({ connectionId: connection.connectionId })
 
       const syncs = await syncService.findAll(clientId)
       const [sync] = syncs.data
@@ -198,7 +200,7 @@ describe('Sync', () => {
         syncs: [
           {
             clientId: sync.clientId,
-            connectionId: activeConnection.connectionId,
+            connectionId: connection.connectionId,
             createdAt: sync.createdAt.toISOString(),
             syncId: sync.syncId,
             status: SyncStatus.PROCESSING
@@ -214,7 +216,7 @@ describe('Sync', () => {
 
   describe('GET /syncs/:syncId', () => {
     it('responds with the specific sync', async () => {
-      const { syncs } = await syncService.start([activeConnection])
+      const { syncs } = await syncService.start([connection])
       const [sync] = syncs
 
       const { status, body } = await request(app.getHttpServer())
@@ -245,7 +247,7 @@ describe('Sync', () => {
 
   describe('GET /syncs', () => {
     it('responds with a list of syncs', async () => {
-      const { syncs } = await syncService.start([activeConnection])
+      const { syncs } = await syncService.start([connection])
       const [sync] = syncs
 
       const { status, body } = await request(app.getHttpServer())
@@ -280,7 +282,7 @@ describe('Sync', () => {
     })
 
     it('responds with the specific sync filter by connection', async () => {
-      const { syncs } = await syncService.start([activeConnection])
+      const { syncs } = await syncService.start([connection])
       const [sync] = syncs
 
       const { status, body } = await request(app.getHttpServer())
@@ -316,7 +318,7 @@ describe('Sync', () => {
     })
 
     it('responds with limited number of syncs when limit is given', async () => {
-      await syncService.start([activeConnection])
+      await syncService.start([connection])
 
       const { body } = await request(app.getHttpServer())
         .get('/provider/syncs')

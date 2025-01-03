@@ -4,8 +4,8 @@ import { ProviderAddress } from '@prisma/client/vault'
 import { z } from 'zod'
 import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
 import { NotFoundException } from '../../core/exception/not-found.exception'
-import { Provider } from '../../core/type/connection.type'
 import { Address } from '../../core/type/indexed-resources.type'
+import { Provider } from '../../core/type/provider.type'
 
 type FindAllFilters = {
   filters?: {

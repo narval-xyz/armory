@@ -9,8 +9,11 @@ import { PersistenceModule } from '../shared/module/persistence/persistence.modu
 import { EncryptionKeyService } from '../transit-encryption/core/service/encryption-key.service'
 import { EncryptionKeyRepository } from '../transit-encryption/persistence/encryption-key.repository'
 import { TransitEncryptionModule } from '../transit-encryption/transit-encryption.module'
+import { AnchorageCredentialService } from './core/provider/anchorage/anchorage-credential.service'
+import { AnchorageProxyService } from './core/provider/anchorage/anchorage-proxy.service'
 import { AnchorageSyncService } from './core/provider/anchorage/anchorage-sync.service'
 import { AnchorageTransferService } from './core/provider/anchorage/anchorage-transfer.service'
+import { FireblocksCredentialService } from './core/provider/fireblocks/fireblocks-credential.service'
 import { AccountService } from './core/service/account.service'
 import { AddressService } from './core/service/address.service'
 import { ConnectionService } from './core/service/connection.service'
@@ -23,7 +26,7 @@ import { WalletService } from './core/service/wallet.service'
 import { ConnectionSyncEventHandler } from './event/handler/connection-sync.event-handler'
 import { AnchorageClient } from './http/client/anchorage.client'
 import { ProviderAccountController } from './http/rest/controller/account.controller'
-import { AddressController } from './http/rest/controller/address.controller'
+import { ProviderAddressController } from './http/rest/controller/address.controller'
 import { ConnectionController } from './http/rest/controller/connection.controller'
 import { KnownDestinationController } from './http/rest/controller/known-destination.controller'
 import { ProxyController } from './http/rest/controller/proxy.controller'
@@ -49,14 +52,14 @@ import { WalletRepository } from './persistence/repository/wallet.repository'
     TransitEncryptionModule
   ],
   controllers: [
-    ProviderAccountController,
-    AddressController,
     ConnectionController,
     KnownDestinationController,
+    ProviderAccountController,
+    ProviderAddressController,
+    ProviderWalletController,
     ProxyController,
     SyncController,
-    TransferController,
-    ProviderWalletController
+    TransferController
   ],
   providers: [
     ...DEFAULT_HTTP_MODULE_PROVIDERS,
@@ -69,6 +72,8 @@ import { WalletRepository } from './persistence/repository/wallet.repository'
     AddressRepository,
     AddressService,
     AnchorageClient,
+    AnchorageCredentialService,
+    AnchorageProxyService,
     AnchorageSyncService,
     AnchorageTransferService,
     ConnectionRepository,
@@ -77,6 +82,7 @@ import { WalletRepository } from './persistence/repository/wallet.repository'
     ConnectionSyncEventHandler,
     EncryptionKeyRepository,
     EncryptionKeyService,
+    FireblocksCredentialService,
     KnownDestinationRepository,
     KnownDestinationService,
     ProxyService,

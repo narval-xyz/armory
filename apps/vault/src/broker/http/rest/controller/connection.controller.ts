@@ -1,5 +1,4 @@
 import { ApiClientIdHeader, Paginated, PaginationOptions, PaginationParam } from '@narval/nestjs-shared'
-import { publicKeyToHex, publicKeyToPem } from '@narval/signature'
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
@@ -8,6 +7,7 @@ import { VaultPermission } from '../../../../shared/type/domain.type'
 import { AccountService } from '../../../core/service/account.service'
 import { ConnectionService } from '../../../core/service/connection.service'
 import { WalletService } from '../../../core/service/wallet.service'
+import { formatPublicKey, formatRsaPublicKey } from '../../../core/util/user-friendly-key-format.util'
 import { CreateConnectionDto } from '../dto/request/create-connection.dto'
 import { InitiateConnectionDto } from '../dto/request/initiate-connection.dto'
 import { UpdateConnectionDto } from '../dto/request/update-connection.dto'
@@ -47,25 +47,18 @@ export class ConnectionController {
     @Body() body: InitiateConnectionDto
   ): Promise<ProviderPendingConnectionDto> {
     const pendingConnection = await this.connectionService.initiate(clientId, body)
-
-    const encryptionPem = pendingConnection.encryptionPublicKey
-      ? await publicKeyToPem(pendingConnection.encryptionPublicKey, pendingConnection.encryptionPublicKey.alg)
-      : undefined
+    const credentials = await this.connectionService.findCredentials(pendingConnection)
 
     const data = {
       ...pendingConnection,
-      encryptionPublicKey: {
-        keyId: pendingConnection.encryptionPublicKey?.kid,
-        jwk: pendingConnection.encryptionPublicKey,
-        pem: encryptionPem ? Buffer.from(encryptionPem).toString('base64') : undefined
-      },
-      ...(pendingConnection.credentials
+      ...(pendingConnection.encryptionPublicKey
         ? {
-            publicKey: {
-              keyId: pendingConnection.credentials.publicKey.kid,
-              jwk: pendingConnection.credentials.publicKey,
-              hex: await publicKeyToHex(pendingConnection.credentials.publicKey)
-            }
+            encryptionPublicKey: await formatRsaPublicKey(pendingConnection.encryptionPublicKey)
+          }
+        : {}),
+      ...(credentials
+        ? {
+            publicKey: await formatPublicKey(credentials.publicKey)
           }
         : {})
     }

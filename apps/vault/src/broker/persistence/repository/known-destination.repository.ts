@@ -4,9 +4,9 @@ import { ProviderConnection, ProviderKnownDestination, ProviderKnownDestinationC
 import { z } from 'zod'
 import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
 import { NotFoundException } from '../../core/exception/not-found.exception'
-import { Provider } from '../../core/type/connection.type'
 import { KnownDestination } from '../../core/type/indexed-resources.type'
-import { ConnectionRepository, connectionSelectWithoutCredentials } from './connection.repository'
+import { Provider } from '../../core/type/provider.type'
+import { ConnectionRepository, SELECT_WITHOUT_CREDENTIALS } from './connection.repository'
 
 type FindAllFilters = {
   filters?: {
@@ -78,7 +78,7 @@ export class KnownDestinationRepository {
         connections: {
           include: {
             connection: {
-              select: connectionSelectWithoutCredentials
+              select: SELECT_WITHOUT_CREDENTIALS
             }
           }
         }
@@ -100,7 +100,7 @@ export class KnownDestinationRepository {
         connections: {
           include: {
             connection: {
-              select: connectionSelectWithoutCredentials
+              select: SELECT_WITHOUT_CREDENTIALS
             }
           }
         }
@@ -159,7 +159,7 @@ export class KnownDestinationRepository {
         connections: {
           include: {
             connection: {
-              select: connectionSelectWithoutCredentials
+              select: SELECT_WITHOUT_CREDENTIALS
             }
           }
         }
@@ -205,7 +205,7 @@ export class KnownDestinationRepository {
         connections: {
           include: {
             connection: {
-              select: connectionSelectWithoutCredentials
+              select: SELECT_WITHOUT_CREDENTIALS
             }
           }
         }
@@ -265,7 +265,7 @@ export class KnownDestinationRepository {
         connections: {
           include: {
             connection: {
-              select: connectionSelectWithoutCredentials
+              select: SELECT_WITHOUT_CREDENTIALS
             }
           }
         }

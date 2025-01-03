@@ -3,16 +3,18 @@ import { HttpStatus, Injectable } from '@nestjs/common'
 import { ProviderConnection } from '@prisma/client/vault'
 import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
 import { BrokerException } from '../../core/exception/broker.exception'
+import { ConnectionInvalidCredentialsException } from '../../core/exception/connection-invalid-credentials.exception'
 import { ConnectionParseException } from '../../core/exception/connection-parse.exception'
 import { NotFoundException } from '../../core/exception/not-found.exception'
 import { Connection, ConnectionStatus, ConnectionWithCredentials } from '../../core/type/connection.type'
+import { Provider } from '../../core/type/provider.type'
 
 export type UpdateConnection = {
   clientId: string
   connectionId: string
   credentials?: unknown | null
   label?: string
-  provider?: string
+  provider: Provider
   revokedAt?: Date
   status?: ConnectionStatus
   updatedAt?: Date
@@ -28,7 +30,7 @@ export type FilterOptions = {
 
 export type FindAllOptions = FilterOptions & { pagination?: PaginationOptions }
 
-export const connectionSelectWithoutCredentials = {
+export const SELECT_WITHOUT_CREDENTIALS = {
   id: true,
   clientId: true,
   provider: true,
@@ -44,15 +46,11 @@ export const connectionSelectWithoutCredentials = {
 
 @Injectable()
 export class ConnectionRepository {
-  constructor(private prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
-  static parseModel<T extends boolean = false>(
-    model?: Partial<ProviderConnection> | null,
-    includeCredentials?: T
-  ): T extends true ? ConnectionWithCredentials : Connection {
-    const connectionData = {
+  static parseModel(model?: Partial<ProviderConnection> | null): Connection {
+    const parse = Connection.safeParse({
       ...model,
-      credentials: model?.credentials ? JSON.parse(model.credentials) : null,
       connectionId: model?.id,
       // Prisma always returns null for optional fields that don't have a
       // value, rather than undefined. This is actually by design and aligns
@@ -60,13 +58,10 @@ export class ConnectionRepository {
       label: model?.label || undefined,
       revokedAt: model?.revokedAt || undefined,
       url: model?.url || undefined
-    }
-
-    const schema = includeCredentials ? ConnectionWithCredentials : Connection
-    const parse = schema.safeParse(connectionData)
+    })
 
     if (parse.success) {
-      return parse.data as T extends true ? ConnectionWithCredentials : Connection
+      return parse.data
     }
 
     throw new ConnectionParseException({
@@ -76,15 +71,15 @@ export class ConnectionRepository {
 
   async create(connection: ConnectionWithCredentials): Promise<Connection> {
     const data = {
-      id: connection.connectionId,
       clientId: connection.clientId,
-      credentials: connection.credentials !== null ? JSON.stringify(connection.credentials) : null,
+      createdAt: connection.createdAt,
+      credentials: PrismaService.toStringJson(connection.credentials),
+      id: connection.connectionId,
       label: connection.label || null,
       provider: connection.provider,
       status: connection.status,
-      url: connection.url || null,
-      createdAt: connection.createdAt,
-      updatedAt: connection.updatedAt
+      updatedAt: connection.updatedAt,
+      url: connection.url || null
     }
 
     await this.prismaService.providerConnection.upsert({
@@ -110,68 +105,51 @@ export class ConnectionRepository {
         clientId: updateConnection.clientId
       },
       data: {
-        id: updateConnection.connectionId,
         clientId: updateConnection.clientId,
-        provider: updateConnection.provider,
-        url: updateConnection.url,
-        label: updateConnection.label,
-        credentials: updateConnection.credentials !== null ? JSON.stringify(updateConnection.credentials) : null,
-        status: updateConnection.status,
         createdAt: updateConnection.createdAt,
+        credentials: PrismaService.toStringJson(updateConnection.credentials),
+        id: updateConnection.connectionId,
+        label: updateConnection.label,
+        provider: updateConnection.provider,
         revokedAt: updateConnection.revokedAt,
-        updatedAt: updateConnection.updatedAt
+        status: updateConnection.status,
+        updatedAt: updateConnection.updatedAt,
+        url: updateConnection.url
       }
     })
 
     return true
   }
 
-  async findById<T extends boolean = false>(
-    clientId: string,
-    connectionId: string,
-    includeCredentials?: T
-  ): Promise<T extends true ? ConnectionWithCredentials : Connection> {
+  async findById(clientId: string, connectionId: string): Promise<Connection> {
     const model = await this.prismaService.providerConnection.findUnique({
-      where: { clientId, id: connectionId }
+      where: { clientId, id: connectionId },
+      select: SELECT_WITHOUT_CREDENTIALS
     })
 
     if (model) {
-      return ConnectionRepository.parseModel<T>(model, includeCredentials)
+      return ConnectionRepository.parseModel(model)
     }
 
     throw new NotFoundException({ context: { clientId, connectionId } })
   }
 
-  async findAll<T extends boolean = false>(
-    clientId: string,
-    options?: FindAllOptions,
-    includeCredentials?: T
-  ): Promise<T extends true ? PaginatedResult<ConnectionWithCredentials> : PaginatedResult<Connection>> {
+  async findAll(clientId: string, options?: FindAllOptions): Promise<PaginatedResult<Connection>> {
     const pagination = applyPagination(options?.pagination)
     const models = await this.prismaService.providerConnection.findMany({
       where: {
         clientId,
         status: options?.filters?.status
       },
-      ...(includeCredentials
-        ? {}
-        : {
-            select: connectionSelectWithoutCredentials
-          }),
+      select: SELECT_WITHOUT_CREDENTIALS,
       ...pagination
     })
     const { data, page } = getPaginatedResult({ items: models, pagination })
 
-    const parsedData = data.map((model) => ConnectionRepository.parseModel(model, includeCredentials))
-
-    const result = {
-      data: parsedData,
+    return {
+      data: data.map((model) => ConnectionRepository.parseModel(model)),
       page
     }
-
-    return result as unknown as T extends true
-      ? PaginatedResult<ConnectionWithCredentials>
-      : PaginatedResult<Connection>
   }
 
   async exists(clientId: string, id: string): Promise<boolean> {
@@ -180,5 +158,67 @@ export class ConnectionRepository {
     })
 
     return count > 0
+  }
+
+  async findCredentialsJson({ connectionId }: { connectionId: string }): Promise<unknown> {
+    const model = await this.prismaService.providerConnection.findUnique({
+      where: { id: connectionId }
+    })
+
+    if (model && model.credentials) {
+      return this.toCredentialsJson(model.credentials)
+    }
+
+    return null
+  }
+
+  async findAllWithCredentials(
+    clientId: string,
+    options?: FindAllOptions
+  ): Promise<PaginatedResult<ConnectionWithCredentials>> {
+    const pagination = applyPagination(options?.pagination)
+    const models = await this.prismaService.providerConnection.findMany({
+      where: {
+        clientId,
+        status: options?.filters?.status
+      },
+      ...pagination
+    })
+    const { data, page } = getPaginatedResult({ items: models, pagination })
+
+    return {
+      data: data.map((model) => ({
+        ...ConnectionRepository.parseModel(model),
+        credentials: model.credentials ? this.toCredentialsJson(model.credentials) : null
+      })),
+      page
+    }
+  }
+
+  async findWithCredentialsById(clientId: string, connectionId: string): Promise<ConnectionWithCredentials> {
+    const model = await this.prismaService.providerConnection.findUnique({
+      where: { clientId, id: connectionId }
+    })
+
+    if (model) {
+      return {
+        ...ConnectionRepository.parseModel(model),
+        credentials: model.credentials ? this.toCredentialsJson(model.credentials) : null
+      }
+    }
+
+    throw new NotFoundException({ context: { clientId, connectionId } })
+  }
+
+  private toCredentialsJson(value: string) {
+    try {
+      return JSON.parse(value)
+    } catch (error) {
+      throw new ConnectionInvalidCredentialsException({
+        message: `Invalid stored connection credential JSON`,
+        suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        origin: error
+      })
+    }
   }
 }

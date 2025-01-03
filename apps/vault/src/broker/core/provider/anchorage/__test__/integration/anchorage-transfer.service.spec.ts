@@ -19,8 +19,9 @@ import { KnownDestinationRepository } from '../../../../../persistence/repositor
 import { TransferRepository } from '../../../../../persistence/repository/transfer.repository'
 import { WalletRepository } from '../../../../../persistence/repository/wallet.repository'
 import { setupMockServer, useRequestSpy } from '../../../../../shared/__test__/mock-server'
-import { ActiveConnectionWithCredentials, ConnectionStatus, Provider } from '../../../../type/connection.type'
+import { Connection, ConnectionStatus, ConnectionWithCredentials } from '../../../../type/connection.type'
 import { Account, Address, KnownDestination, Wallet } from '../../../../type/indexed-resources.type'
+import { Provider } from '../../../../type/provider.type'
 import {
   InternalTransfer,
   NetworkFeeAttribution,
@@ -62,7 +63,7 @@ describe(AnchorageTransferService.name, () => {
     d: 'evo-fY2BX60V1n3Z690LadH5BvizcM9bESaYk0LsxyQ'
   }
 
-  const connection: ActiveConnectionWithCredentials = {
+  const connection: ConnectionWithCredentials = {
     clientId,
     connectionId: uuid(),
     createdAt: new Date(),
@@ -116,7 +117,7 @@ describe(AnchorageTransferService.name, () => {
 
   const wallet: Wallet = {
     clientId,
-    connections: [connection],
+    connections: [Connection.parse(connection)],
     createdAt: new Date(),
     externalId: uuid(),
     label: null,

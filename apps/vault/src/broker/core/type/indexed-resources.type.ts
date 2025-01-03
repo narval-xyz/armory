@@ -1,10 +1,11 @@
 import { z } from 'zod'
-import { BaseConnection, Provider, PublicConnection } from './connection.type'
+import { Connection } from './connection.type'
+import { Provider } from './provider.type'
 
 export const KnownDestination = z.object({
   knownDestinationId: z.string(),
   clientId: z.string(),
-  connections: z.array(BaseConnection),
+  connections: z.array(Connection),
   provider: z.nativeEnum(Provider),
   label: z.string().nullable().optional(),
   externalId: z.string(),
@@ -46,7 +47,7 @@ export type Account = z.infer<typeof Account>
 export const Wallet = z.object({
   accounts: z.array(Account).optional(),
   clientId: z.string(),
-  connections: z.array(BaseConnection),
+  connections: z.array(Connection),
   createdAt: z.date(),
   externalId: z.string(),
   label: z.string().nullable().optional(),
@@ -64,8 +65,3 @@ export const UpdateWallet = Wallet.pick({
   updatedAt: true
 })
 export type UpdateWallet = z.infer<typeof UpdateWallet>
-
-export const PublicWallet = Wallet.extend({
-  connections: z.array(PublicConnection)
-})
-export type PublicWallet = z.infer<typeof PublicWallet>

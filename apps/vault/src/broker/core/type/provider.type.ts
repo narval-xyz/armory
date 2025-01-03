@@ -2,9 +2,19 @@
 
 import { HttpStatus } from '@nestjs/common'
 import { UpdateAccount } from '../../persistence/repository/account.repository'
-import { ActiveConnectionWithCredentials } from './connection.type'
+import { ConnectionWithCredentials } from './connection.type'
 import { Account, Address, KnownDestination, UpdateWallet, Wallet } from './indexed-resources.type'
 import { InternalTransfer, SendTransfer, Transfer } from './transfer.type'
+
+export const Provider = {
+  ANCHORAGE: 'anchorage',
+  FIREBLOCKS: 'fireblocks'
+} as const
+export type Provider = (typeof Provider)[keyof typeof Provider]
+
+//
+// Sync
+//
 
 export const SyncOperationType = {
   CREATE: 'create',
@@ -83,7 +93,7 @@ export type SyncContext = {
   /**
    * The active connection with credentials used for synchronization.
    */
-  connection: ActiveConnectionWithCredentials
+  connection: ConnectionWithCredentials
 
   /**
    * A map of wallet synchronization operations, keyed by wallet external ID.
@@ -136,7 +146,7 @@ export interface ProviderSyncService {
    * the sync operations for wallets, accounts, addresses, and known
    * destinations.
    */
-  sync(connection: ActiveConnectionWithCredentials): Promise<SyncResult>
+  sync(connection: ConnectionWithCredentials): Promise<SyncResult>
 
   /**
    * Synchronizes wallet data within the provided context and returns an
@@ -183,6 +193,10 @@ export interface ProviderSyncService {
   syncKnownDestinations(context: SyncContext): Promise<SyncContext>
 }
 
+//
+// Transfer
+//
+
 export interface ProviderTransferService {
   /**
    * Finds a transfer by its ID.
@@ -193,7 +207,7 @@ export interface ProviderTransferService {
    *
    * @returns A promise that resolves to the transfer object if found.
    */
-  findById(connection: ActiveConnectionWithCredentials, transferId: string): Promise<Transfer>
+  findById(connection: ConnectionWithCredentials, transferId: string): Promise<Transfer>
 
   /**
    * Sends a transfer using the provided active connection and transfer
@@ -206,8 +220,12 @@ export interface ProviderTransferService {
    * @returns A promise that resolves to the internal transfer object after the
    * transfer is successfully sent.
    */
-  send(connection: ActiveConnectionWithCredentials, sendTransfer: SendTransfer): Promise<InternalTransfer>
+  send(connection: ConnectionWithCredentials, sendTransfer: SendTransfer): Promise<InternalTransfer>
 }
+
+//
+// Proxy
+//
 
 /**
  * Options for making a proxy request, including connection ID, request data,
@@ -243,5 +261,53 @@ export interface ProviderProxyService {
    * @returns A promise that resolves to the proxy response, containing the
    * response data, HTTP status code, and headers.
    */
-  forward(connection: ActiveConnectionWithCredentials, options: ProxyRequestOptions): Promise<ProxyResponse>
+  forward(connection: ConnectionWithCredentials, options: ProxyRequestOptions): Promise<ProxyResponse>
+}
+
+//
+// Credential
+//
+
+/**
+ * Defines methods for managing credentials in various formats. This includes
+ * handling credentials used during data operations, typically in JSON Web Key
+ * (JWK) format, and credentials in transit, which may be represented as
+ * strings of private keys.
+ */
+export interface ProviderCredentialService<InputCredentials, Credentials> {
+  /**
+   * Parses a value into the final form of credentials used within the
+   * repository or service.
+   *
+   * @param value - The value to be parsed into credentials.
+   * @returns The parsed credentials.
+   */
+  parse(value: unknown): Credentials
+
+  /**
+   * Parses input credentials, ensuring the correct format of string
+   * representations for private keys when necessary.
+   *
+   * @param value - The input value to be parsed into input credentials.
+   * @returns The parsed input credentials.
+   */
+  parseInput(value: unknown): InputCredentials
+
+  /**
+   * Builds the final form of credentials from input credentials, validating
+   * and converting them from hexadecimal to JSON Web Key (JWK) format.
+   *
+   * @param input - The input credentials to be converted.
+   * @returns A promise that resolves to the final form of credentials.
+   */
+  build(input: InputCredentials): Promise<Credentials>
+
+  /**
+   * Generates signing keys for credential operations.
+   *
+   * @param options - Provider-specific configuration options for key
+   * generation.
+   * @returns A promise that resolves to the generated credentials.
+   */
+  generate<Options extends Record<string, unknown>>(options?: Options): Promise<Credentials>
 }

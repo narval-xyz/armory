@@ -4,10 +4,13 @@ import { hexSchema } from '@narval/policy-engine-shared'
 import {
   Alg,
   Ed25519PrivateKey,
+  Hex,
+  SMALLEST_RSA_MODULUS_LENGTH,
   ed25519PublicKeySchema,
   generateJwk,
   getPublicKey,
   privateKeyToHex,
+  privateKeyToJwk,
   rsaEncrypt,
   rsaPublicKeySchema
 } from '@narval/signature'
@@ -18,7 +21,6 @@ import { MockProxy, mock } from 'jest-mock-extended'
 import { times } from 'lodash'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
-import { ZodSchema } from 'zod'
 import { ClientService } from '../../../client/core/service/client.service'
 import { MainModule } from '../../../main.module'
 import { ProvisionService } from '../../../provision.service'
@@ -27,15 +29,12 @@ import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/per
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
 import { EncryptionKeyService } from '../../../transit-encryption/core/service/encryption-key.service'
+import { AnchorageCredentialService } from '../../core/provider/anchorage/anchorage-credential.service'
 import { ConnectionService } from '../../core/service/connection.service'
 import { SyncService } from '../../core/service/sync.service'
-import {
-  ActiveConnectionWithCredentials,
-  ConnectionStatus,
-  Provider,
-  isActiveConnection,
-  isRevokedConnection
-} from '../../core/type/connection.type'
+import { ConnectionStatus } from '../../core/type/connection.type'
+import { Provider } from '../../core/type/provider.type'
+import '../../shared/__test__/matcher'
 import { ConnectionActivatedEvent } from '../../shared/event/connection-activated.event'
 import { getExpectedAccount, getExpectedWallet } from '../util/map-db-to-returned'
 import {
@@ -47,24 +46,6 @@ import {
   testClient,
   testUserPrivateJwk
 } from '../util/mock-data'
-
-const toMatchZodSchema = (received: unknown, schema: ZodSchema): void => {
-  const parse = schema.safeParse(received)
-
-  if (parse.success) {
-    return
-  }
-
-  const message = [
-    'Expected value to match schema:',
-    'Received:',
-    `${JSON.stringify(received, null, 2)}`,
-    'Validation errors:',
-    parse.error.errors.map((err) => `- ${err.message}`).join('\n')
-  ].join('\n')
-
-  throw new Error(message)
-}
 
 describe('Connection', () => {
   let app: INestApplication
@@ -112,11 +93,11 @@ describe('Connection', () => {
 
     app = module.createNestApplication()
 
-    testPrismaService = module.get(TestPrismaService)
+    clientService = module.get(ClientService)
     connectionService = module.get(ConnectionService)
     encryptionKeyService = module.get(EncryptionKeyService)
-    provisionService = module.get<ProvisionService>(ProvisionService)
-    clientService = module.get<ClientService>(ClientService)
+    provisionService = module.get(ProvisionService)
+    testPrismaService = module.get(TestPrismaService)
 
     await testPrismaService.truncateAll()
   })
@@ -159,11 +140,13 @@ describe('Connection', () => {
 
       const { data } = body
 
-      expect(data).toMatchObject({
-        clientId,
-        connectionId: connection.connectionId,
-        provider: connection.provider,
-        status: ConnectionStatus.PENDING
+      expect(body).toMatchObject({
+        data: {
+          clientId,
+          connectionId: connection.connectionId,
+          provider: connection.provider,
+          status: ConnectionStatus.PENDING
+        }
       })
 
       // Ensure it doesn't leak the private key.
@@ -172,10 +155,10 @@ describe('Connection', () => {
 
       // Ensure it doesn't leak a private key as JWK by including the `d`
       // property.
-      toMatchZodSchema(data.publicKey.jwk, ed25519PublicKeySchema)
-      toMatchZodSchema(data.encryptionPublicKey.jwk, rsaPublicKeySchema)
+      expect(data.publicKey.jwk).toMatchZodSchema(ed25519PublicKeySchema)
+      expect(data.encryptionPublicKey.jwk).toMatchZodSchema(rsaPublicKeySchema)
 
-      toMatchZodSchema(data.publicKey.hex, hexSchema)
+      expect(data.publicKey.hex).toMatchZodSchema(hexSchema)
 
       expect(data.publicKey.keyId).toEqual(expect.any(String))
       expect(data.encryptionPublicKey.keyId).toEqual(expect.any(String))
@@ -214,11 +197,14 @@ describe('Connection', () => {
         )
         .send(connection)
 
-      const createdConnection = await connectionService.findById(clientId, connection.connectionId, true)
+      const createdConnectionWithCredentials = await connectionService.findWithCredentialsById(
+        clientId,
+        connection.connectionId
+      )
 
       expect(eventEmitterMock.emit).toHaveBeenCalledWith(
         ConnectionActivatedEvent.EVENT_NAME,
-        new ConnectionActivatedEvent(createdConnection as ActiveConnectionWithCredentials)
+        new ConnectionActivatedEvent(createdConnectionWithCredentials)
       )
     })
 
@@ -250,28 +236,26 @@ describe('Connection', () => {
         )
         .send(connection)
 
-      const createdConnection = await connectionService.findById(clientId, connection.connectionId, true)
+      const createdConnection = await connectionService.findById(clientId, connection.connectionId)
+      const createdCredentials = await connectionService.findCredentials(createdConnection)
 
-      expect(body.data).toEqual({
-        clientId,
-        connectionId,
-        url,
-        createdAt: expect.any(String),
-        label: connection.label,
-        provider: connection.provider,
-        status: ConnectionStatus.ACTIVE,
-        updatedAt: expect.any(String)
+      expect(body).toEqual({
+        data: {
+          clientId,
+          connectionId,
+          url,
+          createdAt: expect.any(String),
+          label: connection.label,
+          provider: connection.provider,
+          status: ConnectionStatus.ACTIVE,
+          updatedAt: expect.any(String)
+        }
       })
 
       expect(status).toEqual(HttpStatus.CREATED)
 
       expect(createdConnection).toMatchObject({
         clientId,
-        credentials: {
-          apiKey: connection.credentials.apiKey,
-          privateKey,
-          publicKey: getPublicKey(privateKey as Ed25519PrivateKey)
-        },
         createdAt: expect.any(Date),
         connectionId,
         label: connection.label,
@@ -279,6 +263,12 @@ describe('Connection', () => {
         status: ConnectionStatus.ACTIVE,
         updatedAt: expect.any(Date),
         url: connection.url
+      })
+
+      expect(createdCredentials).toEqual({
+        apiKey: connection.credentials.apiKey,
+        privateKey,
+        publicKey: getPublicKey(privateKey as Ed25519PrivateKey)
       })
     })
 
@@ -300,6 +290,7 @@ describe('Connection', () => {
           })
         )
         .send({ connectionId, provider })
+        .expect(HttpStatus.CREATED)
 
       await request(app.getHttpServer())
         .post('/provider/connections')
@@ -325,12 +316,13 @@ describe('Connection', () => {
           provider,
           url
         })
+        .expect(HttpStatus.CREATED)
 
-      const createdConnection = await connectionService.findById(clientId, connectionId, true)
+      const createdConnectionWithCredentials = await connectionService.findWithCredentialsById(clientId, connectionId)
 
       expect(eventEmitterMock.emit).toHaveBeenCalledWith(
-        'connection.activated',
-        new ConnectionActivatedEvent(createdConnection as ActiveConnectionWithCredentials)
+        ConnectionActivatedEvent.EVENT_NAME,
+        new ConnectionActivatedEvent(createdConnectionWithCredentials)
       )
     })
 
@@ -378,19 +370,22 @@ describe('Connection', () => {
           url
         })
 
-      expect(body.data).toEqual({
-        clientId,
-        connectionId,
-        label,
-        provider,
-        url,
-        createdAt: expect.any(String),
-        status: ConnectionStatus.ACTIVE,
-        updatedAt: expect.any(String)
+      const createdConnection = await connectionService.findById(clientId, connectionId)
+      const createdCredentials = await connectionService.findCredentials(createdConnection)
+
+      expect(body).toEqual({
+        data: {
+          clientId,
+          connectionId,
+          label,
+          provider,
+          url,
+          createdAt: expect.any(String),
+          status: ConnectionStatus.ACTIVE,
+          updatedAt: expect.any(String)
+        }
       })
       expect(status).toEqual(HttpStatus.CREATED)
-
-      const createdConnection = await connectionService.findById(clientId, connectionId, true)
 
       expect(createdConnection).toMatchObject({
         clientId,
@@ -403,14 +398,10 @@ describe('Connection', () => {
         updatedAt: expect.any(Date)
       })
 
-      if (isActiveConnection(createdConnection)) {
-        expect(createdConnection.credentials).toMatchObject({
-          apiKey: credentials.apiKey,
-          publicKey: pendingConnection.data.publicKey.jwk
-        })
-      } else {
-        fail('expected an active connection')
-      }
+      expect(createdCredentials).toMatchObject({
+        apiKey: credentials.apiKey,
+        publicKey: pendingConnection.data.publicKey.jwk
+      })
     })
 
     it('activates an anchorage pending connection with encrypted credentials', async () => {
@@ -464,19 +455,22 @@ describe('Connection', () => {
           encryptedCredentials
         })
 
-      expect(body.data).toEqual({
-        clientId,
-        connectionId,
-        label,
-        provider,
-        url,
-        createdAt: expect.any(String),
-        status: ConnectionStatus.ACTIVE,
-        updatedAt: expect.any(String)
+      expect(body).toEqual({
+        data: {
+          clientId,
+          connectionId,
+          label,
+          provider,
+          url,
+          createdAt: expect.any(String),
+          status: ConnectionStatus.ACTIVE,
+          updatedAt: expect.any(String)
+        }
       })
       expect(status).toEqual(HttpStatus.CREATED)
 
-      const createdConnection = await connectionService.findById(clientId, connectionId, true)
+      const createdConnection = await connectionService.findById(clientId, connectionId)
+      const createdCredentials = await connectionService.findCredentials(createdConnection)
 
       expect(createdConnection).toMatchObject({
         clientId,
@@ -489,25 +483,20 @@ describe('Connection', () => {
         updatedAt: expect.any(Date)
       })
 
-      if (isActiveConnection(createdConnection)) {
-        expect(createdConnection.credentials).toMatchObject({
-          apiKey: credentials.apiKey,
-          publicKey: pendingConnection.data.publicKey.jwk
-        })
-      } else {
-        fail('expected an active connection')
-      }
+      expect(createdCredentials).toMatchObject({
+        apiKey: credentials.apiKey,
+        publicKey: pendingConnection.data.publicKey.jwk
+      })
     })
 
-    it('overrides the existing connection privateKey when providing a new one on pending connection activation', async () => {
-      expect.assertions(6)
-
+    it('overrides the existing connection private key when providing a new one on pending connection activation', async () => {
       const connectionId = uuid()
       const provider = Provider.ANCHORAGE
       const label = 'Test Anchorage Connection'
       const credentials = {
         apiKey: 'test-api-key',
-        privateKey: '0x9ead9e0c93e9f4d02a09d4d3fdd35eac82452717a04ca98580302c16485b2480' // Adding private key to test override
+        // Adding private key to test override
+        privateKey: '0x9ead9e0c93e9f4d02a09d4d3fdd35eac82452717a04ca98580302c16485b2480'
       }
 
       // First create a pending connection
@@ -556,21 +545,23 @@ describe('Connection', () => {
           encryptedCredentials
         })
 
-      // Verify the response structure
-      expect(body.data).toEqual({
-        clientId,
-        connectionId,
-        label,
-        provider,
-        url,
-        createdAt: expect.any(String),
-        status: ConnectionStatus.ACTIVE,
-        updatedAt: expect.any(String)
+      expect(body).toEqual({
+        data: {
+          clientId,
+          connectionId,
+          label,
+          provider,
+          url,
+          createdAt: expect.any(String),
+          status: ConnectionStatus.ACTIVE,
+          updatedAt: expect.any(String)
+        }
       })
+
       expect(status).toEqual(HttpStatus.CREATED)
 
-      // Verify the created connection in the database
-      const createdConnection = await connectionService.findById(clientId, connectionId, true)
+      const createdConnection = await connectionService.findById(clientId, connectionId)
+      const createdCredential = await connectionService.findCredentials(createdConnection)
 
       expect(createdConnection).toMatchObject({
         clientId,
@@ -583,15 +574,10 @@ describe('Connection', () => {
         updatedAt: expect.any(Date)
       })
 
-      if (isActiveConnection(createdConnection)) {
-        // Verify the private key was actually changed
-        expect(createdConnection.credentials.privateKey.d).not.toEqual(pendingConnection.data.privateKey?.d)
-        expect(createdConnection.credentials.publicKey.x).not.toEqual(pendingConnection.data.publicKey?.x)
-        const createdHex = await privateKeyToHex(createdConnection.credentials.privateKey)
-        expect(createdHex).toEqual(credentials.privateKey)
-      } else {
-        fail('expected an active connection')
-      }
+      const givenPrivateKey = privateKeyToJwk(credentials.privateKey as Hex, AnchorageCredentialService.SIGNING_KEY_ALG)
+
+      expect(createdCredential?.publicKey).toEqual(getPublicKey(givenPrivateKey))
+      expect(createdCredential?.privateKey).toEqual(givenPrivateKey)
     })
   })
 
@@ -624,14 +610,12 @@ describe('Connection', () => {
 
       expect(status).toEqual(HttpStatus.NO_CONTENT)
 
-      const updatedConnection = await connectionService.findById(clientId, connection.connectionId, true)
+      const updatedConnection = await connectionService.findById(clientId, connection.connectionId)
+      const credentials = await connectionService.findCredentials(connection)
 
-      if (isRevokedConnection(updatedConnection)) {
-        expect(updatedConnection.credentials).toEqual(null)
-        expect(updatedConnection.revokedAt).toEqual(expect.any(Date))
-      } else {
-        fail('expected a revoked connection')
-      }
+      expect(updatedConnection.revokedAt).toEqual(expect.any(Date))
+      expect(updatedConnection.status).toEqual(ConnectionStatus.REVOKED)
+      expect(credentials).toEqual(null)
     })
   })
 
@@ -807,7 +791,9 @@ describe('Connection', () => {
         apiKey: 'new-api-key',
         privateKey: await privateKeyToHex(newPrivateKey)
       }
-      const encryptionKey = await encryptionKeyService.generate(clientId, { modulusLength: 2048 })
+      const encryptionKey = await encryptionKeyService.generate(clientId, {
+        modulusLength: SMALLEST_RSA_MODULUS_LENGTH
+      })
       const encryptedCredentials = await rsaEncrypt(JSON.stringify(newCredentials), encryptionKey.publicKey)
 
       const { status, body } = await request(app.getHttpServer())
@@ -830,16 +816,22 @@ describe('Connection', () => {
           encryptedCredentials
         })
 
-      expect(body.data).toMatchObject({ label: 'new label' })
+      expect(body).toMatchObject({
+        data: expect.objectContaining({
+          label: 'new label'
+        })
+      })
+
       expect(body.data).not.toHaveProperty('credentials')
 
       expect(status).toEqual(HttpStatus.OK)
 
-      const updatedConnection = await connectionService.findById(clientId, connection.connectionId, true)
+      const updatedConnection = await connectionService.findById(clientId, connection.connectionId)
+      const updatedCredentials = await connectionService.findCredentials(updatedConnection)
 
-      expect(updatedConnection.credentials?.apiKey).toEqual(newCredentials.apiKey)
-      expect(updatedConnection.credentials?.privateKey).toEqual(newPrivateKey)
-      expect(updatedConnection.credentials?.publicKey).toEqual(getPublicKey(newPrivateKey as Ed25519PrivateKey))
+      expect(updatedCredentials?.apiKey).toEqual(newCredentials.apiKey)
+      expect(updatedCredentials?.privateKey).toEqual(newPrivateKey)
+      expect(updatedCredentials?.publicKey).toEqual(getPublicKey(newPrivateKey as Ed25519PrivateKey))
     })
   })
 
@@ -861,11 +853,11 @@ describe('Connection', () => {
         )
         .send()
 
-      expect(status).toEqual(HttpStatus.OK)
       expect(body).toMatchObject({
         data: [getExpectedWallet(TEST_WALLETS[0])],
         page: {}
       })
+      expect(status).toEqual(HttpStatus.OK)
     })
 
     it('returns empty array when connection has no wallets', async () => {
@@ -896,11 +888,11 @@ describe('Connection', () => {
         )
         .send()
 
-      expect(status).toEqual(HttpStatus.OK)
       expect(body).toMatchObject({
         data: [],
         page: {}
       })
+      expect(status).toEqual(HttpStatus.OK)
     })
   })
 
@@ -931,11 +923,11 @@ describe('Connection', () => {
         )
         .send()
 
-      expect(status).toEqual(HttpStatus.OK)
       expect(body).toMatchObject({
         data: accountsForConnection.map(getExpectedAccount).reverse(),
         page: {}
       })
+      expect(status).toEqual(HttpStatus.OK)
     })
 
     it('returns empty array when connection has no accounts', async () => {
@@ -967,11 +959,11 @@ describe('Connection', () => {
         )
         .send()
 
-      expect(status).toEqual(HttpStatus.OK)
       expect(body).toMatchObject({
         data: [],
         page: {}
       })
+      expect(status).toEqual(HttpStatus.OK)
     })
   })
 })

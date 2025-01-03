@@ -17,8 +17,9 @@ import { TestPrismaService } from '../../../shared/module/persistence/service/te
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
 import postAnchorageTransferBadRequest from '../../core/provider/anchorage/__test__/server-mock/response/post-transfer-400.json'
 import { ANCHORAGE_TEST_API_BASE_URL, getHandlers } from '../../core/provider/anchorage/__test__/server-mock/server'
-import { ActiveConnectionWithCredentials, ConnectionStatus, Provider } from '../../core/type/connection.type'
+import { Connection, ConnectionStatus, ConnectionWithCredentials } from '../../core/type/connection.type'
 import { Account, Wallet } from '../../core/type/indexed-resources.type'
+import { Provider } from '../../core/type/provider.type'
 import {
   InternalTransfer,
   NetworkFeeAttribution,
@@ -61,7 +62,7 @@ describe('Transfer', () => {
     d: 'evo-fY2BX60V1n3Z690LadH5BvizcM9bESaYk0LsxyQ'
   }
 
-  const connection: ActiveConnectionWithCredentials = {
+  const connection: ConnectionWithCredentials = {
     clientId,
     connectionId: uuid(),
     createdAt: new Date(),
@@ -104,7 +105,7 @@ describe('Transfer', () => {
 
   const wallet: Wallet = {
     clientId,
-    connections: [connection],
+    connections: [Connection.parse(connection)],
     createdAt: new Date(),
     externalId: uuid(),
     label: null,
@@ -159,8 +160,8 @@ describe('Transfer', () => {
     app = module.createNestApplication()
 
     testPrismaService = module.get(TestPrismaService)
-    provisionService = module.get<ProvisionService>(ProvisionService)
-    clientService = module.get<ClientService>(ClientService)
+    provisionService = module.get(ProvisionService)
+    clientService = module.get(ClientService)
 
     transferRepository = module.get(TransferRepository)
     connectionRepository = module.get(ConnectionRepository)

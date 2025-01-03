@@ -1,11 +1,11 @@
 import { Page } from '@narval/nestjs-shared'
 import { createZodDto } from 'nestjs-zod'
 import { z } from 'zod'
-import { BaseConnection } from '../../../../core/type/connection.type'
+import { Connection } from '../../../../core/type/connection.type'
 
 export class PaginatedConnectionsDto extends createZodDto(
   z.object({
-    data: z.array(BaseConnection),
+    data: z.array(Connection),
     page: Page
   })
 ) {}

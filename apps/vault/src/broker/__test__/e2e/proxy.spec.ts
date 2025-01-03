@@ -16,7 +16,7 @@ import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/per
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
 import { ConnectionService } from '../../core/service/connection.service'
-import { Provider } from '../../core/type/connection.type'
+import { Provider } from '../../core/type/provider.type'
 import { getJwsd, testClient, testUserPrivateJwk } from '../util/mock-data'
 
 describe('Proxy', () => {
@@ -51,10 +51,11 @@ describe('Proxy', () => {
 
     app = module.createNestApplication()
     testPrismaService = module.get(TestPrismaService)
-    provisionService = module.get<ProvisionService>(ProvisionService)
-    clientService = module.get<ClientService>(ClientService)
-    await testPrismaService.truncateAll()
+    provisionService = module.get(ProvisionService)
+    clientService = module.get(ClientService)
     connectionService = module.get(ConnectionService)
+
+    await testPrismaService.truncateAll()
   })
 
   afterAll(async () => {

@@ -22,7 +22,7 @@ import { ZodType, z } from 'zod'
 import { BrokerException } from '../../core/exception/broker.exception'
 import { ProviderHttpException } from '../../core/exception/provider-http.exception'
 import { UrlParserException } from '../../core/exception/url-parser.exception'
-import { Provider } from '../../core/type/connection.type'
+import { Provider } from '../../core/type/provider.type'
 
 //
 // Response Schema

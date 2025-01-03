@@ -1,26 +1,23 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { ProviderAccount, ProviderAddress, ProviderConnection, ProviderWallet } from '@prisma/client/vault'
-import { PublicConnection } from '../../core/type/connection.type'
+import { ConnectionRepository } from '../../persistence/repository/connection.repository'
 import { TEST_ACCOUNTS, TEST_ADDRESSES, TEST_CONNECTIONS, TEST_WALLET_CONNECTIONS } from './mock-data'
 
 // Helper function to get expected connection format for API response
-export const getExpectedConnection = (connection: ProviderConnection): PublicConnection => {
-  const {
-    credentials,
-    revokedAt,
-    clientId,
-    createdAt,
-    updatedAt,
-    url,
-    integrity,
-    id,
-    ...connectionWithoutPrivateData
-  } = connection
-  return PublicConnection.parse({
-    ...connectionWithoutPrivateData,
-    connectionId: connection.id
-  })
+export const getExpectedConnection = (model: ProviderConnection) => {
+  const entity = ConnectionRepository.parseModel(model)
+
+  return {
+    clientId: entity.clientId,
+    connectionId: entity.connectionId,
+    createdAt: entity.createdAt.toISOString(),
+    label: entity.label,
+    provider: entity.provider,
+    status: entity.status,
+    updatedAt: entity.updatedAt.toISOString(),
+    url: entity.url
+  }
 }
 
 // Helper function to get expected address format
@@ -43,8 +40,8 @@ export const getExpectedAccount = (account: ProviderAccount) => {
     walletId,
     accountId: account.id,
     addresses: addresses.map(getExpectedAddress),
-    createdAt: new Date(account.createdAt).toISOString(),
-    updatedAt: new Date(account.updatedAt).toISOString()
+    createdAt: account.createdAt.toISOString(),
+    updatedAt: account.updatedAt.toISOString()
   }
 }
 
@@ -66,7 +63,7 @@ export const getExpectedWallet = (wallet: ProviderWallet) => {
     walletId: wallet.id,
     accounts: accounts.map(getExpectedAccount),
     connections: connections.map(getExpectedConnection),
-    createdAt: new Date(wallet.createdAt).toISOString(),
-    updatedAt: new Date(wallet.updatedAt).toISOString()
+    createdAt: wallet.createdAt.toISOString(),
+    updatedAt: wallet.updatedAt.toISOString()
   }
 }

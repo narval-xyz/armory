@@ -1,4 +1,4 @@
-import { ActiveConnectionWithCredentials } from '../../core/type/connection.type'
+import { ConnectionWithCredentials } from '../../core/type/connection.type'
 import { Sync } from '../../core/type/sync.type'
 
 export class SyncStartedEvent {
@@ -6,6 +6,6 @@ export class SyncStartedEvent {
 
   constructor(
     public readonly sync: Sync,
-    public readonly connection: ActiveConnectionWithCredentials
+    public readonly connection: ConnectionWithCredentials
   ) {}
 }

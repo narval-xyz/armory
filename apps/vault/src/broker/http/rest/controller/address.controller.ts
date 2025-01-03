@@ -14,7 +14,7 @@ import { ProviderAddressDto } from '../dto/response/provider-address.dto'
 })
 @ApiClientIdHeader()
 @ApiTags('Provider Address')
-export class AddressController {
+export class ProviderAddressController {
   constructor(private readonly addressService: AddressService) {}
 
   @Get()

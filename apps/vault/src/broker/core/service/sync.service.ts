@@ -9,8 +9,9 @@ import { FindAllOptions, SyncRepository } from '../../persistence/repository/syn
 import { OTEL_ATTR_CONNECTION_ID, OTEL_ATTR_CONNECTION_PROVIDER, OTEL_ATTR_SYNC_ID } from '../../shared/constant'
 import { SyncStartedEvent } from '../../shared/event/sync-started.event'
 import { AnchorageSyncService } from '../provider/anchorage/anchorage-sync.service'
-import { ActiveConnectionWithCredentials, Provider } from '../type/connection.type'
+import { ConnectionWithCredentials } from '../type/connection.type'
 import {
+  Provider,
   ProviderSyncService,
   SyncResult,
   isCreateOperation,
@@ -38,7 +39,7 @@ export class SyncService {
     @Inject(TraceService) private readonly traceService: TraceService
   ) {}
 
-  async start(connections: ActiveConnectionWithCredentials[]): Promise<SyncStarted> {
+  async start(connections: ConnectionWithCredentials[]): Promise<SyncStarted> {
     this.logger.log('Start connections sync', {
       connectionsCount: connections.length,
       connectionIds: connections.map((connectionId) => connectionId)
@@ -75,16 +76,17 @@ export class SyncService {
     return { started: false, syncs: [] }
   }
 
-  async sync(sync: Sync, connection: ActiveConnectionWithCredentials): Promise<Sync> {
+  async sync(sync: Sync, connection: ConnectionWithCredentials): Promise<Sync> {
     const { clientId, syncId } = sync
     const { provider, connectionId } = connection
-
-    this.logger.log('Sync connection', {
+    const context = {
       clientId,
       syncId,
       connectionId,
       provider
-    })
+    }
+
+    this.logger.log('Sync connection', context)
 
     const span = this.traceService.startSpan(`${SyncService.name}.sync`, {
       attributes: {
@@ -94,14 +96,30 @@ export class SyncService {
       }
     })
 
-    const result = await this.getProviderSyncService(connection.provider).sync(connection)
+    let result: SyncResult | null = null
 
-    // The execute method has its own span.
-    span.end()
+    // Ensure the sync status is updated on failures. The `execute` method is
+    // not wrapped in the try/catch block because it already handles errors
+    // internally.
+    try {
+      result = await this.getProviderSyncService(connection.provider).sync(connection)
+    } catch (error) {
+      this.logger.error('Sync connection failed', { ...context, error })
 
-    const updatedSync = await this.execute(sync, result)
+      span.recordException(error)
+      span.setStatus({ code: SpanStatusCode.ERROR })
 
-    return updatedSync
+      return await this.fail(sync, error)
+    } finally {
+      // The execute method has its own span.
+      span.end()
+    }
+
+    if (result) {
+      return await this.execute(sync, result)
+    }
+
+    return sync
   }
 
   private toProcessingSync(input: StartSync & { connectionId: string; createdAt?: Date; syncId?: string }): Sync {
