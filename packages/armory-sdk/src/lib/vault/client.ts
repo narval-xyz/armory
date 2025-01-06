@@ -1,6 +1,6 @@
 import { AccessToken, Request, SerializedSignableRequest } from '@narval/policy-engine-shared'
 import { RsaPublicKey, rsaEncrypt } from '@narval/signature'
-import axios from 'axios'
+import axios, { AxiosResponse } from 'axios'
 import {
   AccountApiFactory,
   AccountDto,
@@ -710,15 +710,16 @@ export class VaultClient {
   }: {
     data: ProviderProxyApiDeleteRequest
     accessToken?: AccessToken
-  }): Promise<void> {
+  }): Promise<AxiosResponse> {
     const token = accessToken ? prefixGnapToken(accessToken) : undefined
 
-    await this.providerProxyHttp._delete({
+    const ret = await this.providerProxyHttp._delete({
       xClientId: this.config.clientId,
       authorization: token,
       endpoint: data.endpoint,
       xConnectionId: data.xConnectionId
     })
+    return ret
   }
 
   async proxyOptions({
@@ -727,15 +728,16 @@ export class VaultClient {
   }: {
     data: ProviderProxyApiOptionsRequest
     accessToken?: AccessToken
-  }): Promise<void> {
+  }): Promise<AxiosResponse> {
     const token = accessToken ? prefixGnapToken(accessToken) : undefined
 
-    await this.providerProxyHttp._options({
+    const ret = await this.providerProxyHttp._options({
       xClientId: this.config.clientId,
       authorization: token,
       endpoint: data.endpoint,
       xConnectionId: data.xConnectionId
     })
+    return ret
   }
 
   async proxyGet({
@@ -744,15 +746,16 @@ export class VaultClient {
   }: {
     data: ProviderProxyApiGetRequest
     accessToken?: AccessToken
-  }): Promise<void> {
+  }): Promise<AxiosResponse> {
     const token = accessToken ? prefixGnapToken(accessToken) : undefined
 
-    await this.providerProxyHttp.get({
+    const ret = await this.providerProxyHttp.get({
       xClientId: this.config.clientId,
       authorization: token,
       endpoint: data.endpoint,
       xConnectionId: data.xConnectionId
     })
+    return ret
   }
 
   async proxyPost({
@@ -761,15 +764,16 @@ export class VaultClient {
   }: {
     data: ProviderProxyApiPostRequest
     accessToken?: AccessToken
-  }): Promise<void> {
+  }): Promise<AxiosResponse> {
     const token = accessToken ? prefixGnapToken(accessToken) : undefined
 
-    await this.providerProxyHttp.post({
+    const ret = await this.providerProxyHttp.post({
       xClientId: this.config.clientId,
       authorization: token,
       endpoint: data.endpoint,
       xConnectionId: data.xConnectionId
     })
+    return ret
   }
 
   async proxyPut({
@@ -778,15 +782,16 @@ export class VaultClient {
   }: {
     data: ProviderProxyApiPutRequest
     accessToken?: AccessToken
-  }): Promise<void> {
+  }): Promise<AxiosResponse> {
     const token = accessToken ? prefixGnapToken(accessToken) : undefined
 
-    await this.providerProxyHttp.put({
+    const ret = await this.providerProxyHttp.put({
       xClientId: this.config.clientId,
       authorization: token,
       endpoint: data.endpoint,
       xConnectionId: data.xConnectionId
     })
+    return ret
   }
 
   async proxyPatch({
@@ -795,15 +800,16 @@ export class VaultClient {
   }: {
     data: ProviderProxyApiPatchRequest
     accessToken?: AccessToken
-  }): Promise<void> {
+  }): Promise<AxiosResponse> {
     const token = accessToken ? prefixGnapToken(accessToken) : undefined
 
-    await this.providerProxyHttp.patch({
+    const ret = await this.providerProxyHttp.patch({
       xClientId: this.config.clientId,
       authorization: token,
       endpoint: data.endpoint,
       xConnectionId: data.xConnectionId
     })
+    return ret
   }
 
   async proxyHead({
@@ -812,14 +818,15 @@ export class VaultClient {
   }: {
     data: ProviderProxyApiHeadRequest
     accessToken?: AccessToken
-  }): Promise<void> {
+  }): Promise<AxiosResponse> {
     const token = accessToken ? prefixGnapToken(accessToken) : undefined
 
-    await this.providerProxyHttp.head({
+    const ret = await this.providerProxyHttp.head({
       xClientId: this.config.clientId,
       authorization: token,
       endpoint: data.endpoint,
       xConnectionId: data.xConnectionId
     })
+    return ret
   }
 }

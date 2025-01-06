@@ -234,6 +234,7 @@ export interface ProviderTransferService {
 export type ProxyRequestOptions = {
   connectionId: string
   data?: any
+  nonce?: string
   endpoint: string
   method: string
 }

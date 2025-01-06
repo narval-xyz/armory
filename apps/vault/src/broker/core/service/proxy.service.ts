@@ -1,6 +1,7 @@
 import { Injectable, NotImplementedException } from '@nestjs/common'
 import { ConnectionInvalidException } from '../exception/connection-invalid.exception'
 import { AnchorageProxyService } from '../provider/anchorage/anchorage-proxy.service'
+import { FireblocksProxyService } from '../provider/fireblocks/fireblocks-proxy.service'
 import { isActiveConnection } from '../type/connection.type'
 import { Provider, ProviderProxyService, ProxyResponse } from '../type/provider.type'
 import { ConnectionService } from './connection.service'
@@ -16,7 +17,8 @@ type ProxyRequestOptions = {
 export class ProxyService {
   constructor(
     private readonly connectionRepository: ConnectionService,
-    private readonly anchorageProxyService: AnchorageProxyService
+    private readonly anchorageProxyService: AnchorageProxyService,
+    private readonly fireblocksProxyService: FireblocksProxyService
   ) {}
 
   async forward(clientId: string, options: ProxyRequestOptions): Promise<ProxyResponse> {
@@ -45,6 +47,8 @@ export class ProxyService {
     switch (provider) {
       case Provider.ANCHORAGE:
         return this.anchorageProxyService
+      case Provider.FIREBLOCKS:
+        return this.fireblocksProxyService
       default:
         throw new NotImplementedException(`Unsupported proxy for provider ${provider}`)
     }
