@@ -17,10 +17,11 @@ import {
 import { ApiHeader, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { Request, Response } from 'express'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
-import { ConnectionId } from '../../../../shared/decorator/connection-id.decorator'
 import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
 import { VaultPermission } from '../../../../shared/type/domain.type'
 import { ProxyService } from '../../../core/service/proxy.service'
+import { REQUEST_HEADER_CONNECTION_ID } from '../../../shared/constant'
+import { ConnectionId } from '../../../shared/decorator/connection-id.decorator'
 
 const API_PARAM = ':endpoint(*)'
 
@@ -31,7 +32,7 @@ const API_OPERATION = {
 } as const
 
 const CONNECTION_HEADER = {
-  name: 'x-connection-id',
+  name: REQUEST_HEADER_CONNECTION_ID,
   required: true,
   description: 'The connection ID used to forward request to provider'
 } as const

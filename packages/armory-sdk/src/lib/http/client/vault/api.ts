@@ -7673,15 +7673,18 @@ export const ProviderTransferApiAxiosParamCreator = function (configuration?: Co
          * @summary Retrieve transfer details
          * @param {string} xClientId 
          * @param {string} transferId 
+         * @param {string} xConnectionId 
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getById: async (xClientId: string, transferId: string, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getById: async (xClientId: string, transferId: string, xConnectionId: string, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'xClientId' is not null or undefined
             assertParamExists('getById', 'xClientId', xClientId)
             // verify required parameter 'transferId' is not null or undefined
             assertParamExists('getById', 'transferId', transferId)
+            // verify required parameter 'xConnectionId' is not null or undefined
+            assertParamExists('getById', 'xConnectionId', xConnectionId)
             const localVarPath = `/v1/provider/transfers/{transferId}`
                 .replace(`{${"transferId"}}`, encodeURIComponent(String(transferId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -7704,6 +7707,10 @@ export const ProviderTransferApiAxiosParamCreator = function (configuration?: Co
                 localVarHeaderParameter['x-client-id'] = String(xClientId);
             }
 
+            if (xConnectionId != null) {
+                localVarHeaderParameter['x-connection-id'] = String(xConnectionId);
+            }
+
             if (authorization != null) {
                 localVarHeaderParameter['Authorization'] = String(authorization);
             }
@@ -7723,7 +7730,7 @@ export const ProviderTransferApiAxiosParamCreator = function (configuration?: Co
          * This endpoint sends a transfer to the source\'s provider.
          * @summary Send a transfer
          * @param {string} xClientId 
-         * @param {string} xConnectionId The connection ID used to forward request to provider
+         * @param {string} xConnectionId 
          * @param {SendTransferDto} sendTransferDto 
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
@@ -7794,12 +7801,13 @@ export const ProviderTransferApiFp = function(configuration?: Configuration) {
          * @summary Retrieve transfer details
          * @param {string} xClientId 
          * @param {string} transferId 
+         * @param {string} xConnectionId 
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getById(xClientId: string, transferId: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TransferDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getById(xClientId, transferId, authorization, options);
+        async getById(xClientId: string, transferId: string, xConnectionId: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TransferDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getById(xClientId, transferId, xConnectionId, authorization, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProviderTransferApi.getById']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -7808,7 +7816,7 @@ export const ProviderTransferApiFp = function(configuration?: Configuration) {
          * This endpoint sends a transfer to the source\'s provider.
          * @summary Send a transfer
          * @param {string} xClientId 
-         * @param {string} xConnectionId The connection ID used to forward request to provider
+         * @param {string} xConnectionId 
          * @param {SendTransferDto} sendTransferDto 
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
@@ -7838,7 +7846,7 @@ export const ProviderTransferApiFactory = function (configuration?: Configuratio
          * @throws {RequiredError}
          */
         getById(requestParameters: ProviderTransferApiGetByIdRequest, options?: RawAxiosRequestConfig): AxiosPromise<TransferDto> {
-            return localVarFp.getById(requestParameters.xClientId, requestParameters.transferId, requestParameters.authorization, options).then((request) => request(axios, basePath));
+            return localVarFp.getById(requestParameters.xClientId, requestParameters.transferId, requestParameters.xConnectionId, requestParameters.authorization, options).then((request) => request(axios, basePath));
         },
         /**
          * This endpoint sends a transfer to the source\'s provider.
@@ -7878,6 +7886,13 @@ export interface ProviderTransferApiGetByIdRequest {
      * @type {string}
      * @memberof ProviderTransferApiGetById
      */
+    readonly xConnectionId: string
+
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderTransferApiGetById
+     */
     readonly authorization?: string
 }
 
@@ -7895,7 +7910,7 @@ export interface ProviderTransferApiSendRequest {
     readonly xClientId: string
 
     /**
-     * The connection ID used to forward request to provider
+     * 
      * @type {string}
      * @memberof ProviderTransferApiSend
      */
@@ -7932,7 +7947,7 @@ export class ProviderTransferApi extends BaseAPI {
      * @memberof ProviderTransferApi
      */
     public getById(requestParameters: ProviderTransferApiGetByIdRequest, options?: RawAxiosRequestConfig) {
-        return ProviderTransferApiFp(this.configuration).getById(requestParameters.xClientId, requestParameters.transferId, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
+        return ProviderTransferApiFp(this.configuration).getById(requestParameters.xClientId, requestParameters.transferId, requestParameters.xConnectionId, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

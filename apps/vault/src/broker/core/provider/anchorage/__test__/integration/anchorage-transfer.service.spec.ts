@@ -329,8 +329,7 @@ describe(AnchorageTransferService.name, () => {
       const [spy] = useRequestSpy(mockServer)
       const sendTransfer = {
         ...requiredSendTransfer,
-        memo: 'Integration test transfer',
-        idempotenceId: uuid()
+        memo: 'Integration test transfer'
       }
 
       await anchorageTransferService.send(connection, sendTransfer)
@@ -348,8 +347,6 @@ describe(AnchorageTransferService.name, () => {
             },
             assetType: sendTransfer.assetId,
             amount: sendTransfer.amount,
-            // !!CustomerRefId is not a field in Anchorage's API.
-            // customerRefId: sendTransfer.customerRefId,
             transferMemo: sendTransfer.memo,
             idempotentId: sendTransfer.idempotenceId,
             // Default `deductFeeFromAmountIfSameType` to false.
@@ -357,6 +354,21 @@ describe(AnchorageTransferService.name, () => {
           }
         })
       )
+    })
+
+    // IMPORTANT: We never send the customerRefId to Anchorage because they
+    // have deprecated it and it seems to get transfers stuck on their side.
+    it('does not send customerRefId', async () => {
+      const [spy] = useRequestSpy(mockServer)
+      const sendTransfer = {
+        ...requiredSendTransfer,
+        customerRefId: uuid()
+      }
+
+      await anchorageTransferService.send(connection, sendTransfer)
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      expect('customerRefId' in (spy.mock.calls[0][0] as any)).toEqual(false)
     })
 
     it('handles provider specific', async () => {

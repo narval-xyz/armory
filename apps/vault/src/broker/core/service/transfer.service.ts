@@ -22,8 +22,15 @@ export class TransferService {
     @Inject(TraceService) private readonly traceService: TraceService
   ) {}
 
-  async findById(clientId: string, transferId: string): Promise<InternalTransfer> {
-    return this.transferRepository.findById(clientId, transferId)
+  async findById(clientId: string, connectionId: string, transferId: string): Promise<InternalTransfer> {
+    const span = this.traceService.startSpan(`${TransferService.name}.findById`)
+
+    const connection = await this.connectionService.findWithCredentialsById(clientId, connectionId)
+    const transfer = await this.getProviderTransferService(connection.provider).findById(connection, transferId)
+
+    span.end()
+
+    return transfer
   }
 
   async bulkCreate(transfers: InternalTransfer[]): Promise<InternalTransfer[]> {
@@ -36,20 +43,12 @@ export class TransferService {
     const span = this.traceService.startSpan(`${TransferService.name}.sync`)
 
     const source = await this.transferPartyService.resolve(clientId, sendTransfer.source)
-    const connection = await this.connectionService.findById(clientId, connectionId)
+    const connection = await this.connectionService.findWithCredentialsById(clientId, connectionId)
 
     if (isActiveConnection(connection)) {
-      const credentials = await this.connectionService.findCredentials(connection)
-
       span.setAttribute(OTEL_ATTR_CONNECTION_PROVIDER, connection.provider)
 
-      const transfer = await this.getProviderTransferService(source.provider).send(
-        {
-          ...connection,
-          credentials
-        },
-        sendTransfer
-      )
+      const transfer = await this.getProviderTransferService(source.provider).send(connection, sendTransfer)
 
       span.end()
 

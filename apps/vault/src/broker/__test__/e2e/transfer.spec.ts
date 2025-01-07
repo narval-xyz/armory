@@ -11,7 +11,6 @@ import { v4 as uuid } from 'uuid'
 import { ClientService } from '../../../client/core/service/client.service'
 import { MainModule } from '../../../main.module'
 import { ProvisionService } from '../../../provision.service'
-import { REQUEST_HEADER_CONNECTION_ID } from '../../../shared/decorator/connection-id.decorator'
 import { KeyValueRepository } from '../../../shared/module/key-value/core/repository/key-value.repository'
 import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
@@ -32,6 +31,7 @@ import { ConnectionRepository } from '../../persistence/repository/connection.re
 import { TransferRepository } from '../../persistence/repository/transfer.repository'
 import { WalletRepository } from '../../persistence/repository/wallet.repository'
 import { setupMockServer } from '../../shared/__test__/mock-server'
+import { REQUEST_HEADER_CONNECTION_ID } from '../../shared/constant'
 import { getJwsd, testClient, testUserPrivateJwk } from '../util/mock-data'
 
 const ENDPOINT = '/provider/transfers'
@@ -359,7 +359,7 @@ describe('Transfer', () => {
         id: accountTwo.accountId
       },
       externalId: uuid(),
-      grossAmount: '0.1',
+      grossAmount: '0.00001',
       idempotenceId: uuid(),
       memo: 'Test transfer',
       networkFeeAttribution: NetworkFeeAttribution.DEDUCT,
@@ -381,6 +381,7 @@ describe('Transfer', () => {
       const { status, body } = await request(app.getHttpServer())
         .get(`${ENDPOINT}/${transfer.transferId}`)
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(REQUEST_HEADER_CONNECTION_ID, connection.connectionId)
         .set(
           'detached-jws',
           await getJwsd({
@@ -395,11 +396,36 @@ describe('Transfer', () => {
       expect(body).toEqual({
         data: {
           ...transfer,
-          createdAt: transfer.createdAt.toISOString()
+          // NOTE: The status is different from `transfer` because it's coming
+          // from the Anchorage API. The `findById` merges the state we have in
+          // the database with the API's.
+          status: TransferStatus.SUCCESS,
+          createdAt: expect.any(String)
         }
       })
 
       expect(status).toEqual(HttpStatus.OK)
+    })
+
+    it('fails if connection header is missing', async () => {
+      const { body } = await request(app.getHttpServer())
+        .get(`${ENDPOINT}/${transfer.transferId}`)
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            payload: {},
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: `${ENDPOINT}/${transfer.transferId}`,
+            htm: 'GET'
+          })
+        )
+        .send()
+
+      expect(body).toMatchObject({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Missing or invalid x-connection-id header'
+      })
     })
   })
 })

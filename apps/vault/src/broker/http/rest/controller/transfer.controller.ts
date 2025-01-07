@@ -2,10 +2,11 @@ import { ApiClientIdHeader } from '@narval/nestjs-shared'
 import { Body, Controller, Get, HttpStatus, Param, Post } from '@nestjs/common'
 import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
-import { ConnectionId } from '../../../../shared/decorator/connection-id.decorator'
 import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
 import { VaultPermission } from '../../../../shared/type/domain.type'
 import { TransferService } from '../../../core/service/transfer.service'
+import { REQUEST_HEADER_CONNECTION_ID } from '../../../shared/constant'
+import { ConnectionId } from '../../../shared/decorator/connection-id.decorator'
 import { SendTransferDto } from '../dto/request/send-transfer.dto'
 import { TransferDto } from '../dto/response/transfer.dto'
 
@@ -24,15 +25,14 @@ export class TransferController {
     summary: 'Send a transfer',
     description: "This endpoint sends a transfer to the source's provider."
   })
+  @ApiHeader({
+    name: REQUEST_HEADER_CONNECTION_ID,
+    required: true
+  })
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'The transfer was successfully sent.',
     type: TransferDto
-  })
-  @ApiHeader({
-    name: 'x-connection-id',
-    required: true,
-    description: 'The connection ID used to forward request to provider'
   })
   async send(
     @ClientId() clientId: string,
@@ -55,8 +55,16 @@ export class TransferController {
     description: 'The transfer details were successfully retrieved.',
     type: TransferDto
   })
-  async getById(@ClientId() clientId: string, @Param('transferId') transferId: string) {
-    const internalTransfer = await this.transferService.findById(clientId, transferId)
+  @ApiHeader({
+    name: REQUEST_HEADER_CONNECTION_ID,
+    required: true
+  })
+  async getById(
+    @ClientId() clientId: string,
+    @ConnectionId() connectionId: string,
+    @Param('transferId') transferId: string
+  ) {
+    const internalTransfer = await this.transferService.findById(clientId, connectionId, transferId)
 
     return TransferDto.create({ data: internalTransfer })
   }

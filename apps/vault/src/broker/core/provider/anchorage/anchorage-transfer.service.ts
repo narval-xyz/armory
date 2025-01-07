@@ -64,6 +64,7 @@ export class AnchorageTransferService implements ProviderTransferService {
       memo: anchorageTransfer.transferMemo || internalTransfer.memo || null,
       networkFeeAttribution: internalTransfer.networkFeeAttribution,
       provider: internalTransfer.provider,
+      providerSpecific: internalTransfer.providerSpecific,
       source: internalTransfer.source,
       status: this.mapStatus(anchorageTransfer.status),
       transferId: internalTransfer.transferId,

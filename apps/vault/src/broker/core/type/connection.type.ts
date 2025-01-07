@@ -91,14 +91,20 @@ export type UpdateConnection = z.infer<typeof UpdateConnection>
 // Type Guard
 //
 
-export const isPendingConnection = (connection: Connection): connection is PendingConnection => {
+export const isPendingConnection = (
+  connection: Connection | ConnectionWithCredentials
+): connection is PendingConnection => {
   return connection.status === ConnectionStatus.PENDING
 }
 
-export const isActiveConnection = (connection: Connection): connection is ActiveConnection => {
+export const isActiveConnection = (
+  connection: Connection | ConnectionWithCredentials
+): connection is ActiveConnection => {
   return connection.status === ConnectionStatus.ACTIVE
 }
 
-export const isRevokedConnection = (connection: Connection): connection is RevokedConnection => {
+export const isRevokedConnection = (
+  connection: Connection | ConnectionWithCredentials
+): connection is RevokedConnection => {
   return connection.status === ConnectionStatus.REVOKED
 }
