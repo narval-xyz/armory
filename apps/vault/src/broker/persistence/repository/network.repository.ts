@@ -375,7 +375,7 @@ const NETWORKS: Network[] = [
     networkId: 'POLYGON',
     coinType: 966,
     name: 'Polygon',
-    anchorageId: 'MATIC_POLYGON',
+    anchorageId: 'POL_POLYGON',
     fireblocksId: 'MATIC_POLYGON'
   },
   {

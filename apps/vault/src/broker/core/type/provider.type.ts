@@ -20,7 +20,8 @@ export const SyncOperationType = {
   CREATE: 'create',
   UPDATE: 'update',
   DELETE: 'delete',
-  FAILED: 'failed'
+  FAILED: 'failed',
+  SKIP: 'skip'
 } as const
 export type SyncOperationType = (typeof SyncOperationType)[keyof typeof SyncOperationType]
 
@@ -46,6 +47,13 @@ export type FailedSyncOperation = {
   context?: unknown
 }
 
+export type SkipSyncOperation = {
+  type: typeof SyncOperationType.SKIP
+  externalId: string
+  message: string
+  context?: unknown
+}
+
 /**
  * Represents a synchronization operation for a resource, which can be a
  * creation, update, or deletion. Each operation type is associated with
@@ -59,6 +67,7 @@ export type SyncOperation<CreateParams, UpdateParams> =
   | UpdateSyncOperation<UpdateParams>
   | DeleteSyncOperation
   | FailedSyncOperation
+  | SkipSyncOperation
 
 export const isCreateOperation = <CreateParams, UpdateParams>(
   operation: SyncOperation<CreateParams, UpdateParams>
@@ -82,6 +91,12 @@ export const isFailedOperation = <CreateParams, UpdateParams>(
   operation: SyncOperation<CreateParams, UpdateParams>
 ): operation is FailedSyncOperation => {
   return operation.type === SyncOperationType.FAILED
+}
+
+export const isSkipOperation = <CreateParams, UpdateParams>(
+  operation: SyncOperation<CreateParams, UpdateParams>
+): operation is SkipSyncOperation => {
+  return operation.type === SyncOperationType.SKIP
 }
 
 /**

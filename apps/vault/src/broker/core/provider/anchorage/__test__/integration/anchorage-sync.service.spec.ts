@@ -29,6 +29,7 @@ import {
   isCreateOperation,
   isDeleteOperation,
   isFailedOperation,
+  isSkipOperation,
   isUpdateOperation
 } from '../../../../type/provider.type'
 import { buildEmptyContext } from '../../../../util/provider-sync.util'
@@ -219,6 +220,7 @@ describe(AnchorageSyncService.name, () => {
       expect(secondSync.wallets.filter(isCreateOperation)).toHaveLength(0)
       expect(secondSync.wallets.filter(isUpdateOperation)).toHaveLength(1)
       expect(secondSync.wallets.filter(isDeleteOperation)).toHaveLength(0)
+      expect(secondSync.wallets.filter(isSkipOperation)).toHaveLength(0)
       expect(secondSync.wallets.filter(isFailedOperation)).toHaveLength(0)
 
       expect(secondSync.wallets.filter(isUpdateOperation)[0]).toEqual({
@@ -270,6 +272,7 @@ describe(AnchorageSyncService.name, () => {
       expect(result.accounts.filter(isCreateOperation)).toHaveLength(18)
       expect(result.accounts.filter(isUpdateOperation)).toHaveLength(0)
       expect(result.accounts.filter(isDeleteOperation)).toHaveLength(0)
+      expect(result.accounts.filter(isSkipOperation)).toHaveLength(0)
       expect(result.accounts.filter(isFailedOperation)).toHaveLength(0)
 
       expect(result.accounts.filter(isCreateOperation)[0]).toEqual({
@@ -284,7 +287,7 @@ describe(AnchorageSyncService.name, () => {
           externalId: '145ff5b10e0e208b9c3adab0a9531f0c',
           createdAt: now,
           updatedAt: now,
-          networkId: 'BTC'
+          networkId: 'BITCOIN'
         }
       })
     })
@@ -354,6 +357,7 @@ describe(AnchorageSyncService.name, () => {
       expect(result.addresses.filter(isCreateOperation)).toHaveLength(1)
       expect(result.addresses.filter(isUpdateOperation)).toHaveLength(0)
       expect(result.addresses.filter(isDeleteOperation)).toHaveLength(0)
+      expect(result.addresses.filter(isSkipOperation)).toHaveLength(0)
       expect(result.addresses.filter(isFailedOperation)).toHaveLength(0)
 
       expect(result.addresses.filter(isCreateOperation)[0]).toEqual({
@@ -407,6 +411,7 @@ describe(AnchorageSyncService.name, () => {
       expect(result.knownDestinations.filter(isCreateOperation)).toHaveLength(4)
       expect(result.knownDestinations.filter(isUpdateOperation)).toHaveLength(0)
       expect(result.knownDestinations.filter(isDeleteOperation)).toHaveLength(0)
+      expect(result.knownDestinations.filter(isSkipOperation)).toHaveLength(0)
       expect(result.knownDestinations.filter(isFailedOperation)).toHaveLength(0)
 
       expect(result.knownDestinations.filter(isCreateOperation)[0]).toEqual({
@@ -503,6 +508,7 @@ describe(AnchorageSyncService.name, () => {
       expect(secondSync.knownDestinations.filter(isCreateOperation)).toHaveLength(0)
       expect(secondSync.knownDestinations.filter(isUpdateOperation)).toHaveLength(1)
       expect(secondSync.knownDestinations.filter(isDeleteOperation)).toHaveLength(3)
+      expect(secondSync.knownDestinations.filter(isSkipOperation)).toHaveLength(0)
       expect(secondSync.knownDestinations.filter(isFailedOperation)).toHaveLength(0)
 
       expect(secondSync.knownDestinations.filter(isUpdateOperation)[0]).toEqual({

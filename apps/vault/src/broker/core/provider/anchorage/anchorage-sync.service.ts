@@ -3,16 +3,19 @@ import { Injectable } from '@nestjs/common'
 import { randomUUID } from 'crypto'
 import { uniq } from 'lodash'
 import { AnchorageClient } from '../../../http/client/anchorage.client'
+import { UpdateAccount } from '../../../persistence/repository/account.repository'
+import { NetworkRepository } from '../../../persistence/repository/network.repository'
 import { AccountService } from '../../service/account.service'
 import { AddressService } from '../../service/address.service'
 import { KnownDestinationService } from '../../service/known-destination.service'
 import { WalletService } from '../../service/wallet.service'
 import { Connection, ConnectionWithCredentials } from '../../type/connection.type'
-import { Address, KnownDestination, Wallet } from '../../type/indexed-resources.type'
+import { Account, Address, KnownDestination, Wallet } from '../../type/indexed-resources.type'
 import {
   Provider,
   ProviderSyncService,
   SyncContext,
+  SyncOperation,
   SyncOperationType,
   SyncResult,
   isCreateOperation
@@ -28,6 +31,7 @@ export class AnchorageSyncService implements ProviderSyncService {
     private readonly accountService: AccountService,
     private readonly addressService: AddressService,
     private readonly knownDestinationService: KnownDestinationService,
+    private readonly networkRepository: NetworkRepository,
     private readonly logger: LoggerService
   ) {}
 
@@ -169,7 +173,9 @@ export class AnchorageSyncService implements ProviderSyncService {
 
     const now = context.now ?? new Date()
 
-    const operations = missingAnchorageWallets.map((anchorageWallet) => {
+    const operations: SyncOperation<Account, UpdateAccount>[] = []
+
+    for (const anchorageWallet of missingAnchorageWallets) {
       const externalId = anchorageWallet.walletId
       const parentExternalId = anchorageWallet.vaultId
       // Either look up the existing wallets in the database or in the sync context.
@@ -177,31 +183,44 @@ export class AnchorageSyncService implements ProviderSyncService {
         contextWalletsIndexedByExternalId.get(parentExternalId) || walletsIndexedByExternalId.get(parentExternalId)
 
       if (wallet) {
-        return {
-          type: SyncOperationType.CREATE,
-          create: {
-            accountId: randomUUID(),
-            walletId: wallet.walletId,
-            label: anchorageWallet.walletName,
-            clientId: connection.clientId,
-            provider: Provider.ANCHORAGE,
-            addresses: [],
-            externalId,
-            createdAt: now,
-            updatedAt: now,
-            // TODO: Map their networkId to SLIP 44 format.
-            networkId: anchorageWallet.networkId
-          }
-        }
-      }
+        const network = await this.networkRepository.findByExternalId(Provider.ANCHORAGE, anchorageWallet.networkId)
 
-      return {
-        type: SyncOperationType.FAILED,
-        externalId,
-        message: 'Parent wallet for account not found',
-        context: { anchorageWalletId: parentExternalId }
+        if (network) {
+          operations.push({
+            type: SyncOperationType.CREATE,
+            create: {
+              externalId,
+              accountId: randomUUID(),
+              addresses: [],
+              clientId: connection.clientId,
+              createdAt: now,
+              label: anchorageWallet.walletName,
+              networkId: network.networkId,
+              provider: Provider.ANCHORAGE,
+              updatedAt: now,
+              walletId: wallet.walletId
+            }
+          })
+        } else {
+          operations.push({
+            type: SyncOperationType.SKIP,
+            externalId,
+            message: 'Unknown Anchorage wallet network ID',
+            context: {
+              externalId,
+              anchorageNetworkId: anchorageWallet.networkId
+            }
+          })
+        }
+      } else {
+        operations.push({
+          type: SyncOperationType.FAILED,
+          externalId,
+          message: 'Parent wallet for account not found',
+          context: { anchorageWalletId: parentExternalId }
+        })
       }
-    })
+    }
 
     return {
       ...context,
@@ -362,14 +381,25 @@ export class AnchorageSyncService implements ProviderSyncService {
       }, [])
       .map((update) => ({ type: SyncOperationType.UPDATE, update }))
 
-    const createOperations = anchorageTrustedDestinations
-      .filter((anchorageTrustedAddress) => !existingMap.has(anchorageTrustedAddress.id))
-      .map((anchorageTrustedAddress) =>
-        KnownDestination.parse({
+    const missingDestinations = anchorageTrustedDestinations.filter(
+      (anchorageTrustedAddress) => !existingMap.has(anchorageTrustedAddress.id)
+    )
+
+    const createOperations: SyncOperation<KnownDestination, KnownDestination>[] = []
+
+    for (const anchorageTrustedAddress of missingDestinations) {
+      const externalId = anchorageTrustedAddress.id
+      const network = await this.networkRepository.findByExternalId(
+        Provider.ANCHORAGE,
+        anchorageTrustedAddress.crypto.networkId
+      )
+
+      if (network) {
+        const knownDestination = KnownDestination.parse({
+          externalId,
           knownDestinationId: randomUUID(),
           address: anchorageTrustedAddress.crypto.address,
           clientId: connection.clientId,
-          externalId: anchorageTrustedAddress.id,
           label: anchorageTrustedAddress.crypto.memo,
           assetId: anchorageTrustedAddress.crypto.assetType,
           provider: Provider.ANCHORAGE,
@@ -378,8 +408,20 @@ export class AnchorageSyncService implements ProviderSyncService {
           updatedAt: now,
           connections: [connection]
         })
-      )
-      .map((kd) => ({ type: SyncOperationType.CREATE, create: kd }))
+
+        createOperations.push({ type: SyncOperationType.CREATE, create: knownDestination })
+      } else {
+        createOperations.push({
+          type: SyncOperationType.SKIP,
+          externalId,
+          message: 'Unknown Anchorage trusted address network ID',
+          context: {
+            externalId,
+            anchorageNetworkId: anchorageTrustedAddress.crypto.networkId
+          }
+        })
+      }
+    }
 
     const deleteOperations = existingKnownDestinations
       .filter((dest) => !incomingMap.has(dest.externalId))

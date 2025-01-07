@@ -17,6 +17,7 @@ import {
   isCreateOperation,
   isDeleteOperation,
   isFailedOperation,
+  isSkipOperation,
   isUpdateOperation
 } from '../type/provider.type'
 import { StartSync, Sync, SyncStarted, SyncStatus } from '../type/sync.type'
@@ -156,16 +157,19 @@ export class SyncService {
     const walletCreateOperations = result.wallets.filter(isCreateOperation).map(({ create }) => create)
     const walletUpdateOperations = result.wallets.filter(isUpdateOperation).map(({ update }) => update)
     const walletDeleteOperations = result.wallets.filter(isDeleteOperation).map(({ entityId }) => entityId)
+    const walletSkipOperations = result.wallets.filter(isSkipOperation)
     const walletFailedOperations = result.wallets.filter(isFailedOperation)
 
     const accountCreateOperations = result.accounts.filter(isCreateOperation).map(({ create }) => create)
     const accountUpdateOperations = result.accounts.filter(isUpdateOperation).map(({ update }) => update)
     const accountDeleteOperations = result.accounts.filter(isDeleteOperation).map(({ entityId }) => entityId)
+    const accountSkipOperations = result.accounts.filter(isSkipOperation)
     const accountFailedOperations = result.accounts.filter(isFailedOperation)
 
     const addressCreateOperations = result.addresses.filter(isCreateOperation).map(({ create }) => create)
     const addressUpdateOperations = result.addresses.filter(isUpdateOperation).map(({ update }) => update)
     const addressDeleteOperations = result.addresses.filter(isDeleteOperation).map(({ entityId }) => entityId)
+    const addressSkipOperations = result.addresses.filter(isSkipOperation)
     const addressFailedOperations = result.addresses.filter(isFailedOperation)
 
     const knownDestinationCreateOperations = result.knownDestinations
@@ -177,6 +181,7 @@ export class SyncService {
     const knownDestinationDeleteOperations = result.knownDestinations
       .filter(isDeleteOperation)
       .map(({ entityId }) => entityId)
+    const knownDestinationSkipOperations = result.knownDestinations.filter(isSkipOperation)
     const knownDestinationFailedOperations = result.knownDestinations.filter(isFailedOperation)
 
     this.logger.log('Execute sync operations', {
@@ -187,50 +192,78 @@ export class SyncService {
           create: walletCreateOperations.length,
           update: walletUpdateOperations.length,
           delete: walletDeleteOperations.length,
+          skip: walletSkipOperations.length,
           failed: walletFailedOperations.length
         },
         account: {
           create: accountCreateOperations.length,
           update: accountUpdateOperations.length,
           delete: accountDeleteOperations.length,
+          skip: accountSkipOperations.length,
           failed: accountFailedOperations.length
         },
         address: {
           create: addressCreateOperations.length,
           update: addressUpdateOperations.length,
           delete: addressDeleteOperations.length,
+          skip: addressSkipOperations.length,
           failed: addressFailedOperations.length
         },
         knownDestination: {
           create: knownDestinationCreateOperations.length,
           update: knownDestinationUpdateOperations.length,
           delete: knownDestinationDeleteOperations.length,
+          skip: knownDestinationSkipOperations.length,
           failed: knownDestinationFailedOperations.length
         }
       }
     })
 
     if (walletFailedOperations.length) {
-      this.logger.warn('Sync operations contains failures for wallets', {
+      this.logger.error('Sync operations contains failures for wallets', {
         operations: walletFailedOperations
       })
     }
 
+    if (walletSkipOperations.length) {
+      this.logger.error('Sync operations contains skips for wallets', {
+        operations: walletSkipOperations
+      })
+    }
+
     if (accountFailedOperations.length) {
-      this.logger.warn('Sync operations contains failures for accounts', {
+      this.logger.error('Sync operations contains failures for accounts', {
         operations: accountFailedOperations
       })
     }
 
+    if (accountSkipOperations.length) {
+      this.logger.error('Sync operations contains skips for accounts', {
+        operations: accountSkipOperations
+      })
+    }
+
     if (addressFailedOperations.length) {
-      this.logger.warn('Sync operations contains failures for addresses', {
+      this.logger.error('Sync operations contains failures for addresses', {
         operations: addressFailedOperations
       })
     }
 
+    if (addressSkipOperations.length) {
+      this.logger.error('Sync operations contains skips for addresses', {
+        operations: addressSkipOperations
+      })
+    }
+
     if (knownDestinationFailedOperations.length) {
-      this.logger.warn('Sync operations contains failures for known destinations', {
+      this.logger.error('Sync operations contains failures for known destinations', {
         operations: knownDestinationFailedOperations
+      })
+    }
+
+    if (knownDestinationSkipOperations.length) {
+      this.logger.error('Sync operations contains skips for known destinations', {
+        operations: knownDestinationSkipOperations
       })
     }
 
