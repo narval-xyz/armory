@@ -31,6 +31,7 @@ import { ProviderAccountController } from './http/rest/controller/account.contro
 import { ProviderAddressController } from './http/rest/controller/address.controller'
 import { ConnectionController } from './http/rest/controller/connection.controller'
 import { KnownDestinationController } from './http/rest/controller/known-destination.controller'
+import { NetworkController } from './http/rest/controller/network.controller'
 import { ProxyController } from './http/rest/controller/proxy.controller'
 import { SyncController } from './http/rest/controller/sync.controller'
 import { TransferController } from './http/rest/controller/transfer.controller'
@@ -40,6 +41,7 @@ import { AccountRepository } from './persistence/repository/account.repository'
 import { AddressRepository } from './persistence/repository/address.repository'
 import { ConnectionRepository } from './persistence/repository/connection.repository'
 import { KnownDestinationRepository } from './persistence/repository/known-destination.repository'
+import { NetworkRepository } from './persistence/repository/network.repository'
 import { SyncRepository } from './persistence/repository/sync.repository'
 import { TransferRepository } from './persistence/repository/transfer.repository'
 import { WalletRepository } from './persistence/repository/wallet.repository'
@@ -56,6 +58,7 @@ import { WalletRepository } from './persistence/repository/wallet.repository'
   controllers: [
     ConnectionController,
     KnownDestinationController,
+    NetworkController,
     ProviderAccountController,
     ProviderAddressController,
     ProviderWalletController,
@@ -84,11 +87,12 @@ import { WalletRepository } from './persistence/repository/wallet.repository'
     ConnectionSyncEventHandler,
     EncryptionKeyRepository,
     EncryptionKeyService,
-    FireblocksCredentialService,
     FireblocksClient,
+    FireblocksCredentialService,
     FireblocksProxyService,
     KnownDestinationRepository,
     KnownDestinationService,
+    NetworkRepository,
     ProxyService,
     SyncRepository,
     SyncService,

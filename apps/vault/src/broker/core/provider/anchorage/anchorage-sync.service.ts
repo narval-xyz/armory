@@ -18,7 +18,6 @@ import {
   isCreateOperation
 } from '../../type/provider.type'
 import { buildEmptyContext } from '../../util/provider-sync.util'
-import { AnchorageCredentialService } from './anchorage-credential.service'
 import { validateConnection } from './anchorage.util'
 
 @Injectable()
@@ -29,7 +28,6 @@ export class AnchorageSyncService implements ProviderSyncService {
     private readonly accountService: AccountService,
     private readonly addressService: AddressService,
     private readonly knownDestinationService: KnownDestinationService,
-    private readonly anchorageCredentialService: AnchorageCredentialService,
     private readonly logger: LoggerService
   ) {}
 

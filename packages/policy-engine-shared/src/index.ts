@@ -22,6 +22,4 @@ export * from './lib/util/json.util'
 export * from './lib/util/transaction.util'
 export * from './lib/util/typeguards'
 
-export * from './lib/resource/networks'
-
 export * as FIXTURE from './lib/dev.fixture'
