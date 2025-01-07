@@ -518,13 +518,27 @@ export class VaultClient {
   }
 
   async listProviderWallets({
+    connectionId,
     accessToken,
     pagination
   }: {
+    connectionId?: string
     accessToken?: AccessToken
     pagination?: RequestPagination
   } = {}): Promise<PaginatedWalletsDto> {
     const token = accessToken ? prefixGnapToken(accessToken) : undefined
+
+    if (connectionId) {
+      const { data: wallets } = await this.providerConnectionHttp.listWallets({
+        xClientId: this.config.clientId,
+        connectionId,
+        authorization: token,
+        cursor: pagination?.cursor,
+        limit: pagination?.limit,
+        desc: pagination?.desc
+      })
+      return wallets
+    }
 
     const { data: wallets } = await this.providerWalletHttp.list({
       xClientId: this.config.clientId,

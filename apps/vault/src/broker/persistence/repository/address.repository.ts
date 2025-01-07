@@ -1,8 +1,9 @@
 import { PaginatedResult, PaginationOptions, applyPagination, getPaginatedResult } from '@narval/nestjs-shared'
-import { Injectable } from '@nestjs/common'
+import { HttpStatus, Injectable } from '@nestjs/common'
 import { ProviderAddress } from '@prisma/client/vault'
 import { z } from 'zod'
 import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
+import { BrokerException } from '../../core/exception/broker.exception'
 import { NotFoundException } from '../../core/exception/not-found.exception'
 import { Address } from '../../core/type/indexed-resources.type'
 import { Provider } from '../../core/type/provider.type'
@@ -72,6 +73,31 @@ export class AddressRepository {
     }
 
     return AddressRepository.parseModel(address)
+  }
+
+  async findByAddress(clientId: string, address: string, networkId: string): Promise<Address | null> {
+    const providerAddresses = await this.prismaService.providerAddress.findMany({
+      where: {
+        clientId,
+        address,
+        account: {
+          networkId
+        }
+      }
+    })
+
+    if (providerAddresses.length > 1) {
+      throw new BrokerException({
+        message: 'Cannot resolve the right address due to ambiguity',
+        suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        context: {
+          clientId,
+          addresses: providerAddresses.map(({ address, id }) => ({ addressId: id, address }))
+        }
+      })
+    }
+
+    return providerAddresses.length ? AddressRepository.parseModel(providerAddresses[0]) : null
   }
 
   async findAll(clientId: string, opts?: FindAllOptions): Promise<PaginatedResult<Address>> {

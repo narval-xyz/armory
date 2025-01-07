@@ -85,7 +85,7 @@ describe(AnchorageTransferService.name, () => {
     createdAt: new Date(),
     externalId: uuid(),
     label: 'Account 1',
-    networkId: 'BTC',
+    networkId: 'BITCOIN',
     provider: Provider.ANCHORAGE,
     updatedAt: new Date(),
     walletId
@@ -98,7 +98,7 @@ describe(AnchorageTransferService.name, () => {
     createdAt: new Date(),
     externalId: uuid(),
     label: 'Account 2',
-    networkId: 'BTC',
+    networkId: 'BITCOIN',
     provider: Provider.ANCHORAGE,
     updatedAt: new Date(),
     walletId
@@ -133,7 +133,7 @@ describe(AnchorageTransferService.name, () => {
     createdAt: new Date(),
     externalId: uuid(),
     knownDestinationId: uuid(),
-    networkId: 'BTC',
+    networkId: 'BITCOIN',
     provider: Provider.ANCHORAGE,
     updatedAt: new Date()
   }
@@ -274,7 +274,9 @@ describe(AnchorageTransferService.name, () => {
         id: accountTwo.accountId
       },
       amount: '0.00005',
-      assetId: 'BTC',
+      asset: {
+        assetId: 'BTC'
+      },
       idempotenceId: uuid()
     }
 
@@ -345,7 +347,7 @@ describe(AnchorageTransferService.name, () => {
               type: 'WALLET',
               id: accountTwo.externalId
             },
-            assetType: sendTransfer.assetId,
+            assetType: sendTransfer.asset.assetId,
             amount: sendTransfer.amount,
             transferMemo: sendTransfer.memo,
             idempotentId: sendTransfer.idempotenceId,

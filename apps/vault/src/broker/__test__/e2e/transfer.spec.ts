@@ -203,7 +203,9 @@ describe('Transfer', () => {
         id: accountTwo.accountId
       },
       amount: '0.0001',
-      assetId: 'BTC_S',
+      asset: {
+        assetId: 'BTC_S'
+      },
       idempotenceId: uuid()
     }
 
@@ -227,7 +229,7 @@ describe('Transfer', () => {
         data: {
           clientId,
           externalId,
-          assetId: requiredPayload.assetId,
+          assetId: requiredPayload.asset.assetId,
           createdAt: expect.any(String),
           customerRefId: null,
           destination: requiredPayload.destination,

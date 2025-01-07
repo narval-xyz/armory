@@ -14,6 +14,7 @@ type FindAllFilters = {
     addresses?: string[]
     providers?: Provider[]
     connections?: string[]
+    networksIds?: string[]
   }
 }
 
@@ -151,6 +152,13 @@ export class KnownDestinationRepository {
                     in: opts.filters.connections
                   }
                 }
+              }
+            }
+          : {}),
+        ...(opts?.filters?.networksIds
+          ? {
+              networkId: {
+                in: opts.filters.networksIds
               }
             }
           : {})

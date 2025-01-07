@@ -31,11 +31,33 @@ export type AddressDestination = z.infer<typeof AddressDestination>
 export const Destination = z.union([TransferParty, AddressDestination])
 export type Destination = z.infer<typeof Destination>
 
+export const Asset = z
+  .object({
+    assetId: z.string().optional().describe('ID of the asset. Can be used instead of address+networkId.'),
+    externalAssetId: z
+      .string()
+      .optional()
+      .describe(
+        'ID of the asset on the provider. Can be used to directly specify the asset of the underlying provider.'
+      ),
+    address: z
+      .string()
+      .optional()
+      .describe(
+        'On-chain address of the asset. If assetId is null, then an empty address means the network Base Asset (e.g. BTC)'
+      ),
+    networkId: z.string().optional().describe('Network of the asset. Required if address is provided.')
+  })
+  .describe('The asset being transferred')
+export type Asset = z.infer<typeof Asset>
+
 export const SendTransfer = z.object({
   source: Source,
   destination: Destination,
   amount: z.string(),
-  assetId: z.string(),
+
+  assetId: z.string().optional().describe('@deprecated use asset instead'), // @deprecated use asset instead
+  asset: Asset,
   // This is optional on the base transfer and always default on the
   // provider-specific transfer service.
   networkFeeAttribution: z.nativeEnum(NetworkFeeAttribution).optional(),

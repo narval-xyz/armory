@@ -2,12 +2,14 @@ import { LoggerService } from '@narval/nestjs-shared'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { v4 as uuid } from 'uuid'
 import { AnchorageClient } from '../../../http/client/anchorage.client'
+import { NetworkRepository } from '../../../persistence/repository/network.repository'
 import { TransferRepository } from '../../../persistence/repository/transfer.repository'
 import { BrokerException } from '../../exception/broker.exception'
 import { TransferPartyService } from '../../service/transfer-party.service'
 import { ConnectionWithCredentials } from '../../type/connection.type'
 import { Provider, ProviderTransferService } from '../../type/provider.type'
 import {
+  Asset,
   Destination,
   InternalTransfer,
   NetworkFeeAttribution,
@@ -19,6 +21,7 @@ import {
   isAddressDestination,
   isProviderSpecific
 } from '../../type/transfer.type'
+import { ANCHORAGE_ASSETS, AnchorageAsset } from './anchorage-assets'
 import { validateConnection } from './anchorage.util'
 
 @Injectable()
@@ -27,6 +30,7 @@ export class AnchorageTransferService implements ProviderTransferService {
     private readonly anchorageClient: AnchorageClient,
     private readonly transferPartyService: TransferPartyService,
     private readonly transferRepository: TransferRepository,
+    private readonly networkRepository: NetworkRepository,
     private readonly logger: LoggerService
   ) {}
 
@@ -105,6 +109,34 @@ export class AnchorageTransferService implements ProviderTransferService {
     })
   }
 
+  private async resolveAsset(asset: Asset): Promise<AnchorageAsset | undefined> {
+    if (asset.externalAssetId) {
+      return ANCHORAGE_ASSETS.find((a) => a.assetType === asset.externalAssetId)
+    }
+
+    if (asset.assetId) {
+      // TODO: Look up by the narval assetId; for now we just treat it as the same as the anchorage one.
+      return ANCHORAGE_ASSETS.find((a) => a.assetType === asset.assetId)
+    }
+
+    if (!asset.networkId) {
+      throw new BrokerException({
+        message: 'Cannot resolve asset without networkId',
+        suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        context: { asset }
+      })
+    }
+    if (!asset.address) {
+      // This is the base asset of the network
+      return ANCHORAGE_ASSETS.find((a) => a.networkId === asset.networkId && !a.onchainIdentifier)
+    }
+
+    // This is a chain-specific asset
+    return ANCHORAGE_ASSETS.find(
+      (a) => a.networkId === asset.networkId && a.onchainIdentifier?.toLowerCase() === asset.address?.toLowerCase()
+    )
+  }
+
   async send(connection: ConnectionWithCredentials, sendTransfer: SendTransfer): Promise<InternalTransfer> {
     this.logger.log('Send Anchorage transfer', {
       clientId: connection.clientId,
@@ -114,10 +146,33 @@ export class AnchorageTransferService implements ProviderTransferService {
 
     validateConnection(connection)
 
-    const source = await this.transferPartyService.resolve(connection.clientId, sendTransfer.source)
-    const destination = await this.transferPartyService.resolve(connection.clientId, sendTransfer.destination)
+    // Get the Network from the Asset.
+    const asset = await this.resolveAsset(sendTransfer.asset)
+    if (!asset) {
+      throw new BrokerException({
+        message: 'Cannot resolve asset',
+        suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        context: { asset: sendTransfer.asset }
+      })
+    }
+    // Get the narval networkId from the anchorage asset networkId
+    const network = await this.networkRepository.findByExternalId(Provider.ANCHORAGE, asset.networkId)
+    if (!network) {
+      throw new BrokerException({
+        message: 'Cannot resolve Narval networkId from Anchorage networkId',
+        suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        context: { asset }
+      })
+    }
 
-    this.logger.log('Resolved source and destination', { source, destination })
+    const source = await this.transferPartyService.resolve(connection.clientId, sendTransfer.source, network.networkId)
+    const destination = await this.transferPartyService.resolve(
+      connection.clientId,
+      sendTransfer.destination,
+      network.networkId
+    )
+
+    this.logger.log('Resolved source and destination', { source, destination, networkId: network.networkId })
 
     // NOTE: Because Anchorage defaults `deductFeeFromAmountIfSameType` to false, we
     // default the fee attribution to ON_TOP to match their API's behaviour.
@@ -131,7 +186,7 @@ export class AnchorageTransferService implements ProviderTransferService {
         type: this.getResourceType(sendTransfer.destination),
         id: destination.externalId
       },
-      assetType: sendTransfer.assetId,
+      assetType: asset.assetType,
       amount: sendTransfer.amount,
       transferMemo: sendTransfer.memo || null,
       idempotentId: sendTransfer.idempotenceId,
@@ -147,7 +202,7 @@ export class AnchorageTransferService implements ProviderTransferService {
     })
 
     const internalTransfer: InternalTransfer = {
-      assetId: sendTransfer.assetId,
+      assetId: asset.assetType, // TODO: switch this to the Narval assetId once that is a real thing.
       clientId: connection.clientId,
       createdAt: new Date(),
       customerRefId: null,

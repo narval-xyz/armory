@@ -40,15 +40,14 @@ export class TransferService {
   async send(clientId: string, connectionId: string, sendTransfer: SendTransfer): Promise<InternalTransfer> {
     this.logger.log('Send transfer', { clientId, sendTransfer })
 
-    const span = this.traceService.startSpan(`${TransferService.name}.sync`)
+    const span = this.traceService.startSpan(`${TransferService.name}.send`)
 
-    const source = await this.transferPartyService.resolve(clientId, sendTransfer.source)
     const connection = await this.connectionService.findWithCredentialsById(clientId, connectionId)
 
     if (isActiveConnection(connection)) {
       span.setAttribute(OTEL_ATTR_CONNECTION_PROVIDER, connection.provider)
 
-      const transfer = await this.getProviderTransferService(source.provider).send(connection, sendTransfer)
+      const transfer = await this.getProviderTransferService(connection.provider).send(connection, sendTransfer)
 
       span.end()
 
@@ -64,7 +63,7 @@ export class TransferService {
     throw new BrokerException({
       message: 'Cannot find an active connection for the source',
       suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-      context: { source }
+      context: { connection, connectionId, clientId }
     })
   }
 

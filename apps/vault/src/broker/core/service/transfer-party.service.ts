@@ -22,12 +22,13 @@ export class TransferPartyService {
 
   async resolve(
     clientId: string,
-    transferParty: Source | Destination
+    transferParty: Source | Destination,
+    networkId: string
   ): Promise<Wallet | Account | Address | KnownDestination> {
     const span = this.traceService.startSpan(`${TransferPartyService.name}.resolve`)
 
     try {
-      return this.findTransferParty(clientId, transferParty)
+      return this.findTransferParty(clientId, transferParty, networkId)
     } catch (error) {
       this.logger.error('Unable to resolve transfer party', { clientId, transferParty, error })
 
@@ -43,46 +44,34 @@ export class TransferPartyService {
 
   private async findTransferParty(
     clientId: string,
-    transferParty: Source | Destination
+    transferParty: Source | Destination,
+    networkId: string
   ): Promise<Wallet | Account | Address | KnownDestination> {
     this.logger.log('Find transfer party', { clientId, transferParty })
 
+    // TODO: Need Network.
     if (isAddressDestination(transferParty)) {
       const rawAddress = transferParty.address
 
       this.logger.log('Starting search address destination by raw address', { clientId, rawAddress })
 
-      const { data: addresses } = await this.addressRepository.findAll(clientId, {
-        filters: {
-          addresses: [transferParty.address]
-        }
-      })
+      const providerAddress = await this.addressRepository.findByAddress(clientId, transferParty.address, networkId)
 
-      if (addresses.length) {
-        if (addresses.length > 1) {
-          throw new BrokerException({
-            message: 'Cannot resolve the right address due to ambiguity',
-            suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-            context: {
-              clientId,
-              addresses: addresses.map(({ address, addressId }) => ({ addressId, address }))
-            }
-          })
-        }
-
-        this.logger.log('Successfully found address destination for raw address', {
+      if (providerAddress) {
+        this.logger.log('Successfully found account address destination for raw address', {
           clientId,
-          address: addresses[0]
+          address: providerAddress
         })
 
-        return addresses[0]
+        return providerAddress
       }
 
       this.logger.log('Starting search known destination by raw address', { clientId, rawAddress })
 
       const { data: knownDestinations } = await this.knownDestinationRepository.findAll(clientId, {
         filters: {
-          addresses: [transferParty.address]
+          addresses: [transferParty.address],
+          networksIds: [networkId]
         }
       })
 

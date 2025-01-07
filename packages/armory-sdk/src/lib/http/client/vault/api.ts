@@ -2112,11 +2112,17 @@ export interface SendTransferDto {
      */
     'amount': string;
     /**
-     * 
+     * @deprecated use asset instead
      * @type {string}
      * @memberof SendTransferDto
      */
-    'assetId': string;
+    'assetId'?: string;
+    /**
+     * 
+     * @type {SendTransferDtoAsset}
+     * @memberof SendTransferDto
+     */
+    'asset': SendTransferDtoAsset;
     /**
      * 
      * @type {string}
@@ -2168,6 +2174,37 @@ export const SendTransferDtoProviderEnum = {
 
 export type SendTransferDtoProviderEnum = typeof SendTransferDtoProviderEnum[keyof typeof SendTransferDtoProviderEnum];
 
+/**
+ * The asset being transferred
+ * @export
+ * @interface SendTransferDtoAsset
+ */
+export interface SendTransferDtoAsset {
+    /**
+     * ID of the asset. Can be used instead of address+networkId.
+     * @type {string}
+     * @memberof SendTransferDtoAsset
+     */
+    'assetId'?: string;
+    /**
+     * ID of the asset on the provider. Can be used to directly specify the asset of the underlying provider.
+     * @type {string}
+     * @memberof SendTransferDtoAsset
+     */
+    'externalAssetId'?: string;
+    /**
+     * On-chain address of the asset. If assetId is null, then an empty address means the network Base Asset (e.g. BTC)
+     * @type {string}
+     * @memberof SendTransferDtoAsset
+     */
+    'address'?: string;
+    /**
+     * Network of the asset. Required if address is provided.
+     * @type {string}
+     * @memberof SendTransferDtoAsset
+     */
+    'networkId'?: string;
+}
 /**
  * @type SendTransferDtoDestination
  * @export
