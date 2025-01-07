@@ -126,14 +126,22 @@ export class AnchorageTransferService implements ProviderTransferService {
         context: { asset }
       })
     }
+    const network = await this.networkRepository.findById(asset.networkId)
+    if (!network) {
+      throw new BrokerException({
+        message: 'Cannot resolve asset without valid network',
+        suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        context: { asset }
+      })
+    }
     if (!asset.address) {
       // This is the base asset of the network
-      return ANCHORAGE_ASSETS.find((a) => a.networkId === asset.networkId && !a.onchainIdentifier)
+      return ANCHORAGE_ASSETS.find((a) => a.networkId === network.anchorageId && !a.onchainIdentifier)
     }
 
     // This is a chain-specific asset
     return ANCHORAGE_ASSETS.find(
-      (a) => a.networkId === asset.networkId && a.onchainIdentifier?.toLowerCase() === asset.address?.toLowerCase()
+      (a) => a.networkId === network.anchorageId && a.onchainIdentifier?.toLowerCase() === asset.address?.toLowerCase()
     )
   }
 
