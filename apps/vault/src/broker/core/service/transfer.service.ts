@@ -5,7 +5,7 @@ import { TransferRepository } from '../../persistence/repository/transfer.reposi
 import { OTEL_ATTR_CONNECTION_PROVIDER } from '../../shared/constant'
 import { BrokerException } from '../exception/broker.exception'
 import { AnchorageTransferService } from '../provider/anchorage/anchorage-transfer.service'
-import { ConnectionStatus, isActiveConnection } from '../type/connection.type'
+import { isActiveConnection } from '../type/connection.type'
 import { Provider, ProviderTransferService } from '../type/provider.type'
 import { InternalTransfer, SendTransfer } from '../type/transfer.type'
 import { ConnectionService } from './connection.service'
@@ -30,20 +30,15 @@ export class TransferService {
     return this.transferRepository.bulkCreate(transfers)
   }
 
-  async send(clientId: string, sendTransfer: SendTransfer): Promise<InternalTransfer> {
+  async send(clientId: string, connectionId: string, sendTransfer: SendTransfer): Promise<InternalTransfer> {
     this.logger.log('Send transfer', { clientId, sendTransfer })
 
     const span = this.traceService.startSpan(`${TransferService.name}.sync`)
 
     const source = await this.transferPartyService.resolve(clientId, sendTransfer.source)
-    const { data: connections } = await this.connectionService.findAll(clientId, {
-      filters: {
-        status: ConnectionStatus.ACTIVE
-      }
-    })
+    const connection = await this.connectionService.findById(clientId, connectionId)
 
-    if (connections.length && isActiveConnection(connections[0])) {
-      const [connection] = connections
+    if (isActiveConnection(connection)) {
       const credentials = await this.connectionService.findCredentials(connection)
 
       span.setAttribute(OTEL_ATTR_CONNECTION_PROVIDER, connection.provider)

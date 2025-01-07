@@ -11,6 +11,7 @@ import { v4 as uuid } from 'uuid'
 import { ClientService } from '../../../client/core/service/client.service'
 import { MainModule } from '../../../main.module'
 import { ProvisionService } from '../../../provision.service'
+import { REQUEST_HEADER_CONNECTION_ID } from '../../../shared/decorator/connection-id.decorator'
 import { KeyValueRepository } from '../../../shared/module/key-value/core/repository/key-value.repository'
 import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
@@ -125,7 +126,7 @@ describe('Transfer', () => {
     },
     externalId: uuid(),
     grossAmount: '0.00001',
-    idempotenceId: null,
+    idempotenceId: uuid(),
     memo: 'Test transfer',
     networkFeeAttribution: NetworkFeeAttribution.DEDUCT,
     provider: Provider.ANCHORAGE,
@@ -202,13 +203,15 @@ describe('Transfer', () => {
         id: accountTwo.accountId
       },
       amount: '0.0001',
-      assetId: 'BTC_S'
+      assetId: 'BTC_S',
+      idempotenceId: uuid()
     }
 
     it('sends transfer to anchorage', async () => {
       const { status, body } = await request(app.getHttpServer())
         .post(ENDPOINT)
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(REQUEST_HEADER_CONNECTION_ID, connection.connectionId)
         .set(
           'detached-jws',
           await getJwsd({
@@ -229,7 +232,7 @@ describe('Transfer', () => {
           customerRefId: null,
           destination: requiredPayload.destination,
           grossAmount: requiredPayload.amount,
-          idempotenceId: null,
+          idempotenceId: expect.any(String),
           memo: null,
           networkFeeAttribution: NetworkFeeAttribution.ON_TOP,
           provider: accountOne.provider,
@@ -255,6 +258,7 @@ describe('Transfer', () => {
       const { body } = await request(app.getHttpServer())
         .post(ENDPOINT)
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(REQUEST_HEADER_CONNECTION_ID, connection.connectionId)
         .set(
           'detached-jws',
           await getJwsd({
@@ -274,8 +278,9 @@ describe('Transfer', () => {
       expect(actualTransfer.networkFeeAttribution).toEqual(payload.networkFeeAttribution)
       expect(body.data.networkFeeAttribution).toEqual(payload.networkFeeAttribution)
 
-      expect(actualTransfer.customerRefId).toEqual(payload.customerRefId)
-      expect(body.data.customerRefId).toEqual(payload.customerRefId)
+      // Invalid fields should not be sent to the provider
+      expect(actualTransfer.customerRefId).toEqual(null)
+      expect(body.data.customerRefId).toEqual(null)
 
       expect(actualTransfer.idempotenceId).toEqual(payload.idempotenceId)
       expect(body.data.idempotenceId).toEqual(payload.idempotenceId)
@@ -294,6 +299,7 @@ describe('Transfer', () => {
       const { status, body } = await request(app.getHttpServer())
         .post(ENDPOINT)
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(REQUEST_HEADER_CONNECTION_ID, connection.connectionId)
         .set(
           'detached-jws',
           await getJwsd({
@@ -318,6 +324,27 @@ describe('Transfer', () => {
       })
 
       expect(status).toEqual(HttpStatus.BAD_REQUEST)
+    })
+
+    it('fails if connection header is missing', async () => {
+      const { body } = await request(app.getHttpServer())
+        .post(ENDPOINT)
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            payload: requiredPayload,
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: ENDPOINT,
+            htm: 'POST'
+          })
+        )
+        .send(requiredPayload)
+
+      expect(body).toMatchObject({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Missing or invalid x-connection-id header'
+      })
     })
   })
 

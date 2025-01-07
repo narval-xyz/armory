@@ -996,37 +996,19 @@ export interface CreateConnectionDto {
     'url': string;
     /**
      * 
-     * @type {CreateConnectionDtoCredentials}
+     * @type {any}
      * @memberof CreateConnectionDto
      */
-    'credentials'?: CreateConnectionDtoCredentials;
+    'credentials'?: any;
 }
 
 export const CreateConnectionDtoProviderEnum = {
-    Anchorage: 'anchorage'
+    Anchorage: 'anchorage',
+    Fireblocks: 'fireblocks'
 } as const;
 
 export type CreateConnectionDtoProviderEnum = typeof CreateConnectionDtoProviderEnum[keyof typeof CreateConnectionDtoProviderEnum];
 
-/**
- * 
- * @export
- * @interface CreateConnectionDtoCredentials
- */
-export interface CreateConnectionDtoCredentials {
-    /**
-     * 
-     * @type {string}
-     * @memberof CreateConnectionDtoCredentials
-     */
-    'apiKey': string;
-    /**
-     * Ed25519 private key in hex format
-     * @type {any}
-     * @memberof CreateConnectionDtoCredentials
-     */
-    'privateKey'?: any;
-}
 /**
  * 
  * @export
@@ -1279,7 +1261,8 @@ export interface InitiateConnectionDto {
 }
 
 export const InitiateConnectionDtoProviderEnum = {
-    Anchorage: 'anchorage'
+    Anchorage: 'anchorage',
+    Fireblocks: 'fireblocks'
 } as const;
 
 export type InitiateConnectionDtoProviderEnum = typeof InitiateConnectionDtoProviderEnum[keyof typeof InitiateConnectionDtoProviderEnum];
@@ -1305,165 +1288,16 @@ export interface KnownDestinationDto {
 export interface PaginatedAccountsDto {
     /**
      * 
-     * @type {Array<PaginatedAccountsDtoDataInner>}
+     * @type {Array<PaginatedWalletsDtoDataInnerAccountsInner>}
      * @memberof PaginatedAccountsDto
      */
-    'data': Array<PaginatedAccountsDtoDataInner>;
+    'data': Array<PaginatedWalletsDtoDataInnerAccountsInner>;
     /**
      * 
-     * @type {PaginatedAccountsDtoPage}
+     * @type {PaginatedConnectionsDtoPage}
      * @memberof PaginatedAccountsDto
      */
-    'page'?: PaginatedAccountsDtoPage;
-}
-/**
- * 
- * @export
- * @interface PaginatedAccountsDtoDataInner
- */
-export interface PaginatedAccountsDtoDataInner {
-    /**
-     * 
-     * @type {string}
-     * @memberof PaginatedAccountsDtoDataInner
-     */
-    'accountId': string;
-    /**
-     * 
-     * @type {Array<PaginatedAccountsDtoDataInnerAddressesInner>}
-     * @memberof PaginatedAccountsDtoDataInner
-     */
-    'addresses'?: Array<PaginatedAccountsDtoDataInnerAddressesInner>;
-    /**
-     * 
-     * @type {string}
-     * @memberof PaginatedAccountsDtoDataInner
-     */
-    'clientId': string;
-    /**
-     * 
-     * @type {any}
-     * @memberof PaginatedAccountsDtoDataInner
-     */
-    'createdAt': any;
-    /**
-     * 
-     * @type {string}
-     * @memberof PaginatedAccountsDtoDataInner
-     */
-    'externalId': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof PaginatedAccountsDtoDataInner
-     */
-    'label'?: string | null;
-    /**
-     * 
-     * @type {string}
-     * @memberof PaginatedAccountsDtoDataInner
-     */
-    'networkId': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof PaginatedAccountsDtoDataInner
-     */
-    'provider': PaginatedAccountsDtoDataInnerProviderEnum;
-    /**
-     * 
-     * @type {any}
-     * @memberof PaginatedAccountsDtoDataInner
-     */
-    'updatedAt': any;
-    /**
-     * 
-     * @type {string}
-     * @memberof PaginatedAccountsDtoDataInner
-     */
-    'walletId': string;
-}
-
-export const PaginatedAccountsDtoDataInnerProviderEnum = {
-    Anchorage: 'anchorage'
-} as const;
-
-export type PaginatedAccountsDtoDataInnerProviderEnum = typeof PaginatedAccountsDtoDataInnerProviderEnum[keyof typeof PaginatedAccountsDtoDataInnerProviderEnum];
-
-/**
- * 
- * @export
- * @interface PaginatedAccountsDtoDataInnerAddressesInner
- */
-export interface PaginatedAccountsDtoDataInnerAddressesInner {
-    /**
-     * 
-     * @type {string}
-     * @memberof PaginatedAccountsDtoDataInnerAddressesInner
-     */
-    'accountId': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof PaginatedAccountsDtoDataInnerAddressesInner
-     */
-    'address': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof PaginatedAccountsDtoDataInnerAddressesInner
-     */
-    'addressId': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof PaginatedAccountsDtoDataInnerAddressesInner
-     */
-    'clientId': string;
-    /**
-     * 
-     * @type {any}
-     * @memberof PaginatedAccountsDtoDataInnerAddressesInner
-     */
-    'createdAt': any;
-    /**
-     * 
-     * @type {string}
-     * @memberof PaginatedAccountsDtoDataInnerAddressesInner
-     */
-    'externalId': string;
-    /**
-     * 
-     * @type {string}
-     * @memberof PaginatedAccountsDtoDataInnerAddressesInner
-     */
-    'provider': PaginatedAccountsDtoDataInnerAddressesInnerProviderEnum;
-    /**
-     * 
-     * @type {any}
-     * @memberof PaginatedAccountsDtoDataInnerAddressesInner
-     */
-    'updatedAt': any;
-}
-
-export const PaginatedAccountsDtoDataInnerAddressesInnerProviderEnum = {
-    Anchorage: 'anchorage'
-} as const;
-
-export type PaginatedAccountsDtoDataInnerAddressesInnerProviderEnum = typeof PaginatedAccountsDtoDataInnerAddressesInnerProviderEnum[keyof typeof PaginatedAccountsDtoDataInnerAddressesInnerProviderEnum];
-
-/**
- * 
- * @export
- * @interface PaginatedAccountsDtoPage
- */
-export interface PaginatedAccountsDtoPage {
-    /**
-     * 
-     * @type {string}
-     * @memberof PaginatedAccountsDtoPage
-     */
-    'next': string | null;
+    'page'?: PaginatedConnectionsDtoPage;
 }
 /**
  * 
@@ -1473,16 +1307,16 @@ export interface PaginatedAccountsDtoPage {
 export interface PaginatedAddressesDto {
     /**
      * 
-     * @type {Array<PaginatedAccountsDtoDataInnerAddressesInner>}
+     * @type {Array<PaginatedWalletsDtoDataInnerAccountsInnerAddressesInner>}
      * @memberof PaginatedAddressesDto
      */
-    'data': Array<PaginatedAccountsDtoDataInnerAddressesInner>;
+    'data': Array<PaginatedWalletsDtoDataInnerAccountsInnerAddressesInner>;
     /**
      * 
-     * @type {PaginatedAccountsDtoPage}
+     * @type {PaginatedConnectionsDtoPage}
      * @memberof PaginatedAddressesDto
      */
-    'page'?: PaginatedAccountsDtoPage;
+    'page'?: PaginatedConnectionsDtoPage;
 }
 /**
  * 
@@ -1498,10 +1332,23 @@ export interface PaginatedConnectionsDto {
     'data': Array<ProviderConnectionDtoData>;
     /**
      * 
-     * @type {PaginatedAccountsDtoPage}
+     * @type {PaginatedConnectionsDtoPage}
      * @memberof PaginatedConnectionsDto
      */
-    'page'?: PaginatedAccountsDtoPage;
+    'page'?: PaginatedConnectionsDtoPage;
+}
+/**
+ * 
+ * @export
+ * @interface PaginatedConnectionsDtoPage
+ */
+export interface PaginatedConnectionsDtoPage {
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedConnectionsDtoPage
+     */
+    'next': string | null;
 }
 /**
  * 
@@ -1517,10 +1364,10 @@ export interface PaginatedKnownDestinationsDto {
     'data': Array<PaginatedKnownDestinationsDtoDataInner>;
     /**
      * 
-     * @type {PaginatedAccountsDtoPage}
+     * @type {PaginatedConnectionsDtoPage}
      * @memberof PaginatedKnownDestinationsDto
      */
-    'page'?: PaginatedAccountsDtoPage;
+    'page'?: PaginatedConnectionsDtoPage;
 }
 /**
  * 
@@ -1603,7 +1450,8 @@ export interface PaginatedKnownDestinationsDtoDataInner {
 }
 
 export const PaginatedKnownDestinationsDtoDataInnerProviderEnum = {
-    Anchorage: 'anchorage'
+    Anchorage: 'anchorage',
+    Fireblocks: 'fireblocks'
 } as const;
 
 export type PaginatedKnownDestinationsDtoDataInnerProviderEnum = typeof PaginatedKnownDestinationsDtoDataInnerProviderEnum[keyof typeof PaginatedKnownDestinationsDtoDataInnerProviderEnum];
@@ -1622,10 +1470,10 @@ export interface PaginatedSyncsDto {
     'data': Array<SyncStartedDtoDataSyncsInner>;
     /**
      * 
-     * @type {PaginatedAccountsDtoPage}
+     * @type {PaginatedConnectionsDtoPage}
      * @memberof PaginatedSyncsDto
      */
-    'page'?: PaginatedAccountsDtoPage;
+    'page'?: PaginatedConnectionsDtoPage;
 }
 /**
  * 
@@ -1641,10 +1489,10 @@ export interface PaginatedWalletsDto {
     'data': Array<PaginatedWalletsDtoDataInner>;
     /**
      * 
-     * @type {PaginatedAccountsDtoPage}
+     * @type {PaginatedConnectionsDtoPage}
      * @memberof PaginatedWalletsDto
      */
-    'page'?: PaginatedAccountsDtoPage;
+    'page'?: PaginatedConnectionsDtoPage;
 }
 /**
  * 
@@ -1654,10 +1502,10 @@ export interface PaginatedWalletsDto {
 export interface PaginatedWalletsDtoDataInner {
     /**
      * 
-     * @type {Array<PaginatedAccountsDtoDataInner>}
+     * @type {Array<PaginatedWalletsDtoDataInnerAccountsInner>}
      * @memberof PaginatedWalletsDtoDataInner
      */
-    'accounts'?: Array<PaginatedAccountsDtoDataInner>;
+    'accounts'?: Array<PaginatedWalletsDtoDataInnerAccountsInner>;
     /**
      * 
      * @type {string}
@@ -1666,10 +1514,10 @@ export interface PaginatedWalletsDtoDataInner {
     'clientId': string;
     /**
      * 
-     * @type {Array<PaginatedWalletsDtoDataInnerConnectionsInner>}
+     * @type {Array<ProviderConnectionDtoData>}
      * @memberof PaginatedWalletsDtoDataInner
      */
-    'connections': Array<PaginatedWalletsDtoDataInnerConnectionsInner>;
+    'connections': Array<ProviderConnectionDtoData>;
     /**
      * 
      * @type {any}
@@ -1709,7 +1557,8 @@ export interface PaginatedWalletsDtoDataInner {
 }
 
 export const PaginatedWalletsDtoDataInnerProviderEnum = {
-    Anchorage: 'anchorage'
+    Anchorage: 'anchorage',
+    Fireblocks: 'fireblocks'
 } as const;
 
 export type PaginatedWalletsDtoDataInnerProviderEnum = typeof PaginatedWalletsDtoDataInnerProviderEnum[keyof typeof PaginatedWalletsDtoDataInnerProviderEnum];
@@ -1717,47 +1566,140 @@ export type PaginatedWalletsDtoDataInnerProviderEnum = typeof PaginatedWalletsDt
 /**
  * 
  * @export
- * @interface PaginatedWalletsDtoDataInnerConnectionsInner
+ * @interface PaginatedWalletsDtoDataInnerAccountsInner
  */
-export interface PaginatedWalletsDtoDataInnerConnectionsInner {
+export interface PaginatedWalletsDtoDataInnerAccountsInner {
     /**
      * 
      * @type {string}
-     * @memberof PaginatedWalletsDtoDataInnerConnectionsInner
+     * @memberof PaginatedWalletsDtoDataInnerAccountsInner
      */
-    'connectionId': string;
+    'accountId': string;
+    /**
+     * 
+     * @type {Array<PaginatedWalletsDtoDataInnerAccountsInnerAddressesInner>}
+     * @memberof PaginatedWalletsDtoDataInnerAccountsInner
+     */
+    'addresses'?: Array<PaginatedWalletsDtoDataInnerAccountsInnerAddressesInner>;
     /**
      * 
      * @type {string}
-     * @memberof PaginatedWalletsDtoDataInnerConnectionsInner
+     * @memberof PaginatedWalletsDtoDataInnerAccountsInner
      */
-    'status'?: PaginatedWalletsDtoDataInnerConnectionsInnerStatusEnum;
+    'clientId': string;
+    /**
+     * 
+     * @type {any}
+     * @memberof PaginatedWalletsDtoDataInnerAccountsInner
+     */
+    'createdAt': any;
     /**
      * 
      * @type {string}
-     * @memberof PaginatedWalletsDtoDataInnerConnectionsInner
+     * @memberof PaginatedWalletsDtoDataInnerAccountsInner
      */
-    'label'?: string;
+    'externalId': string;
     /**
      * 
      * @type {string}
-     * @memberof PaginatedWalletsDtoDataInnerConnectionsInner
+     * @memberof PaginatedWalletsDtoDataInnerAccountsInner
      */
-    'provider': PaginatedWalletsDtoDataInnerConnectionsInnerProviderEnum;
+    'label'?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoDataInnerAccountsInner
+     */
+    'networkId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoDataInnerAccountsInner
+     */
+    'provider': PaginatedWalletsDtoDataInnerAccountsInnerProviderEnum;
+    /**
+     * 
+     * @type {any}
+     * @memberof PaginatedWalletsDtoDataInnerAccountsInner
+     */
+    'updatedAt': any;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoDataInnerAccountsInner
+     */
+    'walletId': string;
 }
 
-export const PaginatedWalletsDtoDataInnerConnectionsInnerStatusEnum = {
-    Pending: 'pending',
-    Active: 'active',
-    Revoked: 'revoked'
+export const PaginatedWalletsDtoDataInnerAccountsInnerProviderEnum = {
+    Anchorage: 'anchorage',
+    Fireblocks: 'fireblocks'
 } as const;
 
-export type PaginatedWalletsDtoDataInnerConnectionsInnerStatusEnum = typeof PaginatedWalletsDtoDataInnerConnectionsInnerStatusEnum[keyof typeof PaginatedWalletsDtoDataInnerConnectionsInnerStatusEnum];
-export const PaginatedWalletsDtoDataInnerConnectionsInnerProviderEnum = {
-    Anchorage: 'anchorage'
+export type PaginatedWalletsDtoDataInnerAccountsInnerProviderEnum = typeof PaginatedWalletsDtoDataInnerAccountsInnerProviderEnum[keyof typeof PaginatedWalletsDtoDataInnerAccountsInnerProviderEnum];
+
+/**
+ * 
+ * @export
+ * @interface PaginatedWalletsDtoDataInnerAccountsInnerAddressesInner
+ */
+export interface PaginatedWalletsDtoDataInnerAccountsInnerAddressesInner {
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoDataInnerAccountsInnerAddressesInner
+     */
+    'accountId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoDataInnerAccountsInnerAddressesInner
+     */
+    'address': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoDataInnerAccountsInnerAddressesInner
+     */
+    'addressId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoDataInnerAccountsInnerAddressesInner
+     */
+    'clientId': string;
+    /**
+     * 
+     * @type {any}
+     * @memberof PaginatedWalletsDtoDataInnerAccountsInnerAddressesInner
+     */
+    'createdAt': any;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoDataInnerAccountsInnerAddressesInner
+     */
+    'externalId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoDataInnerAccountsInnerAddressesInner
+     */
+    'provider': PaginatedWalletsDtoDataInnerAccountsInnerAddressesInnerProviderEnum;
+    /**
+     * 
+     * @type {any}
+     * @memberof PaginatedWalletsDtoDataInnerAccountsInnerAddressesInner
+     */
+    'updatedAt': any;
+}
+
+export const PaginatedWalletsDtoDataInnerAccountsInnerAddressesInnerProviderEnum = {
+    Anchorage: 'anchorage',
+    Fireblocks: 'fireblocks'
 } as const;
 
-export type PaginatedWalletsDtoDataInnerConnectionsInnerProviderEnum = typeof PaginatedWalletsDtoDataInnerConnectionsInnerProviderEnum[keyof typeof PaginatedWalletsDtoDataInnerConnectionsInnerProviderEnum];
+export type PaginatedWalletsDtoDataInnerAccountsInnerAddressesInnerProviderEnum = typeof PaginatedWalletsDtoDataInnerAccountsInnerAddressesInnerProviderEnum[keyof typeof PaginatedWalletsDtoDataInnerAccountsInnerAddressesInnerProviderEnum];
 
 /**
  * 
@@ -1780,10 +1722,10 @@ export interface PongDto {
 export interface ProviderAccountDto {
     /**
      * 
-     * @type {PaginatedAccountsDtoDataInner}
+     * @type {PaginatedWalletsDtoDataInnerAccountsInner}
      * @memberof ProviderAccountDto
      */
-    'data': PaginatedAccountsDtoDataInner;
+    'data': PaginatedWalletsDtoDataInnerAccountsInner;
 }
 /**
  * 
@@ -1799,79 +1741,238 @@ export interface ProviderConnectionDto {
     'data': ProviderConnectionDtoData;
 }
 /**
+ * @type ProviderConnectionDtoData
+ * @export
+ */
+export type ProviderConnectionDtoData = ProviderConnectionDtoDataOneOf | ProviderConnectionDtoDataOneOf1 | ProviderConnectionDtoDataOneOf2;
+
+/**
  * 
  * @export
- * @interface ProviderConnectionDtoData
+ * @interface ProviderConnectionDtoDataOneOf
  */
-export interface ProviderConnectionDtoData {
+export interface ProviderConnectionDtoDataOneOf {
     /**
      * 
      * @type {string}
-     * @memberof ProviderConnectionDtoData
+     * @memberof ProviderConnectionDtoDataOneOf
      */
     'clientId': string;
     /**
      * 
      * @type {string}
-     * @memberof ProviderConnectionDtoData
+     * @memberof ProviderConnectionDtoDataOneOf
      */
     'connectionId': string;
     /**
      * 
      * @type {any}
-     * @memberof ProviderConnectionDtoData
+     * @memberof ProviderConnectionDtoDataOneOf
      */
     'createdAt': any;
     /**
      * 
      * @type {string}
-     * @memberof ProviderConnectionDtoData
+     * @memberof ProviderConnectionDtoDataOneOf
      */
     'label'?: string;
     /**
      * 
      * @type {string}
-     * @memberof ProviderConnectionDtoData
+     * @memberof ProviderConnectionDtoDataOneOf
      */
-    'provider': ProviderConnectionDtoDataProviderEnum;
+    'provider': ProviderConnectionDtoDataOneOfProviderEnum;
     /**
      * 
      * @type {any}
-     * @memberof ProviderConnectionDtoData
+     * @memberof ProviderConnectionDtoDataOneOf
      */
     'revokedAt'?: any;
     /**
      * 
      * @type {string}
-     * @memberof ProviderConnectionDtoData
+     * @memberof ProviderConnectionDtoDataOneOf
      */
-    'status'?: ProviderConnectionDtoDataStatusEnum;
+    'status': ProviderConnectionDtoDataOneOfStatusEnum;
     /**
      * 
      * @type {any}
-     * @memberof ProviderConnectionDtoData
+     * @memberof ProviderConnectionDtoDataOneOf
      */
     'updatedAt': any;
     /**
      * 
      * @type {string}
-     * @memberof ProviderConnectionDtoData
+     * @memberof ProviderConnectionDtoDataOneOf
+     */
+    'url': string;
+}
+
+export const ProviderConnectionDtoDataOneOfProviderEnum = {
+    Anchorage: 'anchorage',
+    Fireblocks: 'fireblocks'
+} as const;
+
+export type ProviderConnectionDtoDataOneOfProviderEnum = typeof ProviderConnectionDtoDataOneOfProviderEnum[keyof typeof ProviderConnectionDtoDataOneOfProviderEnum];
+export const ProviderConnectionDtoDataOneOfStatusEnum = {
+    Active: 'active'
+} as const;
+
+export type ProviderConnectionDtoDataOneOfStatusEnum = typeof ProviderConnectionDtoDataOneOfStatusEnum[keyof typeof ProviderConnectionDtoDataOneOfStatusEnum];
+
+/**
+ * 
+ * @export
+ * @interface ProviderConnectionDtoDataOneOf1
+ */
+export interface ProviderConnectionDtoDataOneOf1 {
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderConnectionDtoDataOneOf1
+     */
+    'clientId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderConnectionDtoDataOneOf1
+     */
+    'connectionId': string;
+    /**
+     * 
+     * @type {any}
+     * @memberof ProviderConnectionDtoDataOneOf1
+     */
+    'createdAt': any;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderConnectionDtoDataOneOf1
+     */
+    'label'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderConnectionDtoDataOneOf1
+     */
+    'provider': ProviderConnectionDtoDataOneOf1ProviderEnum;
+    /**
+     * 
+     * @type {any}
+     * @memberof ProviderConnectionDtoDataOneOf1
+     */
+    'revokedAt': any;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderConnectionDtoDataOneOf1
+     */
+    'status': ProviderConnectionDtoDataOneOf1StatusEnum;
+    /**
+     * 
+     * @type {any}
+     * @memberof ProviderConnectionDtoDataOneOf1
+     */
+    'updatedAt': any;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderConnectionDtoDataOneOf1
      */
     'url'?: string;
 }
 
-export const ProviderConnectionDtoDataProviderEnum = {
-    Anchorage: 'anchorage'
+export const ProviderConnectionDtoDataOneOf1ProviderEnum = {
+    Anchorage: 'anchorage',
+    Fireblocks: 'fireblocks'
 } as const;
 
-export type ProviderConnectionDtoDataProviderEnum = typeof ProviderConnectionDtoDataProviderEnum[keyof typeof ProviderConnectionDtoDataProviderEnum];
-export const ProviderConnectionDtoDataStatusEnum = {
-    Pending: 'pending',
-    Active: 'active',
+export type ProviderConnectionDtoDataOneOf1ProviderEnum = typeof ProviderConnectionDtoDataOneOf1ProviderEnum[keyof typeof ProviderConnectionDtoDataOneOf1ProviderEnum];
+export const ProviderConnectionDtoDataOneOf1StatusEnum = {
     Revoked: 'revoked'
 } as const;
 
-export type ProviderConnectionDtoDataStatusEnum = typeof ProviderConnectionDtoDataStatusEnum[keyof typeof ProviderConnectionDtoDataStatusEnum];
+export type ProviderConnectionDtoDataOneOf1StatusEnum = typeof ProviderConnectionDtoDataOneOf1StatusEnum[keyof typeof ProviderConnectionDtoDataOneOf1StatusEnum];
+
+/**
+ * 
+ * @export
+ * @interface ProviderConnectionDtoDataOneOf2
+ */
+export interface ProviderConnectionDtoDataOneOf2 {
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderConnectionDtoDataOneOf2
+     */
+    'clientId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderConnectionDtoDataOneOf2
+     */
+    'connectionId': string;
+    /**
+     * 
+     * @type {any}
+     * @memberof ProviderConnectionDtoDataOneOf2
+     */
+    'createdAt': any;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderConnectionDtoDataOneOf2
+     */
+    'label'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderConnectionDtoDataOneOf2
+     */
+    'provider': ProviderConnectionDtoDataOneOf2ProviderEnum;
+    /**
+     * 
+     * @type {any}
+     * @memberof ProviderConnectionDtoDataOneOf2
+     */
+    'revokedAt'?: any;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderConnectionDtoDataOneOf2
+     */
+    'status': ProviderConnectionDtoDataOneOf2StatusEnum;
+    /**
+     * 
+     * @type {any}
+     * @memberof ProviderConnectionDtoDataOneOf2
+     */
+    'updatedAt': any;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderConnectionDtoDataOneOf2
+     */
+    'url'?: string;
+    /**
+     * 
+     * @type {CreateClientDtoBackupPublicKey}
+     * @memberof ProviderConnectionDtoDataOneOf2
+     */
+    'encryptionPublicKey'?: CreateClientDtoBackupPublicKey;
+}
+
+export const ProviderConnectionDtoDataOneOf2ProviderEnum = {
+    Anchorage: 'anchorage',
+    Fireblocks: 'fireblocks'
+} as const;
+
+export type ProviderConnectionDtoDataOneOf2ProviderEnum = typeof ProviderConnectionDtoDataOneOf2ProviderEnum[keyof typeof ProviderConnectionDtoDataOneOf2ProviderEnum];
+export const ProviderConnectionDtoDataOneOf2StatusEnum = {
+    Pending: 'pending'
+} as const;
+
+export type ProviderConnectionDtoDataOneOf2StatusEnum = typeof ProviderConnectionDtoDataOneOf2StatusEnum[keyof typeof ProviderConnectionDtoDataOneOf2StatusEnum];
 
 /**
  * 
@@ -1937,7 +2038,8 @@ export interface ProviderPendingConnectionDtoData {
 }
 
 export const ProviderPendingConnectionDtoDataProviderEnum = {
-    Anchorage: 'anchorage'
+    Anchorage: 'anchorage',
+    Fireblocks: 'fireblocks'
 } as const;
 
 export type ProviderPendingConnectionDtoDataProviderEnum = typeof ProviderPendingConnectionDtoDataProviderEnum[keyof typeof ProviderPendingConnectionDtoDataProviderEnum];
@@ -2032,7 +2134,7 @@ export interface SendTransferDto {
      * @type {string}
      * @memberof SendTransferDto
      */
-    'idempotenceId'?: string;
+    'idempotenceId': string;
     /**
      * 
      * @type {string}
@@ -2060,7 +2162,8 @@ export const SendTransferDtoNetworkFeeAttributionEnum = {
 
 export type SendTransferDtoNetworkFeeAttributionEnum = typeof SendTransferDtoNetworkFeeAttributionEnum[keyof typeof SendTransferDtoNetworkFeeAttributionEnum];
 export const SendTransferDtoProviderEnum = {
-    Anchorage: 'anchorage'
+    Anchorage: 'anchorage',
+    Fireblocks: 'fireblocks'
 } as const;
 
 export type SendTransferDtoProviderEnum = typeof SendTransferDtoProviderEnum[keyof typeof SendTransferDtoProviderEnum];
@@ -2963,7 +3066,8 @@ export const TransferDtoDataNetworkFeeAttributionEnum = {
 
 export type TransferDtoDataNetworkFeeAttributionEnum = typeof TransferDtoDataNetworkFeeAttributionEnum[keyof typeof TransferDtoDataNetworkFeeAttributionEnum];
 export const TransferDtoDataProviderEnum = {
-    Anchorage: 'anchorage'
+    Anchorage: 'anchorage',
+    Fireblocks: 'fireblocks'
 } as const;
 
 export type TransferDtoDataProviderEnum = typeof TransferDtoDataProviderEnum[keyof typeof TransferDtoDataProviderEnum];
@@ -2983,10 +3087,10 @@ export type TransferDtoDataStatusEnum = typeof TransferDtoDataStatusEnum[keyof t
 export interface UpdateConnectionDto {
     /**
      * 
-     * @type {string}
+     * @type {any}
      * @memberof UpdateConnectionDto
      */
-    'label'?: string;
+    'credentials'?: any | null;
     /**
      * RSA encrypted JSON string of the credentials
      * @type {string}
@@ -2995,11 +3099,38 @@ export interface UpdateConnectionDto {
     'encryptedCredentials'?: string;
     /**
      * 
-     * @type {CreateConnectionDtoCredentials}
+     * @type {string}
      * @memberof UpdateConnectionDto
      */
-    'credentials'?: CreateConnectionDtoCredentials;
+    'label'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateConnectionDto
+     */
+    'status'?: UpdateConnectionDtoStatusEnum;
+    /**
+     * 
+     * @type {any}
+     * @memberof UpdateConnectionDto
+     */
+    'updatedAt'?: any;
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateConnectionDto
+     */
+    'url'?: string;
 }
+
+export const UpdateConnectionDtoStatusEnum = {
+    Pending: 'pending',
+    Active: 'active',
+    Revoked: 'revoked'
+} as const;
+
+export type UpdateConnectionDtoStatusEnum = typeof UpdateConnectionDtoStatusEnum[keyof typeof UpdateConnectionDtoStatusEnum];
+
 /**
  * 
  * @export
@@ -7592,14 +7723,17 @@ export const ProviderTransferApiAxiosParamCreator = function (configuration?: Co
          * This endpoint sends a transfer to the source\'s provider.
          * @summary Send a transfer
          * @param {string} xClientId 
+         * @param {string} xConnectionId The connection ID used to forward request to provider
          * @param {SendTransferDto} sendTransferDto 
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        send: async (xClientId: string, sendTransferDto: SendTransferDto, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        send: async (xClientId: string, xConnectionId: string, sendTransferDto: SendTransferDto, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'xClientId' is not null or undefined
             assertParamExists('send', 'xClientId', xClientId)
+            // verify required parameter 'xConnectionId' is not null or undefined
+            assertParamExists('send', 'xConnectionId', xConnectionId)
             // verify required parameter 'sendTransferDto' is not null or undefined
             assertParamExists('send', 'sendTransferDto', sendTransferDto)
             const localVarPath = `/v1/provider/transfers`;
@@ -7621,6 +7755,10 @@ export const ProviderTransferApiAxiosParamCreator = function (configuration?: Co
 
             if (xClientId != null) {
                 localVarHeaderParameter['x-client-id'] = String(xClientId);
+            }
+
+            if (xConnectionId != null) {
+                localVarHeaderParameter['x-connection-id'] = String(xConnectionId);
             }
 
             if (authorization != null) {
@@ -7670,13 +7808,14 @@ export const ProviderTransferApiFp = function(configuration?: Configuration) {
          * This endpoint sends a transfer to the source\'s provider.
          * @summary Send a transfer
          * @param {string} xClientId 
+         * @param {string} xConnectionId The connection ID used to forward request to provider
          * @param {SendTransferDto} sendTransferDto 
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async send(xClientId: string, sendTransferDto: SendTransferDto, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TransferDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.send(xClientId, sendTransferDto, authorization, options);
+        async send(xClientId: string, xConnectionId: string, sendTransferDto: SendTransferDto, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TransferDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.send(xClientId, xConnectionId, sendTransferDto, authorization, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProviderTransferApi.send']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -7709,7 +7848,7 @@ export const ProviderTransferApiFactory = function (configuration?: Configuratio
          * @throws {RequiredError}
          */
         send(requestParameters: ProviderTransferApiSendRequest, options?: RawAxiosRequestConfig): AxiosPromise<TransferDto> {
-            return localVarFp.send(requestParameters.xClientId, requestParameters.sendTransferDto, requestParameters.authorization, options).then((request) => request(axios, basePath));
+            return localVarFp.send(requestParameters.xClientId, requestParameters.xConnectionId, requestParameters.sendTransferDto, requestParameters.authorization, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -7756,6 +7895,13 @@ export interface ProviderTransferApiSendRequest {
     readonly xClientId: string
 
     /**
+     * The connection ID used to forward request to provider
+     * @type {string}
+     * @memberof ProviderTransferApiSend
+     */
+    readonly xConnectionId: string
+
+    /**
      * 
      * @type {SendTransferDto}
      * @memberof ProviderTransferApiSend
@@ -7798,7 +7944,7 @@ export class ProviderTransferApi extends BaseAPI {
      * @memberof ProviderTransferApi
      */
     public send(requestParameters: ProviderTransferApiSendRequest, options?: RawAxiosRequestConfig) {
-        return ProviderTransferApiFp(this.configuration).send(requestParameters.xClientId, requestParameters.sendTransferDto, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
+        return ProviderTransferApiFp(this.configuration).send(requestParameters.xClientId, requestParameters.xConnectionId, requestParameters.sendTransferDto, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

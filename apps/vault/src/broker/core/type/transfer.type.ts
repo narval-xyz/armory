@@ -40,7 +40,7 @@ export const SendTransfer = z.object({
   // provider-specific transfer service.
   networkFeeAttribution: z.nativeEnum(NetworkFeeAttribution).optional(),
   customerRefId: z.string().optional(),
-  idempotenceId: z.string().optional(),
+  idempotenceId: z.string(),
   memo: z.string().optional(),
   provider: z.nativeEnum(Provider).optional(),
   // Requires `provider` to be set.

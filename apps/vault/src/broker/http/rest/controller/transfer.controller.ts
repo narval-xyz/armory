@@ -1,7 +1,8 @@
 import { ApiClientIdHeader } from '@narval/nestjs-shared'
 import { Body, Controller, Get, HttpStatus, Param, Post } from '@nestjs/common'
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
+import { ConnectionId } from '../../../../shared/decorator/connection-id.decorator'
 import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
 import { VaultPermission } from '../../../../shared/type/domain.type'
 import { TransferService } from '../../../core/service/transfer.service'
@@ -28,8 +29,17 @@ export class TransferController {
     description: 'The transfer was successfully sent.',
     type: TransferDto
   })
-  async send(@ClientId() clientId: string, @Body() body: SendTransferDto): Promise<TransferDto> {
-    const internalTransfer = await this.transferService.send(clientId, body)
+  @ApiHeader({
+    name: 'x-connection-id',
+    required: true,
+    description: 'The connection ID used to forward request to provider'
+  })
+  async send(
+    @ClientId() clientId: string,
+    @ConnectionId() connectionId: string,
+    @Body() body: SendTransferDto
+  ): Promise<TransferDto> {
+    const internalTransfer = await this.transferService.send(clientId, connectionId, body)
 
     return TransferDto.create({ data: internalTransfer })
   }

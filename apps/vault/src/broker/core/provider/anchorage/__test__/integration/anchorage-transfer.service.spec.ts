@@ -274,7 +274,8 @@ describe(AnchorageTransferService.name, () => {
         id: accountTwo.accountId
       },
       amount: '0.00005',
-      assetId: 'BTC'
+      assetId: 'BTC',
+      idempotenceId: uuid()
     }
 
     const transferAmlQuestionnaire = {
@@ -305,7 +306,6 @@ describe(AnchorageTransferService.name, () => {
         ...requiredSendTransfer,
         memo: 'Integration test transfer',
         networkFeeAttribution: NetworkFeeAttribution.DEDUCT,
-        customerRefId: uuid(),
         idempotenceId: uuid()
       }
 
@@ -314,7 +314,8 @@ describe(AnchorageTransferService.name, () => {
 
       expect(actualInternalTransfer.idempotenceId).toEqual(sendTransfer.idempotenceId)
       expect(actualInternalTransfer.memo).toEqual(sendTransfer.memo)
-      expect(actualInternalTransfer.customerRefId).toEqual(sendTransfer.customerRefId)
+      // Anchorage does not support customerRefId.
+      expect(actualInternalTransfer.customerRefId).toEqual(null)
       expect(actualInternalTransfer.networkFeeAttribution).toEqual(sendTransfer.networkFeeAttribution)
     })
 
@@ -329,7 +330,6 @@ describe(AnchorageTransferService.name, () => {
       const sendTransfer = {
         ...requiredSendTransfer,
         memo: 'Integration test transfer',
-        customerRefId: uuid(),
         idempotenceId: uuid()
       }
 
@@ -348,7 +348,8 @@ describe(AnchorageTransferService.name, () => {
             },
             assetType: sendTransfer.assetId,
             amount: sendTransfer.amount,
-            customerRefId: sendTransfer.customerRefId,
+            // !!CustomerRefId is not a field in Anchorage's API.
+            // customerRefId: sendTransfer.customerRefId,
             transferMemo: sendTransfer.memo,
             idempotentId: sendTransfer.idempotenceId,
             // Default `deductFeeFromAmountIfSameType` to false.

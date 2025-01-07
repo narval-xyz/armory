@@ -666,15 +666,18 @@ export class VaultClient {
 
   async sendTransfer({
     data,
+    connectionId,
     accessToken
   }: {
     data: SendTransferDto
+    connectionId: string
     accessToken?: AccessToken
   }): Promise<TransferDto> {
     const token = accessToken ? prefixGnapToken(accessToken) : undefined
 
     const { data: transfer } = await this.providerTransferHttp.send({
       xClientId: this.config.clientId,
+      xConnectionId: connectionId,
       authorization: token,
       sendTransferDto: data
     })
