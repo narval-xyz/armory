@@ -403,7 +403,7 @@ export class AnchorageSyncService implements ProviderSyncService {
           label: anchorageTrustedAddress.crypto.memo,
           assetId: anchorageTrustedAddress.crypto.assetType,
           provider: Provider.ANCHORAGE,
-          networkId: anchorageTrustedAddress.crypto.networkId,
+          networkId: network.networkId,
           createdAt: now,
           updatedAt: now,
           connections: [connection]
