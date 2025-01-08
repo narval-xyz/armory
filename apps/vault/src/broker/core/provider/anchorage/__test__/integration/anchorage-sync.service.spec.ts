@@ -425,7 +425,7 @@ describe(AnchorageSyncService.name, () => {
           externalId: 'toBeConnected',
           knownDestinationId: expect.any(String),
           label: undefined,
-          networkId: 'ETH',
+          networkId: 'ETHEREUM',
           provider: Provider.ANCHORAGE,
           updatedAt: now
         }
@@ -465,7 +465,7 @@ describe(AnchorageSyncService.name, () => {
           externalId: 'toBeUpdated',
           knownDestinationId: expect.any(String),
           label: 'new memo',
-          networkId: 'ETH',
+          networkId: 'ETHEREUM',
           provider: Provider.ANCHORAGE,
           updatedAt: now
         }
@@ -523,7 +523,7 @@ describe(AnchorageSyncService.name, () => {
           externalId: 'toBeConnected',
           knownDestinationId: expect.any(String),
           label: undefined,
-          networkId: 'ETH',
+          networkId: 'ETHEREUM',
           provider: Provider.ANCHORAGE,
           updatedAt: now
         }
