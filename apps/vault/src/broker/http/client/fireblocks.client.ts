@@ -1,9 +1,12 @@
+import { LoggerService } from '@narval/nestjs-shared'
 import { RsaPrivateKey, hash, signJwt } from '@narval/signature'
+import { HttpService } from '@nestjs/axios'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import { isNil, omitBy } from 'lodash'
+import { EMPTY, Observable, catchError, expand, from, lastValueFrom, map, reduce, switchMap, tap } from 'rxjs'
 import { v4 } from 'uuid'
-import { z } from 'zod'
+import { ZodType, z } from 'zod'
 import { BrokerException } from '../../core/exception/broker.exception'
 import { UrlParserException } from '../../core/exception/url-parser.exception'
 
@@ -33,7 +36,7 @@ const Asset = z.object({
   blockHeight: z.string().optional(),
   blockHash: z.string().optional(),
   rewardsInfo: RewardsInfo.optional(),
-  hiddenOnUI: z.boolean(),
+  hiddenOnUI: z.boolean().optional(),
   customerRefId: z.string().optional(),
   autoFuel: z.boolean().optional()
 })
@@ -43,15 +46,15 @@ const VaultAccount = z.object({
   id: z.string(),
   name: z.string().optional(),
   assets: z.array(Asset),
-  hiddenOnUI: z.boolean(),
-  customerRefId: z.string(),
+  hiddenOnUI: z.boolean().optional(),
+  customerRefId: z.string().optional(),
   autoFuel: z.boolean()
 })
 type VaultAccount = z.infer<typeof VaultAccount>
 
 const Paging = z.object({
-  before: z.string(),
-  after: z.string()
+  before: z.string().optional(),
+  after: z.string().optional()
 })
 type Paging = z.infer<typeof Paging>
 
@@ -79,7 +82,7 @@ const AssetWallet = z.object({
   lockedAmount: z.string(),
   blockHeight: z.string().nullable(),
   blockHash: z.string().nullable(),
-  creationTimestamp: z.string()
+  creationTimestamp: z.string().optional()
 })
 type AssetWallet = z.infer<typeof AssetWallet>
 
@@ -89,8 +92,84 @@ const GetVaultWalletsResponse = z.object({
 })
 type GetVaultWalletsResponse = z.infer<typeof GetVaultWalletsResponse>
 
+const AssetAddress = z.object({
+  assetId: z.string(),
+  address: z.string(),
+  description: z.string().optional(),
+  tag: z.string().optional(),
+  type: z.string(),
+  customerRefId: z.string().optional(),
+  addressFormat: z.string().optional(),
+  legacyAddress: z.string(),
+  enterpriseAddress: z.string(),
+  bip44AddressIndex: z.number(),
+  userDefined: z.boolean()
+})
+type AssetAddress = z.infer<typeof AssetAddress>
+
+const GetAddressListResponse = z.object({
+  addresses: z.array(AssetAddress),
+  paging: Paging.optional()
+})
+type GetAddressListResponse = z.infer<typeof GetAddressListResponse>
+
+const InternalWhitelistedAddressAsset = z.object({
+  id: z.string(),
+  balance: z.string(),
+  lockedAmount: z.string().optional(),
+  status: z.string(),
+  address: z.string(),
+  tag: z.string().optional(),
+  activationTime: z.string().optional()
+})
+type InternalWhitelistedAddressAsset = z.infer<typeof InternalWhitelistedAddressAsset>
+
+const InternalWhitelistedWallet = z.object({
+  id: z.string(),
+  name: z.string(),
+  customerRefId: z.string().optional(),
+  assets: z.array(InternalWhitelistedAddressAsset)
+})
+type InternalWhitelistedWallet = z.infer<typeof InternalWhitelistedWallet>
+
+const ExternalWhitelistedAddressAsset = z.object({
+  id: z.string(),
+  lockedAmount: z.string().optional(),
+  status: z.string(),
+  address: z.string(),
+  tag: z.string(),
+  activationTime: z.string().optional()
+})
+type ExternalWhitelistedAddressAsset = z.infer<typeof ExternalWhitelistedAddressAsset>
+
+const ExternalWhitelistedAddress = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+    customerRefId: z.string().optional(),
+    assets: z.array(ExternalWhitelistedAddressAsset)
+  })
+  .strict()
+type ExternalWhitelistedAddress = z.infer<typeof ExternalWhitelistedAddress>
+
+const WhitelistedContract = ExternalWhitelistedAddress
+type WhitelistedContract = z.infer<typeof WhitelistedContract>
+
+const GetWhitelistedInternalWalletsResponse = z.array(InternalWhitelistedWallet)
+type GetWhitelistedInternalWalletsResponse = z.infer<typeof GetWhitelistedInternalWalletsResponse>
+
+const GetWhitelistedExternalWalletsResponse = z.array(ExternalWhitelistedAddress)
+type GetWhitelistedExternalWalletsResponse = z.infer<typeof GetWhitelistedExternalWalletsResponse>
+
+const GetWhitelistedContractsResponse = z.array(WhitelistedContract)
+type GetWhitelistedContractsResponse = z.infer<typeof GetWhitelistedContractsResponse>
 @Injectable()
 export class FireblocksClient {
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly logger: LoggerService
+  ) {}
+
   async forward({ url, method, data, apiKey, signKey, nonce }: ForwardRequestOptions): Promise<AxiosResponse> {
     const signedRequest = await this.authorize({
       request: {
@@ -173,6 +252,16 @@ export class FireblocksClient {
     return match[1]
   }
 
+  private serializeError(error: any) {
+    return {
+      message: error.message,
+      name: error.name,
+      stack: error.stack,
+      status: error.response?.status,
+      statusText: error.response?.statusText
+    }
+  }
+
   private validateRequest(request: AxiosRequestConfig): asserts request is AxiosRequestConfig & {
     url: string
     method: string
@@ -190,5 +279,335 @@ export class FireblocksClient {
         suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY
       })
     }
+  }
+
+  private sendSignedRequest<T>(opts: {
+    schema: ZodType<T>
+    request: AxiosRequestConfig
+    signKey: RsaPrivateKey
+    apiKey: string
+  }): Observable<T> {
+    return from(
+      this.authorize({
+        request: opts.request,
+        apiKey: opts.apiKey,
+        signKey: opts.signKey
+      })
+    ).pipe(
+      switchMap((signedRequest) =>
+        this.httpService.request(signedRequest).pipe(
+          tap((response) => {
+            this.logger.log('Received response', {
+              url: opts.request.url,
+              method: opts.request.method,
+              nextPage: response.data?.paging?.after
+            })
+          }),
+          map((response) => opts.schema.parse(response.data))
+        )
+      )
+    )
+  }
+
+  async getVaultAccounts(opts: { apiKey: string; signKey: RsaPrivateKey; url: string }): Promise<VaultAccount[]> {
+    this.logger.log('Requesting Fireblocks vault accounts page', {
+      url: opts.url
+    })
+
+    return lastValueFrom(
+      this.sendSignedRequest({
+        schema: GetVaultAccountsResponse,
+        request: {
+          url: `${opts.url}/v1/vault/accounts_paged`,
+          params: {
+            limit: 500
+          },
+          method: 'GET'
+        },
+        apiKey: opts.apiKey,
+        signKey: opts.signKey
+      }).pipe(
+        expand((response) => {
+          if (response.paging.after) {
+            return this.sendSignedRequest({
+              schema: GetVaultAccountsResponse,
+              request: {
+                url: `${opts.url}/v1/vault/accounts_paged`,
+                method: 'GET',
+                params: {
+                  limit: 500,
+                  after: response.paging.after
+                }
+              },
+              apiKey: opts.apiKey,
+              signKey: opts.signKey
+            })
+          }
+          return EMPTY
+        }),
+        tap((response) => {
+          if (response.paging.after) {
+            this.logger.log('Requesting Fireblocks vault accounts next page', {
+              url: opts.url
+            })
+          } else {
+            this.logger.log('Reached Fireblocks vault accounts last page')
+          }
+        }),
+        reduce((accounts: VaultAccount[], response) => [...accounts, ...response.accounts], []),
+        tap((accounts) => {
+          this.logger.log('Completed fetching all vault accounts', {
+            accountsCount: accounts.length,
+            url: opts.url
+          })
+        }),
+        catchError((error) => {
+          this.logger.error('Failed to get Fireblocks vault accounts', this.serializeError(error))
+          throw error
+        })
+      )
+    )
+  }
+
+  async getAssetWallets(opts: { apiKey: string; signKey: RsaPrivateKey; url: string }): Promise<AssetWallet[]> {
+    this.logger.log('Requesting Fireblocks asset wallets page', {
+      url: opts.url
+    })
+
+    return lastValueFrom(
+      this.sendSignedRequest({
+        schema: GetVaultWalletsResponse,
+        request: {
+          url: `${opts.url}/v1/vault/asset_wallets`,
+          method: 'GET',
+          params: {
+            limit: 1000
+          }
+        },
+        apiKey: opts.apiKey,
+        signKey: opts.signKey
+      }).pipe(
+        expand((response) => {
+          if (response.paging.after) {
+            return this.sendSignedRequest({
+              schema: GetVaultWalletsResponse,
+              request: {
+                url: `${opts.url}/v1/vault/asset_wallets`,
+                method: 'GET',
+                params: {
+                  after: response.paging.after,
+                  limit: 1000
+                }
+              },
+              apiKey: opts.apiKey,
+              signKey: opts.signKey
+            })
+          }
+          return EMPTY
+        }),
+        tap((response) => {
+          if (response.paging.after) {
+            this.logger.log('Requesting Fireblocks asset wallets next page', {
+              url: opts.url
+            })
+          } else {
+            this.logger.log('Reached Fireblocks asset wallets last page')
+          }
+        }),
+        reduce((wallets: AssetWallet[], response) => [...wallets, ...response.assetWallets], []),
+        tap((wallets) => {
+          this.logger.log('Completed fetching all asset wallets', {
+            walletsCount: wallets.length,
+            url: opts.url
+          })
+        }),
+        catchError((error) => {
+          this.logger.error('Failed to get Fireblocks asset wallets', this.serializeError(error))
+          throw error
+        })
+      )
+    )
+  }
+
+  async getAddresses(opts: {
+    apiKey: string
+    signKey: RsaPrivateKey
+    url: string
+    vaultAccountId: string
+    assetId: string
+  }): Promise<AssetAddress[]> {
+    this.logger.log(`Requesting Fireblocks vault ${opts.vaultAccountId} asset ${opts.assetId} addresses page`, {
+      url: opts.url,
+      vaultAccountId: opts.vaultAccountId,
+      assetId: opts.assetId
+    })
+
+    return lastValueFrom(
+      this.sendSignedRequest({
+        schema: GetAddressListResponse,
+        request: {
+          url: `${opts.url}/v1/vault/accounts/${opts.vaultAccountId}/${opts.assetId}/addresses_paginated`,
+          method: 'GET',
+          params: {
+            limit: 1000
+          }
+        },
+        apiKey: opts.apiKey,
+        signKey: opts.signKey
+      }).pipe(
+        expand((response) => {
+          if (response.paging?.after) {
+            return this.sendSignedRequest({
+              schema: GetAddressListResponse,
+              request: {
+                url: `${opts.url}/v1/vault/accounts/${opts.vaultAccountId}/${opts.assetId}/addresses_paginated`,
+                method: 'GET',
+                params: {
+                  after: response.paging.after,
+                  limit: 1000
+                }
+              },
+              apiKey: opts.apiKey,
+              signKey: opts.signKey
+            })
+          }
+          return EMPTY
+        }),
+        tap((response) => {
+          if (response.paging?.after) {
+            this.logger.log(
+              `Requesting Fireblocks vault ${opts.vaultAccountId} asset ${opts.assetId} addresses next page`,
+              {
+                url: opts.url,
+                vaultAccountId: opts.vaultAccountId,
+                assetId: opts.assetId
+              }
+            )
+          } else {
+            this.logger.log(`Reached Fireblocks vault ${opts.vaultAccountId} asset ${opts.assetId} addresses last page`)
+          }
+        }),
+        reduce((addresses: AssetAddress[], response) => [...addresses, ...response.addresses], []),
+        tap((addresses) => {
+          this.logger.log(`Completed fetching all ${opts.assetId} addresses`, {
+            addressesCount: addresses.length,
+            url: opts.url,
+            vaultAccountId: opts.vaultAccountId,
+            assetId: opts.assetId
+          })
+        }),
+        catchError((error) => {
+          this.logger.error(`Failed to get Fireblocks vault ${opts.vaultAccountId} asset ${opts.assetId} addresses`, {
+            error: error.message,
+            status: error.response?.status,
+            vaultAccountId: opts.vaultAccountId,
+            assetId: opts.assetId
+          })
+          throw error
+        })
+      )
+    )
+  }
+
+  async getWhitelistedInternalWallets(opts: {
+    apiKey: string
+    signKey: RsaPrivateKey
+    url: string
+  }): Promise<InternalWhitelistedWallet[]> {
+    this.logger.log('Requesting Fireblocks whitelisted internal wallets page', {
+      url: opts.url
+    })
+
+    return lastValueFrom(
+      this.sendSignedRequest({
+        schema: GetWhitelistedInternalWalletsResponse,
+        request: {
+          url: `${opts.url}/v1/internal_wallets`,
+          method: 'GET'
+        },
+        apiKey: opts.apiKey,
+        signKey: opts.signKey
+      }).pipe(
+        reduce((wallets: InternalWhitelistedWallet[], response) => [...wallets, ...response], []),
+        tap((addresses) => {
+          this.logger.log('Completed fetching all whitelisted internal addresses', {
+            addressesCount: addresses.length,
+            url: opts.url
+          })
+        }),
+        catchError((error) => {
+          this.logger.error('Failed to get Fireblocks whitelisted internal addresses', this.serializeError(error))
+          throw error
+        })
+      )
+    )
+  }
+
+  async getWhitelistedExternalWallets(opts: {
+    apiKey: string
+    signKey: RsaPrivateKey
+    url: string
+  }): Promise<ExternalWhitelistedAddress[]> {
+    this.logger.log('Requesting Fireblocks whitelisted external wallets page', {
+      url: opts.url
+    })
+
+    return lastValueFrom(
+      this.sendSignedRequest({
+        schema: GetWhitelistedExternalWalletsResponse,
+        request: {
+          url: `${opts.url}/v1/external_wallets`,
+          method: 'GET'
+        },
+        apiKey: opts.apiKey,
+        signKey: opts.signKey
+      }).pipe(
+        reduce((wallets: ExternalWhitelistedAddress[], response) => [...wallets, ...response], []),
+        tap((addresses) => {
+          this.logger.log('Completed fetching all whitelisted external addresses', {
+            addressesCount: addresses.length,
+            url: opts.url
+          })
+        }),
+        catchError((error) => {
+          this.logger.error('Failed to get Fireblocks whitelisted external addresses', this.serializeError(error))
+          throw error
+        })
+      )
+    )
+  }
+
+  async getWhitelistedContracts(opts: {
+    apiKey: string
+    signKey: RsaPrivateKey
+    url: string
+  }): Promise<WhitelistedContract[]> {
+    this.logger.log('Requesting Fireblocks whitelisted contracts page', {
+      url: opts.url
+    })
+
+    return lastValueFrom(
+      this.sendSignedRequest({
+        schema: GetWhitelistedContractsResponse,
+        request: {
+          url: `${opts.url}/v1/contracts`,
+          method: 'GET'
+        },
+        apiKey: opts.apiKey,
+        signKey: opts.signKey
+      }).pipe(
+        reduce((contracts: WhitelistedContract[], response) => [...contracts, ...response], []),
+        tap((contracts) => {
+          this.logger.log('Completed fetching all whitelisted contracts', {
+            contractsCount: contracts.length,
+            url: opts.url
+          })
+        }),
+        catchError((error) => {
+          this.logger.error('Failed to get Fireblocks whitelisted contracts', this.serializeError(error))
+          throw error
+        })
+      )
+    )
   }
 }

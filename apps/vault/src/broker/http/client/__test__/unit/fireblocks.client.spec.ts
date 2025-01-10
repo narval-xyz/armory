@@ -1,6 +1,8 @@
+import { LoggerService } from '@narval/nestjs-shared'
 import { RsaPrivateKey } from '@narval/signature'
+import { HttpService } from '@nestjs/axios'
 import axios from 'axios'
-import { mockReset } from 'jest-mock-extended'
+import { mock, mockReset } from 'jest-mock-extended'
 import { BrokerException } from '../../../../core/exception/broker.exception'
 import { UrlParserException } from '../../../../core/exception/url-parser.exception'
 import { FireblocksClient } from '../../fireblocks.client'
@@ -26,7 +28,10 @@ describe(FireblocksClient.name, () => {
   }
 
   beforeEach(() => {
-    client = new FireblocksClient()
+    const httpServiceMock = mock<HttpService>()
+    const loggerServiceMock = mock<LoggerService>()
+
+    client = new FireblocksClient(httpServiceMock, loggerServiceMock)
     mockReset(mockedAxios)
   })
 
