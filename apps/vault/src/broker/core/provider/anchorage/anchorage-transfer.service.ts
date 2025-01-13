@@ -7,6 +7,7 @@ import { TransferRepository } from '../../../persistence/repository/transfer.rep
 import { BrokerException } from '../../exception/broker.exception'
 import { TransferPartyService } from '../../service/transfer-party.service'
 import { ConnectionWithCredentials } from '../../type/connection.type'
+import { Network } from '../../type/network.type'
 import { Provider, ProviderTransferService } from '../../type/provider.type'
 import {
   Asset,
@@ -190,10 +191,7 @@ export class AnchorageTransferService implements ProviderTransferService {
         type: this.getResourceType(sendTransfer.source),
         id: source.externalId
       },
-      destination: {
-        type: this.getResourceType(sendTransfer.destination),
-        id: destination.externalId
-      },
+      destination: await this.getDestination(connection.clientId, network, sendTransfer),
       assetType: asset.assetType,
       amount: sendTransfer.amount,
       transferMemo: sendTransfer.memo || null,
@@ -257,6 +255,27 @@ export class AnchorageTransferService implements ProviderTransferService {
     }
 
     return false
+  }
+
+  private async getDestination(clientId: string, network: Network, sendTransfer: SendTransfer) {
+    const destination = await this.transferPartyService.resolve(clientId, sendTransfer.destination, network.networkId)
+    const type = this.getResourceType(sendTransfer.destination)
+
+    // TODO: Automate test this. It's an important biz rule.
+    if (type === 'ADDRESS' && 'knownDestinationId' in destination) {
+      return {
+        type,
+        id: destination.address
+      }
+    }
+
+    // TODO: When we send to an internal address, do we must pass and ID or the
+    // address as well?
+
+    return {
+      type,
+      id: destination.externalId
+    }
   }
 
   private getResourceType(transferParty: Source | Destination) {
