@@ -2616,3 +2616,20 @@ export const ANCHORAGE_ASSETS: AnchorageAsset[] = [
     onchainIdentifier: '0x62492a644a588fd904270bed06ad52b9abfea1ae'
   }
 ]
+
+/**
+ * util to find anchorage networks that don't have a match in the networks list.
+
+const baseAssets = ANCHORAGE_ASSETS.filter((asset) => !asset.onchainIdentifier)
+
+// for each baseAsset, see if you can find a match for `networkId` against the `anchorageId` property of the networks list.
+// Filter the baseAssets list to only the ones that do NOT have a match.
+const baseAssetsWithoutMatch = baseAssets.filter((asset) => {
+  const match = NETWORKS.find((network) => network.anchorageId === asset.networkId)
+  return !match
+})
+
+// Write teh base assets out to base-assets.json
+fs.writeFileSync('base-assets-no-match.json', JSON.stringify(baseAssetsWithoutMatch, null, 2))
+
+*/

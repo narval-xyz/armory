@@ -73,7 +73,7 @@ const NETWORKS: Network[] = [
     networkId: 'ARBITRUM_SEPOLIA',
     coinType: 1,
     name: 'Arbitrum Sepolia Testnet',
-    anchorageId: 'ETH_ARBITRUM_T'
+    anchorageId: 'ARBITRUM_SEPOLIA'
   },
   {
     networkId: 'ASTAR',
@@ -91,7 +91,7 @@ const NETWORKS: Network[] = [
     networkId: 'ATOM',
     coinType: 118,
     name: 'Atom',
-    anchorageId: 'ATOM',
+    anchorageId: 'COSMOS',
     fireblocksId: 'ATOM_COS'
   },
   {
@@ -344,7 +344,7 @@ const NETWORKS: Network[] = [
     networkId: 'OASIS',
     coinType: 474,
     name: 'Oasis',
-    anchorageId: 'ROSE'
+    anchorageId: 'OAC'
   },
   {
     networkId: 'OM_MANTRA',
@@ -369,13 +369,13 @@ const NETWORKS: Network[] = [
     networkId: 'PLUME_SEPOLIA',
     coinType: 1,
     name: 'Plume Sepolia Testnet',
-    anchorageId: 'ETH_PLUME_T'
+    anchorageId: 'PLUME_SEPOLIA'
   },
   {
     networkId: 'POLYGON',
     coinType: 966,
     name: 'Polygon',
-    anchorageId: 'POL_POLYGON',
+    anchorageId: 'POLYGON',
     fireblocksId: 'MATIC_POLYGON'
   },
   {
@@ -434,7 +434,7 @@ const NETWORKS: Network[] = [
     networkId: 'STARKNET',
     coinType: 9004,
     name: 'Starknet',
-    anchorageId: 'STRK_STARKNET'
+    anchorageId: 'STARK_STARKNET'
   },
   {
     networkId: 'STARKNET_TESTNET',
@@ -482,19 +482,19 @@ const NETWORKS: Network[] = [
     networkId: 'VANA',
     coinType: null,
     name: 'Vana',
-    anchorageId: 'VANA_VANA'
+    anchorageId: 'VANA'
   },
   {
     networkId: 'VANA_MOKSHA_TESTNET',
     coinType: 1,
     name: 'Vana Moksha Testnet',
-    anchorageId: 'VANA_VANA_MOKSHA_T'
+    anchorageId: 'VANA_MOKSHA_TESTNET'
   },
   {
     networkId: 'ZKSYNC_SEPOLIA',
     coinType: 1,
     name: 'ZKsync Sepolia Testnet',
-    anchorageId: 'ETH_ZKSYNC_T'
+    anchorageId: 'ZKSYNC_SEPOLIA'
   },
   {
     networkId: 'POLKADOT',
