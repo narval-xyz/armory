@@ -175,13 +175,8 @@ export class AnchorageTransferService implements ProviderTransferService {
     }
 
     const source = await this.transferPartyService.resolve(connection.clientId, sendTransfer.source, network.networkId)
-    const destination = await this.transferPartyService.resolve(
-      connection.clientId,
-      sendTransfer.destination,
-      network.networkId
-    )
 
-    this.logger.log('Resolved source and destination', { source, destination, networkId: network.networkId })
+    this.logger.log('Resolved Anchorage source', { source, networkId: network.networkId })
 
     // NOTE: Because Anchorage defaults `deductFeeFromAmountIfSameType` to false, we
     // default the fee attribution to ON_TOP to match their API's behaviour.
@@ -261,8 +256,15 @@ export class AnchorageTransferService implements ProviderTransferService {
     const destination = await this.transferPartyService.resolve(clientId, sendTransfer.destination, network.networkId)
     const type = this.getResourceType(sendTransfer.destination)
 
+    this.logger.log('Resolved Anchorage destination', {
+      network: network.networkId,
+      type,
+      destination
+    })
+
     // TODO: Automate test this. It's an important biz rule.
-    if (type === 'ADDRESS' && 'knownDestinationId' in destination) {
+    // If it's an Address or Known Destination
+    if (type === 'ADDRESS' && 'address' in destination) {
       return {
         type,
         id: destination.address
