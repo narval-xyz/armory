@@ -65,4 +65,5 @@ export type PaginationOptions = {
   skip?: number
   sortOrder?: 'asc' | 'desc'
   orderBy?: { [key: string]: 'asc' | 'desc' }[]
+  disabled?: boolean
 }

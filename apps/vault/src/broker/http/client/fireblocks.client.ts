@@ -1,14 +1,30 @@
 import { LoggerService } from '@narval/nestjs-shared'
-import { RsaPrivateKey, hash, signJwt } from '@narval/signature'
+import { RsaPrivateKey, signJwt } from '@narval/signature'
 import { HttpService } from '@nestjs/axios'
 import { HttpStatus, Injectable } from '@nestjs/common'
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
+import { sha256 } from '@noble/hashes/sha256'
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { isNil, omitBy } from 'lodash'
-import { EMPTY, Observable, catchError, expand, from, lastValueFrom, map, reduce, switchMap, tap } from 'rxjs'
+import {
+  EMPTY,
+  Observable,
+  OperatorFunction,
+  catchError,
+  expand,
+  from,
+  lastValueFrom,
+  map,
+  reduce,
+  switchMap,
+  tap
+} from 'rxjs'
 import { v4 } from 'uuid'
+import { toHex } from 'viem'
 import { ZodType, z } from 'zod'
 import { BrokerException } from '../../core/exception/broker.exception'
+import { ProviderHttpException } from '../../core/exception/provider-http.exception'
 import { UrlParserException } from '../../core/exception/url-parser.exception'
+import { Provider } from '../../core/type/provider.type'
 
 interface ForwardRequestOptions {
   url: string
@@ -113,56 +129,28 @@ const GetAddressListResponse = z.object({
 })
 type GetAddressListResponse = z.infer<typeof GetAddressListResponse>
 
-const InternalWhitelistedAddressAsset = z.object({
+const WhitelistedAddressAsset = z.object({
   id: z.string(),
-  balance: z.string(),
+  balance: z.string().optional(),
   lockedAmount: z.string().optional(),
   status: z.string(),
   address: z.string(),
   tag: z.string().optional(),
   activationTime: z.string().optional()
 })
-type InternalWhitelistedAddressAsset = z.infer<typeof InternalWhitelistedAddressAsset>
+type WhitelistedAddressAsset = z.infer<typeof WhitelistedAddressAsset>
 
-const InternalWhitelistedWallet = z.object({
+const WhitelistedWallet = z.object({
   id: z.string(),
   name: z.string(),
   customerRefId: z.string().optional(),
-  assets: z.array(InternalWhitelistedAddressAsset)
+  assets: z.array(WhitelistedAddressAsset)
 })
-type InternalWhitelistedWallet = z.infer<typeof InternalWhitelistedWallet>
+export type WhitelistedWallet = z.infer<typeof WhitelistedWallet>
 
-const ExternalWhitelistedAddressAsset = z.object({
-  id: z.string(),
-  lockedAmount: z.string().optional(),
-  status: z.string(),
-  address: z.string(),
-  tag: z.string(),
-  activationTime: z.string().optional()
-})
-type ExternalWhitelistedAddressAsset = z.infer<typeof ExternalWhitelistedAddressAsset>
+const GetWhitelistedWalletsResponse = z.array(WhitelistedWallet)
+type GetWhitelistedWalletsResponse = z.infer<typeof GetWhitelistedWalletsResponse>
 
-const ExternalWhitelistedAddress = z
-  .object({
-    id: z.string(),
-    name: z.string(),
-    customerRefId: z.string().optional(),
-    assets: z.array(ExternalWhitelistedAddressAsset)
-  })
-  .strict()
-type ExternalWhitelistedAddress = z.infer<typeof ExternalWhitelistedAddress>
-
-const WhitelistedContract = ExternalWhitelistedAddress
-type WhitelistedContract = z.infer<typeof WhitelistedContract>
-
-const GetWhitelistedInternalWalletsResponse = z.array(InternalWhitelistedWallet)
-type GetWhitelistedInternalWalletsResponse = z.infer<typeof GetWhitelistedInternalWalletsResponse>
-
-const GetWhitelistedExternalWalletsResponse = z.array(ExternalWhitelistedAddress)
-type GetWhitelistedExternalWalletsResponse = z.infer<typeof GetWhitelistedExternalWalletsResponse>
-
-const GetWhitelistedContractsResponse = z.array(WhitelistedContract)
-type GetWhitelistedContractsResponse = z.infer<typeof GetWhitelistedContractsResponse>
 @Injectable()
 export class FireblocksClient {
   constructor(
@@ -211,8 +199,7 @@ export class FireblocksClient {
 
     const exp = now + 30
 
-    const bodyHash = request.data ? hash(request.data) : ''
-
+    const bodyHash = request.data ? toHex(sha256(JSON.stringify(request.data))).slice(2) : undefined
     const payload = {
       uri,
       nonce: opts.nonce || v4(),
@@ -252,14 +239,23 @@ export class FireblocksClient {
     return match[1]
   }
 
-  private serializeError(error: any) {
-    return {
-      message: error.message,
-      name: error.name,
-      stack: error.stack,
-      status: error.response?.status,
-      statusText: error.response?.statusText
-    }
+  private handleError<T>(logMessage: string): OperatorFunction<T, T> {
+    return catchError((error: unknown): Observable<T> => {
+      this.logger.error(logMessage, { error })
+
+      if (error instanceof AxiosError) {
+        throw new ProviderHttpException({
+          provider: Provider.ANCHORAGE,
+          origin: error,
+          response: {
+            status: error.response?.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
+            body: error.response?.data
+          }
+        })
+      }
+
+      throw error
+    })
   }
 
   private validateRequest(request: AxiosRequestConfig): asserts request is AxiosRequestConfig & {
@@ -361,10 +357,7 @@ export class FireblocksClient {
             url: opts.url
           })
         }),
-        catchError((error) => {
-          this.logger.error('Failed to get Fireblocks vault accounts', this.serializeError(error))
-          throw error
-        })
+        this.handleError('Failed to get Fireblocks vault accounts')
       )
     )
   }
@@ -421,10 +414,7 @@ export class FireblocksClient {
             url: opts.url
           })
         }),
-        catchError((error) => {
-          this.logger.error('Failed to get Fireblocks asset wallets', this.serializeError(error))
-          throw error
-        })
+        this.handleError('Failed to get Fireblocks asset wallets')
       )
     )
   }
@@ -496,15 +486,7 @@ export class FireblocksClient {
             assetId: opts.assetId
           })
         }),
-        catchError((error) => {
-          this.logger.error(`Failed to get Fireblocks vault ${opts.vaultAccountId} asset ${opts.assetId} addresses`, {
-            error: error.message,
-            status: error.response?.status,
-            vaultAccountId: opts.vaultAccountId,
-            assetId: opts.assetId
-          })
-          throw error
-        })
+        this.handleError(`Failed to get Fireblocks vault ${opts.vaultAccountId} asset ${opts.assetId} addresses`)
       )
     )
   }
@@ -513,14 +495,14 @@ export class FireblocksClient {
     apiKey: string
     signKey: RsaPrivateKey
     url: string
-  }): Promise<InternalWhitelistedWallet[]> {
+  }): Promise<WhitelistedWallet[]> {
     this.logger.log('Requesting Fireblocks whitelisted internal wallets page', {
       url: opts.url
     })
 
     return lastValueFrom(
       this.sendSignedRequest({
-        schema: GetWhitelistedInternalWalletsResponse,
+        schema: GetWhitelistedWalletsResponse,
         request: {
           url: `${opts.url}/v1/internal_wallets`,
           method: 'GET'
@@ -528,17 +510,14 @@ export class FireblocksClient {
         apiKey: opts.apiKey,
         signKey: opts.signKey
       }).pipe(
-        reduce((wallets: InternalWhitelistedWallet[], response) => [...wallets, ...response], []),
+        reduce((wallets: WhitelistedWallet[], response) => [...wallets, ...response], []),
         tap((addresses) => {
           this.logger.log('Completed fetching all whitelisted internal addresses', {
             addressesCount: addresses.length,
             url: opts.url
           })
         }),
-        catchError((error) => {
-          this.logger.error('Failed to get Fireblocks whitelisted internal addresses', this.serializeError(error))
-          throw error
-        })
+        this.handleError('Failed to get Fireblocks whitelisted internal addresses')
       )
     )
   }
@@ -547,14 +526,14 @@ export class FireblocksClient {
     apiKey: string
     signKey: RsaPrivateKey
     url: string
-  }): Promise<ExternalWhitelistedAddress[]> {
+  }): Promise<WhitelistedWallet[]> {
     this.logger.log('Requesting Fireblocks whitelisted external wallets page', {
       url: opts.url
     })
 
     return lastValueFrom(
       this.sendSignedRequest({
-        schema: GetWhitelistedExternalWalletsResponse,
+        schema: GetWhitelistedWalletsResponse,
         request: {
           url: `${opts.url}/v1/external_wallets`,
           method: 'GET'
@@ -562,17 +541,14 @@ export class FireblocksClient {
         apiKey: opts.apiKey,
         signKey: opts.signKey
       }).pipe(
-        reduce((wallets: ExternalWhitelistedAddress[], response) => [...wallets, ...response], []),
+        reduce((wallets: WhitelistedWallet[], response) => [...wallets, ...response], []),
         tap((addresses) => {
           this.logger.log('Completed fetching all whitelisted external addresses', {
             addressesCount: addresses.length,
             url: opts.url
           })
         }),
-        catchError((error) => {
-          this.logger.error('Failed to get Fireblocks whitelisted external addresses', this.serializeError(error))
-          throw error
-        })
+        this.handleError('Failed to get Fireblocks whitelisted external addresses')
       )
     )
   }
@@ -581,14 +557,14 @@ export class FireblocksClient {
     apiKey: string
     signKey: RsaPrivateKey
     url: string
-  }): Promise<WhitelistedContract[]> {
+  }): Promise<WhitelistedWallet[]> {
     this.logger.log('Requesting Fireblocks whitelisted contracts page', {
       url: opts.url
     })
 
     return lastValueFrom(
       this.sendSignedRequest({
-        schema: GetWhitelistedContractsResponse,
+        schema: GetWhitelistedWalletsResponse,
         request: {
           url: `${opts.url}/v1/contracts`,
           method: 'GET'
@@ -596,17 +572,14 @@ export class FireblocksClient {
         apiKey: opts.apiKey,
         signKey: opts.signKey
       }).pipe(
-        reduce((contracts: WhitelistedContract[], response) => [...contracts, ...response], []),
+        reduce((contracts: WhitelistedWallet[], response) => [...contracts, ...response], []),
         tap((contracts) => {
           this.logger.log('Completed fetching all whitelisted contracts', {
             contractsCount: contracts.length,
             url: opts.url
           })
         }),
-        catchError((error) => {
-          this.logger.error('Failed to get Fireblocks whitelisted contracts', this.serializeError(error))
-          throw error
-        })
+        this.handleError('Failed to get Fireblocks whitelisted contracts')
       )
     )
   }

@@ -80,9 +80,14 @@ export const applyPagination = (
 ): {
   skip?: number
   cursor?: { id: string; createdAt: Date }
-  take: number
+  take?: number
   orderBy: { [key: string]: 'asc' | 'desc' }[]
 } => {
+  if (pagination?.disabled === true) {
+    return {
+      orderBy: DEFAULT_ORDER_BY
+    }
+  }
   const multiplier = pagination?.take && pagination?.take < 0 ? -1 : 1
   const skip = pagination?.cursor ? 1 : undefined
   const take = (Math.abs(pagination?.take || DEFAULT_SERVICE_PAGINATION_LIMIT) + 1) * multiplier

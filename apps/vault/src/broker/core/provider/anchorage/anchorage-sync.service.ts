@@ -52,7 +52,7 @@ export class AnchorageSyncService implements ProviderSyncService {
     const { connection } = context
 
     this.logger.log('Sync Anchorage wallets', {
-      connectionId: connection.credentials,
+      connectionId: connection.connectionId,
       clientId: connection.clientId,
       url: connection.url
     })
@@ -68,7 +68,8 @@ export class AnchorageSyncService implements ProviderSyncService {
     const { data: existingWallets } = await this.walletService.findAll(connection.clientId, {
       filters: {
         externalIds: anchorageVaults.map((vault) => vault.vaultId)
-      }
+      },
+      pagination: { disabled: true }
     })
 
     const existingWalletByExternalId = new Map<string, Wallet>(
@@ -147,13 +148,15 @@ export class AnchorageSyncService implements ProviderSyncService {
     const { data: existingWallets } = await this.walletService.findAll(connection.clientId, {
       filters: {
         externalIds: walletExternalIds
-      }
+      },
+      pagination: { disabled: true }
     })
 
     const { data: existingAccounts } = await this.accountService.findAll(connection.clientId, {
       filters: {
         externalIds: uniq(anchorageWallets.map((wallet) => wallet.walletId))
-      }
+      },
+      pagination: { disabled: true }
     })
 
     const existingAccountsByExternalId = new Map(existingAccounts.map((account) => [account.externalId, account]))
@@ -347,7 +350,9 @@ export class AnchorageSyncService implements ProviderSyncService {
 
     const now = context.now || new Date()
 
-    const { data: existingKnownDestinations } = await this.knownDestinationService.findAll(connection.clientId)
+    const { data: existingKnownDestinations } = await this.knownDestinationService.findAll(connection.clientId, {
+      pagination: { disabled: true }
+    })
 
     const incomingMap = new Map(anchorageTrustedDestinations.map((dest) => [dest.id, dest]))
     const existingMap = new Map(existingKnownDestinations.map((dest) => [dest.externalId, dest]))

@@ -15,6 +15,7 @@ import { AnchorageSyncService } from './core/provider/anchorage/anchorage-sync.s
 import { AnchorageTransferService } from './core/provider/anchorage/anchorage-transfer.service'
 import { FireblocksCredentialService } from './core/provider/fireblocks/fireblocks-credential.service'
 import { FireblocksProxyService } from './core/provider/fireblocks/fireblocks-proxy.service'
+import { FireblocksSyncService } from './core/provider/fireblocks/fireblocks-sync.service'
 import { AccountService } from './core/service/account.service'
 import { AddressService } from './core/service/address.service'
 import { ConnectionService } from './core/service/connection.service'
@@ -90,6 +91,7 @@ import { WalletRepository } from './persistence/repository/wallet.repository'
     FireblocksClient,
     FireblocksCredentialService,
     FireblocksProxyService,
+    FireblocksSyncService,
     KnownDestinationRepository,
     KnownDestinationService,
     NetworkRepository,

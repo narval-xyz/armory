@@ -510,10 +510,7 @@ export class AnchorageClient {
             url: opts.url
           })
         }),
-        catchError((error) => {
-          this.logger.error('Failed to get Anchorage trusted-destinations', { error })
-          throw error
-        })
+        this.handleError('Failed to get Anchorage trusted-destinations')
       )
     )
   }

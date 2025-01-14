@@ -9,6 +9,7 @@ import { FindAllOptions, SyncRepository } from '../../persistence/repository/syn
 import { OTEL_ATTR_CONNECTION_ID, OTEL_ATTR_CONNECTION_PROVIDER, OTEL_ATTR_SYNC_ID } from '../../shared/constant'
 import { SyncStartedEvent } from '../../shared/event/sync-started.event'
 import { AnchorageSyncService } from '../provider/anchorage/anchorage-sync.service'
+import { FireblocksSyncService } from '../provider/fireblocks/fireblocks-sync.service'
 import { ConnectionWithCredentials } from '../type/connection.type'
 import {
   Provider,
@@ -31,6 +32,7 @@ export class SyncService {
   constructor(
     private readonly syncRepository: SyncRepository,
     private readonly anchorageSyncService: AnchorageSyncService,
+    private readonly fireblocksSyncService: FireblocksSyncService,
     private readonly walletService: WalletService,
     private readonly accountService: AccountService,
     private readonly addressService: AddressService,
@@ -356,6 +358,8 @@ export class SyncService {
     switch (provider) {
       case Provider.ANCHORAGE:
         return this.anchorageSyncService
+      case Provider.FIREBLOCKS:
+        return this.fireblocksSyncService
       default:
         throw new NotImplementedException(`Unsupported sync for provider ${provider}`)
     }

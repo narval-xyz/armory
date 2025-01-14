@@ -1,0 +1,16 @@
+{
+  "addresses": [
+    {
+      "assetId": "ETH-OPT",
+      "address": "0x5748EA5ca075734bc7ADc9D8046e897c24829A80",
+      "description": "",
+      "tag": "",
+      "type": "Permanent",
+      "legacyAddress": "",
+      "enterpriseAddress": "",
+      "bip44AddressIndex": 0,
+      "userDefined": false
+    }
+  ],
+  "paging": {}
+}
