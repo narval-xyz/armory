@@ -1,4 +1,5 @@
-import { Network } from '../type/network.type'
+import { ExternalNetwork, Network } from '../type/network.type'
+import { Provider } from '../type/provider.type'
 
 export const isNetworkIdFromTestnet = (networkId: string): boolean => {
   const id = networkId.toUpperCase()
@@ -22,4 +23,8 @@ export const isNetworkIdFromTestnet = (networkId: string): boolean => {
  */
 export const isTestnet = (network: Network): boolean => {
   return Boolean(network.coinType && network.coinType === 1)
+}
+
+export const getExternalNetwork = (network: Network, provider: Provider): ExternalNetwork | null => {
+  return network.externalNetworks.find((externalNetwork) => externalNetwork.provider === provider) || null
 }

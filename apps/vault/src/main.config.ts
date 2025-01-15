@@ -302,3 +302,7 @@ export const load = (): Config => {
 
   throw new Error(`Invalid application configuration: ${result.error.message}`)
 }
+
+export const getEnv = (): Env => {
+  return z.nativeEnum(Env).parse(process.env.NODE_ENV)
+}

@@ -18,6 +18,7 @@ import { ConnectionRepository } from '../../../../../persistence/repository/conn
 import { KnownDestinationRepository } from '../../../../../persistence/repository/known-destination.repository'
 import { TransferRepository } from '../../../../../persistence/repository/transfer.repository'
 import { WalletRepository } from '../../../../../persistence/repository/wallet.repository'
+import { NetworkSeed } from '../../../../../persistence/seed/network.seed'
 import { setupMockServer, useRequestSpy } from '../../../../../shared/__test__/mock-server'
 import { Connection, ConnectionStatus, ConnectionWithCredentials } from '../../../../type/connection.type'
 import { Account, Address, KnownDestination, Wallet } from '../../../../type/indexed-resources.type'
@@ -28,6 +29,7 @@ import {
   TransferPartyType,
   TransferStatus
 } from '../../../../type/transfer.type'
+import { AnchorageAssetService } from '../../anchorage-asset.service'
 import { AnchorageTransferService } from '../../anchorage-transfer.service'
 import { ANCHORAGE_TEST_API_BASE_URL, getHandlers } from '../server-mock/server'
 
@@ -35,16 +37,18 @@ describe(AnchorageTransferService.name, () => {
   let app: INestApplication
   let module: TestingModule
   let testPrismaService: TestPrismaService
-  let anchorageTransferService: AnchorageTransferService
-  let provisionService: ProvisionService
-  let clientService: ClientService
 
-  let transferRepository: TransferRepository
-  let connectionRepository: ConnectionRepository
-  let walletRepository: WalletRepository
   let accountRepository: AccountRepository
   let addressRepository: AddressRepository
+  let anchorageAssetService: AnchorageAssetService
+  let anchorageTransferService: AnchorageTransferService
+  let clientService: ClientService
+  let connectionRepository: ConnectionRepository
   let knownDestinationRepository: KnownDestinationRepository
+  let networkSeed: NetworkSeed
+  let provisionService: ProvisionService
+  let transferRepository: TransferRepository
+  let walletRepository: WalletRepository
 
   const mockServer = setupMockServer(getHandlers())
 
@@ -181,12 +185,14 @@ describe(AnchorageTransferService.name, () => {
     provisionService = module.get(ProvisionService)
     clientService = module.get<ClientService>(ClientService)
 
-    transferRepository = module.get(TransferRepository)
-    connectionRepository = module.get(ConnectionRepository)
-    walletRepository = module.get(WalletRepository)
     accountRepository = module.get(AccountRepository)
     addressRepository = module.get(AddressRepository)
+    anchorageAssetService = module.get(AnchorageAssetService)
+    connectionRepository = module.get(ConnectionRepository)
     knownDestinationRepository = module.get(KnownDestinationRepository)
+    networkSeed = module.get(NetworkSeed)
+    transferRepository = module.get(TransferRepository)
+    walletRepository = module.get(WalletRepository)
 
     await testPrismaService.truncateAll()
   })
@@ -202,6 +208,7 @@ describe(AnchorageTransferService.name, () => {
 
     await provisionService.provision()
     await clientService.save(testClient)
+    await networkSeed.seed()
 
     await connectionRepository.create(connection)
     await walletRepository.bulkCreate([wallet])

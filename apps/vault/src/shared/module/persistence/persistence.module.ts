@@ -6,6 +6,7 @@ import { AppService } from '../../../app.service'
 import { AppModule } from '../../../main.module'
 import { EncryptionModuleOptionFactory } from '../../factory/encryption-module-option.factory'
 import { PrismaService } from './service/prisma.service'
+import { SeederService } from './service/seeder.service'
 import { TestPrismaService } from './service/test-prisma.service'
 
 @Module({})
@@ -35,8 +36,8 @@ export class PersistenceModule {
           useClass: EncryptionModuleOptionFactory
         })
       ],
-      providers: [PrismaService, TestPrismaService],
-      exports: [PrismaService, TestPrismaService]
+      providers: [PrismaService, TestPrismaService, SeederService],
+      exports: [PrismaService, TestPrismaService, SeederService]
     }
   }
 }

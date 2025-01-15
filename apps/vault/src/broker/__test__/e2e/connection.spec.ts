@@ -35,7 +35,6 @@ import { ConnectionService } from '../../core/service/connection.service'
 import { SyncService } from '../../core/service/sync.service'
 import { ConnectionStatus } from '../../core/type/connection.type'
 import { Provider } from '../../core/type/provider.type'
-import '../../shared/__test__/matcher'
 import { ConnectionActivatedEvent } from '../../shared/event/connection-activated.event'
 import { getExpectedAccount, getExpectedWallet } from '../util/map-db-to-returned'
 import {
@@ -47,6 +46,8 @@ import {
   testClient,
   testUserPrivateJwk
 } from '../util/mock-data'
+
+import '../../shared/__test__/matcher'
 
 describe('Connection', () => {
   let app: INestApplication

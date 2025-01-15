@@ -30,6 +30,7 @@ import { AccountRepository } from '../../persistence/repository/account.reposito
 import { ConnectionRepository } from '../../persistence/repository/connection.repository'
 import { TransferRepository } from '../../persistence/repository/transfer.repository'
 import { WalletRepository } from '../../persistence/repository/wallet.repository'
+import { NetworkSeed } from '../../persistence/seed/network.seed'
 import { setupMockServer } from '../../shared/__test__/mock-server'
 import { REQUEST_HEADER_CONNECTION_ID } from '../../shared/constant'
 import { getJwsd, testClient, testUserPrivateJwk } from '../util/mock-data'
@@ -43,9 +44,10 @@ describe('Transfer', () => {
   let provisionService: ProvisionService
   let clientService: ClientService
 
-  let transferRepository: TransferRepository
-  let connectionRepository: ConnectionRepository
   let accountRepository: AccountRepository
+  let connectionRepository: ConnectionRepository
+  let networkSeed: NetworkSeed
+  let transferRepository: TransferRepository
   let walletRepository: WalletRepository
 
   const clientId = testClient.clientId
@@ -168,6 +170,7 @@ describe('Transfer', () => {
     connectionRepository = module.get(ConnectionRepository)
     walletRepository = module.get(WalletRepository)
     accountRepository = module.get(AccountRepository)
+    networkSeed = module.get(NetworkSeed)
 
     await testPrismaService.truncateAll()
   })
@@ -188,6 +191,8 @@ describe('Transfer', () => {
     await walletRepository.bulkCreate([wallet])
     await accountRepository.bulkCreate([accountOne, accountTwo])
     await transferRepository.bulkCreate([internalTransfer])
+
+    await networkSeed.seed()
 
     await app.init()
   })

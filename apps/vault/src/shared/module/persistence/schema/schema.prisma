@@ -278,3 +278,29 @@ model ProviderTransfer {
   @@index([createdAt, clientId])
   @@map("provider_transfer")
 }
+
+model Network {
+  id        String   @id
+  coinType  Int?     @map("coin_type")
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  externalNetworks ProviderNetwork[]
+
+  @@map("network")
+}
+
+model ProviderNetwork {
+  externalId String   @map("external_id")
+  networkId  String   @map("network_id")
+  provider   String
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  network Network? @relation(fields: [networkId], references: [id])
+
+  // Prevent duplication of external network by provider.
+  @@unique([provider, externalId])
+  // Prevent duplication of provider supported network.
+  @@unique([provider, networkId])
+  @@map("provider_network")
+}

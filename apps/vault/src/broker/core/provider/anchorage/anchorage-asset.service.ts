@@ -1,4 +1,12 @@
-export type AnchorageAsset = {
+import { LoggerService } from '@narval/nestjs-shared'
+import { Injectable } from '@nestjs/common'
+import { NetworkRepository } from '../../../persistence/repository/network.repository'
+import { Asset } from '../../type/asset.type'
+import { Network } from '../../type/network.type'
+import { Provider } from '../../type/provider.type'
+import { getExternalNetwork } from '../../util/network.util'
+
+type AnchorageAsset = {
   assetType: string
   decimals: number
   name: string
@@ -6,8 +14,7 @@ export type AnchorageAsset = {
   onchainIdentifier?: string
 }
 
-// TODO: move this into a Repository, map w/ other providers
-export const ANCHORAGE_ASSETS: AnchorageAsset[] = [
+const ANCHORAGE_ASSETS: AnchorageAsset[] = [
   {
     assetType: '1INCH',
     decimals: 18,
@@ -2617,19 +2624,83 @@ export const ANCHORAGE_ASSETS: AnchorageAsset[] = [
   }
 ]
 
-/**
- * util to find anchorage networks that don't have a match in the networks list.
+@Injectable()
+export class AnchorageAssetService {
+  constructor(
+    private readonly networkRepository: NetworkRepository,
+    private readonly logger: LoggerService
+  ) {}
 
-const baseAssets = ANCHORAGE_ASSETS.filter((asset) => !asset.onchainIdentifier)
+  private mapAnchorageAsset(network: Network, anchorageAsset: AnchorageAsset): Asset {
+    return {
+      decimals: anchorageAsset.decimals,
+      externalId: anchorageAsset.assetType,
+      name: anchorageAsset.name,
+      networkId: network.networkId,
+      onchainId: anchorageAsset.onchainIdentifier
+    }
+  }
 
-// for each baseAsset, see if you can find a match for `networkId` against the `anchorageId` property of the networks list.
-// Filter the baseAssets list to only the ones that do NOT have a match.
-const baseAssetsWithoutMatch = baseAssets.filter((asset) => {
-  const match = NETWORKS.find((network) => network.anchorageId === asset.networkId)
-  return !match
-})
+  async findByExternalId(externalId: string): Promise<Asset | null> {
+    for (const anchorageAsset of ANCHORAGE_ASSETS) {
+      if (anchorageAsset.assetType === externalId) {
+        const network = await this.networkRepository.findByExternalId(Provider.ANCHORAGE, anchorageAsset.networkId)
 
-// Write teh base assets out to base-assets.json
-fs.writeFileSync('base-assets-no-match.json', JSON.stringify(baseAssetsWithoutMatch, null, 2))
+        if (network) {
+          return this.mapAnchorageAsset(network, anchorageAsset)
+        }
+      }
+    }
 
-*/
+    return null
+  }
+
+  async findAll(): Promise<Asset[]> {
+    const networkExternalIdIndex = await this.networkRepository.buildProviderExternalIdIndex(Provider.ANCHORAGE)
+    const assets: Asset[] = []
+
+    for (const anchorageAsset of ANCHORAGE_ASSETS) {
+      const network = networkExternalIdIndex.get(anchorageAsset.networkId)
+
+      if (network) {
+        assets.push(this.mapAnchorageAsset(network, anchorageAsset))
+      } else {
+        this.logger.warn('Anchorage asset network not found', { anchorageAsset })
+      }
+    }
+
+    return assets
+  }
+
+  async findByOnchainId(networkId: string, onchainId: string): Promise<Asset | null> {
+    for (const anchorageAsset of ANCHORAGE_ASSETS) {
+      if (anchorageAsset.onchainIdentifier?.toLowerCase() === onchainId.toLowerCase()) {
+        const network = await this.networkRepository.findByExternalId(Provider.ANCHORAGE, anchorageAsset.assetType)
+
+        if (network?.networkId === networkId) {
+          return this.mapAnchorageAsset(network, anchorageAsset)
+        }
+      }
+    }
+
+    return null
+  }
+
+  async findNativeAsset(networkId: string): Promise<Asset | null> {
+    const network = await this.networkRepository.findById(networkId)
+
+    if (network) {
+      const externalNetwork = getExternalNetwork(network, Provider.ANCHORAGE)
+
+      for (const anchorageAsset of ANCHORAGE_ASSETS) {
+        // If network matches and asset doesn't has an address, it must be the
+        // native asset.
+        if (externalNetwork?.externalId === anchorageAsset.networkId && !anchorageAsset.onchainIdentifier) {
+          return this.mapAnchorageAsset(network, anchorageAsset)
+        }
+      }
+    }
+
+    return null
+  }
+}

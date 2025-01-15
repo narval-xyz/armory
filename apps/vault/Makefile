@@ -31,6 +31,9 @@ vault/build:
 
 vault/format:
 	npx nx format:write --projects ${VAULT_PROJECT_NAME}
+	make vault/format/prisma
+
+vault/format/prisma:
 	npx prisma format --schema ${VAULT_DATABASE_SCHEMA}
 
 vault/lint:

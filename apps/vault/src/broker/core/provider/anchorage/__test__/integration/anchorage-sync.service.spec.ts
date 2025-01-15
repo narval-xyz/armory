@@ -15,6 +15,7 @@ import { TestPrismaService } from '../../../../../../shared/module/persistence/s
 import { getTestRawAesKeyring } from '../../../../../../shared/testing/encryption.testing'
 import { testClient } from '../../../../../__test__/util/mock-data'
 import { WalletRepository } from '../../../../../persistence/repository/wallet.repository'
+import { NetworkSeed } from '../../../../../persistence/seed/network.seed'
 import { setupMockServer } from '../../../../../shared/__test__/mock-server'
 import { AccountService } from '../../../../service/account.service'
 import { AddressService } from '../../../../service/address.service'
@@ -64,6 +65,7 @@ describe(AnchorageSyncService.name, () => {
   let connection: ConnectionWithCredentials
   let connectionService: ConnectionService
   let knownDestinationService: KnownDestinationService
+  let networkSeed: NetworkSeed
   let provisionService: ProvisionService
   let testPrismaService: TestPrismaService
   let walletService: WalletRepository
@@ -102,6 +104,7 @@ describe(AnchorageSyncService.name, () => {
     addressService = module.get(AddressService)
     knownDestinationService = module.get(KnownDestinationService)
     provisionService = module.get(ProvisionService)
+    networkSeed = module.get(NetworkSeed)
     clientService = module.get(ClientService)
 
     await testPrismaService.truncateAll()
@@ -129,6 +132,8 @@ describe(AnchorageSyncService.name, () => {
         privateKey: await privateKeyToHex(await generateJwk(Alg.EDDSA))
       }
     })
+
+    await networkSeed.seed()
 
     await app.init()
   })

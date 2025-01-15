@@ -31,7 +31,7 @@ export type AddressDestination = z.infer<typeof AddressDestination>
 export const Destination = z.union([TransferParty, AddressDestination])
 export type Destination = z.infer<typeof Destination>
 
-export const Asset = z
+export const TransferAsset = z
   .object({
     assetId: z.string().optional().describe('ID of the asset. Can be used instead of address+networkId.'),
     externalAssetId: z
@@ -49,7 +49,7 @@ export const Asset = z
     networkId: z.string().optional().describe('Network of the asset. Required if address is provided.')
   })
   .describe('The asset being transferred')
-export type Asset = z.infer<typeof Asset>
+export type TransferAsset = z.infer<typeof TransferAsset>
 
 export const SendTransfer = z.object({
   source: Source,
@@ -57,7 +57,7 @@ export const SendTransfer = z.object({
   amount: z.string(),
 
   assetId: z.string().optional().describe('@deprecated use asset instead'), // @deprecated use asset instead
-  asset: Asset,
+  asset: TransferAsset,
   // This is optional on the base transfer and always default on the
   // provider-specific transfer service.
   networkFeeAttribution: z.nativeEnum(NetworkFeeAttribution).optional(),
