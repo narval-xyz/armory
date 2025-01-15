@@ -345,13 +345,15 @@ export function verifyJwsdHeader(
   if (jwsdHeader.created && now - jwsdHeader.created > opts.maxTokenAge) {
     throw new JwtError({
       message: 'JWS is too old, created field is too far in the past',
-      context: { header, opts }
+      context: { header, opts, now }
     })
   }
-  if (jwsdHeader.created && now - jwsdHeader.created < -3) {
+  // Allow for some clock skew (e.g., 15 seconds)
+  const ALLOWED_CLOCK_SKEW = 15
+  if (jwsdHeader.created && now - jwsdHeader.created < -ALLOWED_CLOCK_SKEW) {
     throw new JwtError({
       message: 'JWS is too old, created field is too far in the future, did you use milliseconds instead of seconds?',
-      context: { header, opts }
+      context: { header, opts, now }
     })
   }
 
