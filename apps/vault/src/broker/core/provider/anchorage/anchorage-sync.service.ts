@@ -130,7 +130,7 @@ export class AnchorageSyncService implements ProviderSyncService {
     const { connection } = context
 
     this.logger.log('Sync Anchorage accounts', {
-      connectionId: connection.credentials,
+      connectionId: connection.connectionId,
       clientId: connection.clientId,
       url: connection.url
     })
@@ -235,7 +235,7 @@ export class AnchorageSyncService implements ProviderSyncService {
     const { connection } = context
 
     this.logger.log('Sync Anchorage addresses', {
-      connectionId: connection.credentials,
+      connectionId: connection.connectionId,
       clientId: connection.clientId,
       url: connection.url
     })
@@ -334,7 +334,7 @@ export class AnchorageSyncService implements ProviderSyncService {
     const { connection } = context
 
     this.logger.log('Sync Anchorage known destinations', {
-      connectionId: connection.credentials,
+      connectionId: connection.connectionId,
       clientId: connection.clientId,
       url: connection.url
     })

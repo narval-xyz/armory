@@ -380,7 +380,11 @@ export class AnchorageClient {
             return this.sendSignedRequest({
               schema: GetVaultsResponse,
               request: {
-                url: response.page.next
+                url: `${url}${response.page.next}`,
+                method: 'GET',
+                params: {
+                  limit: opts.limit
+                }
               },
               apiKey,
               signKey
@@ -431,7 +435,8 @@ export class AnchorageClient {
             return this.sendSignedRequest({
               schema: GetWalletsResponse,
               request: {
-                url: response.page.next
+                url: `${url}${response.page.next}`,
+                method: 'GET'
               },
               apiKey,
               signKey
@@ -484,7 +489,8 @@ export class AnchorageClient {
             return this.sendSignedRequest({
               schema: GetTrustedDestinationsResponse,
               request: {
-                url: response.page.next
+                url: `${url}${response.page.next}`,
+                method: 'GET'
               },
               apiKey,
               signKey
@@ -542,7 +548,11 @@ export class AnchorageClient {
             return this.sendSignedRequest({
               schema: GetVaultAddressesResponse,
               request: {
-                url: response.page.next
+                url: `${url}${response.page.next}`,
+                method: 'GET',
+                params: {
+                  assetType
+                }
               },
               apiKey,
               signKey
