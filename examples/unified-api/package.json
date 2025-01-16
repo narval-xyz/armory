@@ -11,6 +11,7 @@
   "dependencies": {
     "@narval-xyz/armory-sdk": "0.17.0",
     "dotenv": "16.4.5",
-    "tsx": "4.19.2"
+    "tsx": "4.19.2",
+    "zod": "3.24.1"
   }
 }
