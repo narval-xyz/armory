@@ -5,19 +5,19 @@ import { TransferRepository } from '../../persistence/repository/transfer.reposi
 import { OTEL_ATTR_CONNECTION_PROVIDER } from '../../shared/constant'
 import { BrokerException } from '../exception/broker.exception'
 import { AnchorageTransferService } from '../provider/anchorage/anchorage-transfer.service'
+import { FireblocksTransferService } from '../provider/fireblocks/fireblocks-transfer.service'
 import { isActiveConnection } from '../type/connection.type'
 import { Provider, ProviderTransferService } from '../type/provider.type'
 import { InternalTransfer, SendTransfer } from '../type/transfer.type'
 import { ConnectionService } from './connection.service'
-import { TransferPartyService } from './transfer-party.service'
 
 @Injectable()
 export class TransferService {
   constructor(
     private readonly transferRepository: TransferRepository,
     private readonly connectionService: ConnectionService,
-    private readonly transferPartyService: TransferPartyService,
     private readonly anchorageTransferService: AnchorageTransferService,
+    private readonly fireblocksTransferService: FireblocksTransferService,
     private readonly logger: LoggerService,
     @Inject(TraceService) private readonly traceService: TraceService
   ) {}
@@ -47,6 +47,14 @@ export class TransferService {
     if (isActiveConnection(connection)) {
       span.setAttribute(OTEL_ATTR_CONNECTION_PROVIDER, connection.provider)
 
+      if (await this.transferRepository.existsByIdempotenceId(clientId, sendTransfer.idempotenceId)) {
+        throw new BrokerException({
+          message: 'Transfer idempotence ID already used',
+          suggestedHttpStatusCode: HttpStatus.CONFLICT,
+          context: { idempotenceId: sendTransfer.idempotenceId }
+        })
+      }
+
       const transfer = await this.getProviderTransferService(connection.provider).send(connection, sendTransfer)
 
       span.end()
@@ -71,6 +79,8 @@ export class TransferService {
     switch (provider) {
       case Provider.ANCHORAGE:
         return this.anchorageTransferService
+      case Provider.FIREBLOCKS:
+        return this.fireblocksTransferService
       default:
         throw new NotImplementedException(`Unsupported transfer for provider ${provider}`)
     }

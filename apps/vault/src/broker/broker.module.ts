@@ -19,13 +19,13 @@ import { FireblocksAssetService } from './core/provider/fireblocks/fireblocks-as
 import { FireblocksCredentialService } from './core/provider/fireblocks/fireblocks-credential.service'
 import { FireblocksProxyService } from './core/provider/fireblocks/fireblocks-proxy.service'
 import { FireblocksSyncService } from './core/provider/fireblocks/fireblocks-sync.service'
+import { FireblocksTransferService } from './core/provider/fireblocks/fireblocks-transfer.service'
 import { AccountService } from './core/service/account.service'
 import { AddressService } from './core/service/address.service'
 import { ConnectionService } from './core/service/connection.service'
 import { KnownDestinationService } from './core/service/known-destination.service'
 import { ProxyService } from './core/service/proxy.service'
 import { SyncService } from './core/service/sync.service'
-import { TransferPartyService } from './core/service/transfer-party.service'
 import { TransferService } from './core/service/transfer.service'
 import { WalletService } from './core/service/wallet.service'
 import { ConnectionSyncEventHandler } from './event/handler/connection-sync.event-handler'
@@ -101,13 +101,13 @@ const SEEDS = [NetworkSeed]
     FireblocksCredentialService,
     FireblocksProxyService,
     FireblocksSyncService,
+    FireblocksTransferService,
     KnownDestinationRepository,
     KnownDestinationService,
     NetworkRepository,
     ProxyService,
     SyncRepository,
     SyncService,
-    TransferPartyService,
     TransferRepository,
     TransferService,
     WalletRepository,

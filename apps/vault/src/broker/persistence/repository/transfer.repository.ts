@@ -84,6 +84,8 @@ export class TransferRepository {
       createdAt: model.createdAt,
       customerRefId: model.customerRefId,
       externalId: model.externalId,
+      // The external status is added at runtime.
+      externalStatus: null,
       grossAmount: model.grossAmount,
       idempotenceId: model.idempotenceId,
       memo: model.memo,
@@ -169,5 +171,13 @@ export class TransferRepository {
       message: 'Transfer not found',
       context: { transferId }
     })
+  }
+
+  async existsByIdempotenceId(clientId: string, idempotenceId: string): Promise<boolean> {
+    const count = await this.prismaService.providerTransfer.count({
+      where: { clientId, idempotenceId }
+    })
+
+    return count > 0
   }
 }

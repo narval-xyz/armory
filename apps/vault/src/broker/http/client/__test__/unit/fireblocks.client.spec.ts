@@ -117,12 +117,11 @@ describe(FireblocksClient.name, () => {
       })
 
       // Check header structure
-      expect(result.headers).toHaveProperty('X-API-Key', 'test-api-key')
-      expect(result.headers).toHaveProperty('Authorization')
+      expect(result.headers).toHaveProperty('x-api-key', 'test-api-key')
+      expect(result.headers).toHaveProperty('authorization')
 
       // Verify the Bearer token format
-      const authHeader = result.headers?.Authorization
-      expect(authHeader).toMatch(/^Bearer [A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.[A-Za-z0-9-_.+/=]+$/)
+      expect(result.headers?.authorization).toMatch(/^Bearer [A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.[A-Za-z0-9-_.+/=]+$/)
     })
 
     it('creates valid authorization headers for POST request with data', async () => {
@@ -141,8 +140,8 @@ describe(FireblocksClient.name, () => {
       })
 
       // Verify the basic structure stays the same for POST
-      expect(result.headers).toHaveProperty('X-API-Key', 'test-api-key')
-      expect(result.headers?.Authorization).toMatch(/^Bearer [A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.[A-Za-z0-9-_.+/=]+$/)
+      expect(result.headers).toHaveProperty('x-api-key', 'test-api-key')
+      expect(result.headers?.authorization).toMatch(/^Bearer [A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.[A-Za-z0-9-_.+/=]+$/)
 
       // Verify the data is properly set in the request
       expect(result.data).toEqual(requestData)

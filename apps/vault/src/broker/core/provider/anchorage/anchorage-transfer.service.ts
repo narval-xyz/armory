@@ -5,10 +5,10 @@ import { AnchorageClient } from '../../../http/client/anchorage.client'
 import { NetworkRepository } from '../../../persistence/repository/network.repository'
 import { TransferRepository } from '../../../persistence/repository/transfer.repository'
 import { BrokerException } from '../../exception/broker.exception'
-import { TransferPartyService } from '../../service/transfer-party.service'
+import { AccountService } from '../../service/account.service'
+import { WalletService } from '../../service/wallet.service'
 import { Asset } from '../../type/asset.type'
 import { ConnectionWithCredentials } from '../../type/connection.type'
-import { Network } from '../../type/network.type'
 import { Provider, ProviderTransferService } from '../../type/provider.type'
 import {
   Destination,
@@ -24,7 +24,7 @@ import {
   isProviderSpecific
 } from '../../type/transfer.type'
 import { AnchorageAssetService } from './anchorage-asset.service'
-import { validateConnection } from './anchorage.util'
+import { transferPartyTypeToAnchorageResourceType, validateConnection } from './anchorage.util'
 
 @Injectable()
 export class AnchorageTransferService implements ProviderTransferService {
@@ -32,23 +32,24 @@ export class AnchorageTransferService implements ProviderTransferService {
     private readonly anchorageAssetService: AnchorageAssetService,
     private readonly anchorageClient: AnchorageClient,
     private readonly networkRepository: NetworkRepository,
-    private readonly transferPartyService: TransferPartyService,
+    private readonly accountService: AccountService,
+    private readonly walletService: WalletService,
     private readonly transferRepository: TransferRepository,
     private readonly logger: LoggerService
   ) {}
 
   async findById(connection: ConnectionWithCredentials, transferId: string): Promise<Transfer> {
-    this.logger.log('Find Anchorage transfer by ID', {
-      clientId: connection.clientId,
-      connectionId: connection.connectionId,
-      transferId
-    })
+    const { clientId, connectionId } = connection
+
+    const context = { clientId, connectionId, transferId }
+
+    this.logger.log('Find Anchorage transfer by ID', context)
 
     validateConnection(connection)
 
     const internalTransfer = await this.transferRepository.findById(connection.clientId, transferId)
 
-    this.logger.log('Found internal transfer by ID', internalTransfer)
+    this.logger.log('Found internal transfer by ID', { ...context, internalTransfer })
 
     const anchorageTransfer = await this.anchorageClient.getTransferById({
       url: connection.url,
@@ -57,7 +58,7 @@ export class AnchorageTransferService implements ProviderTransferService {
       transferId: internalTransfer.externalId
     })
 
-    this.logger.log('Found remote transfer by external ID', anchorageTransfer)
+    this.logger.log('Found remote transfer by external ID', { ...context, anchorageTransfer })
 
     const transfer = {
       assetId: internalTransfer.assetId,
@@ -66,6 +67,7 @@ export class AnchorageTransferService implements ProviderTransferService {
       customerRefId: internalTransfer.customerRefId,
       destination: internalTransfer.destination,
       externalId: internalTransfer.externalId,
+      externalStatus: anchorageTransfer.status,
       grossAmount: anchorageTransfer.amount.quantity,
       idempotenceId: internalTransfer.idempotenceId,
       memo: anchorageTransfer.transferMemo || internalTransfer.memo || null,
@@ -87,7 +89,7 @@ export class AnchorageTransferService implements ProviderTransferService {
         : []
     }
 
-    this.logger.log('Combined internal and remote transfer', transfer)
+    this.logger.log('Combined internal and remote Anchorage transfer', { ...context, transfer })
 
     return transfer
   }
@@ -139,11 +141,10 @@ export class AnchorageTransferService implements ProviderTransferService {
   }
 
   async send(connection: ConnectionWithCredentials, sendTransfer: SendTransfer): Promise<InternalTransfer> {
-    this.logger.log('Send Anchorage transfer', {
-      clientId: connection.clientId,
-      connectionId: connection.connectionId,
-      sendTransfer
-    })
+    const { clientId, connectionId } = connection
+    const context = { clientId, connectionId }
+
+    this.logger.log('Send Anchorage transfer', { ...context, sendTransfer })
 
     validateConnection(connection)
 
@@ -165,19 +166,18 @@ export class AnchorageTransferService implements ProviderTransferService {
       })
     }
 
-    const source = await this.transferPartyService.resolve(connection.clientId, sendTransfer.source, network.networkId)
+    const source = await this.getSource(clientId, sendTransfer.source)
+    const destination = await this.getDestination(clientId, sendTransfer.destination)
 
-    this.logger.log('Resolved Anchorage source', { source, networkId: network.networkId })
+    this.logger.log('Resolved Anchorage source and destination', { ...context, source, destination })
 
-    // NOTE: Because Anchorage defaults `deductFeeFromAmountIfSameType` to false, we
-    // default the fee attribution to ON_TOP to match their API's behaviour.
+    // NOTE: Because Anchorage defaults `deductFeeFromAmountIfSameType` to
+    // false, we default the fee attribution to ON_TOP to match their API's
+    // behaviour.
     const networkFeeAttribution = sendTransfer.networkFeeAttribution || NetworkFeeAttribution.ON_TOP
     const data = {
-      source: {
-        type: this.getResourceType(sendTransfer.source),
-        id: source.externalId
-      },
-      destination: await this.getDestination(connection.clientId, network, sendTransfer),
+      source,
+      destination,
       assetType: asset.externalId,
       amount: sendTransfer.amount,
       transferMemo: sendTransfer.memo || null,
@@ -186,6 +186,8 @@ export class AnchorageTransferService implements ProviderTransferService {
       ...(isProviderSpecific(sendTransfer.providerSpecific) ? { ...sendTransfer.providerSpecific } : {})
     }
 
+    this.logger.log('Send create transfer request to Anchorage', { ...context, data })
+
     const anchorageTransfer = await this.anchorageClient.createTransfer({
       url: connection.url,
       apiKey: connection.credentials.apiKey,
@@ -193,14 +195,17 @@ export class AnchorageTransferService implements ProviderTransferService {
       data
     })
 
+    this.logger.log('Anchorage transfer created', context)
+
     const internalTransfer: InternalTransfer = {
       // TODO: switch this to the Narval assetId once that is a real thing.
       assetId: asset.externalId,
-      clientId: connection.clientId,
+      clientId: clientId,
       createdAt: new Date(),
       customerRefId: null,
       destination: sendTransfer.destination,
       externalId: anchorageTransfer.transferId,
+      externalStatus: anchorageTransfer.status,
       grossAmount: sendTransfer.amount,
       idempotenceId: sendTransfer.idempotenceId,
       memo: sendTransfer.memo || null,
@@ -212,7 +217,7 @@ export class AnchorageTransferService implements ProviderTransferService {
       transferId: uuid()
     }
 
-    this.logger.log('Create internal transfer', internalTransfer)
+    this.logger.log('Create internal transfer', { ...context, internalTransfer })
 
     await this.transferRepository.bulkCreate([internalTransfer])
 
@@ -225,10 +230,9 @@ export class AnchorageTransferService implements ProviderTransferService {
    *
    * Example: a request to transfer 5 BTC with
    * `deductFeeFromAmountIfSameType=false` would result in 5 exactly BTC
-   * received to the destination vault and just over 5 BTC spent by the source
-   * vault.
+   * received to the destination and just over 5 BTC spent by the source.
    *
-   * NOTE: Anchorage API defaults to `false`.
+   * Note: Anchorage API defaults to `false`.
    *
    * @see https://docs.anchorage.com/reference/createtransfer
    */
@@ -244,55 +248,66 @@ export class AnchorageTransferService implements ProviderTransferService {
     return false
   }
 
-  private async getDestination(clientId: string, network: Network, sendTransfer: SendTransfer) {
-    const destination = await this.transferPartyService.resolve(clientId, sendTransfer.destination, network.networkId)
-    const type = this.getResourceType(sendTransfer.destination)
+  private async getSource(clientId: string, source: Source) {
+    if (source.type === TransferPartyType.WALLET) {
+      const wallet = await this.walletService.findById(clientId, source.id)
 
-    this.logger.log('Resolved Anchorage destination', {
-      network: network.networkId,
-      type,
-      destination
-    })
-
-    // TODO: Automate test this. It's an important biz rule.
-    // If it's an Address or Known Destination
-    if (type === 'ADDRESS' && 'address' in destination) {
       return {
-        type,
+        type: transferPartyTypeToAnchorageResourceType(source.type),
+        id: wallet.externalId
+      }
+    }
+
+    if (source.type === TransferPartyType.ACCOUNT) {
+      const wallet = await this.accountService.findById(clientId, source.id)
+
+      return {
+        type: transferPartyTypeToAnchorageResourceType(source.type),
+        id: wallet.externalId
+      }
+    }
+
+    throw new BrokerException({
+      message: 'Cannot resolve Anchorage transfer source',
+      suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+      context: { clientId, source }
+    })
+  }
+
+  private async getDestination(clientId: string, destination: Destination) {
+    if (isAddressDestination(destination)) {
+      // IMPORTANT: For both known and unknown addresses, we pass them directly
+      // to Anchorage without validating their existence on our side. If the
+      // provided address is neither an Anchorage Address nor a Trusted
+      // Address, we let Anchorage handle the failure.
+      return {
+        type: transferPartyTypeToAnchorageResourceType(TransferPartyType.ADDRESS),
         id: destination.address
       }
     }
 
-    // TODO: When we send to an internal address, do we must pass and ID or the
-    // address as well?
+    if (destination.type === TransferPartyType.WALLET) {
+      const wallet = await this.walletService.findById(clientId, destination.id)
 
-    return {
-      type,
-      id: destination.externalId
-    }
-  }
-
-  private getResourceType(transferParty: Source | Destination) {
-    if (isAddressDestination(transferParty)) {
-      return 'ADDRESS'
+      return {
+        type: transferPartyTypeToAnchorageResourceType(destination.type),
+        id: wallet.externalId
+      }
     }
 
-    if (transferParty.type === TransferPartyType.WALLET) {
-      return 'VAULT'
-    }
+    if (destination.type === TransferPartyType.ACCOUNT) {
+      const account = await this.accountService.findById(clientId, destination.id)
 
-    if (transferParty.type === TransferPartyType.ACCOUNT) {
-      return 'WALLET'
-    }
-
-    if (transferParty.type === TransferPartyType.ADDRESS) {
-      return 'ADDRESS'
+      return {
+        type: transferPartyTypeToAnchorageResourceType(destination.type),
+        id: account.externalId
+      }
     }
 
     throw new BrokerException({
-      message: 'Cannot get Anchorage resource type from transfer party type',
-      suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-      context: { party: transferParty }
+      message: 'Cannot resolve Anchorage transfer destination',
+      suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+      context: { clientId, destination }
     })
   }
 }

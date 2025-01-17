@@ -1,8 +1,11 @@
 import { Ed25519PrivateKey } from '@narval/signature'
+import { HttpStatus } from '@nestjs/common'
+import { BrokerException } from '../../exception/broker.exception'
 import { ConnectionInvalidException } from '../../exception/connection-invalid.exception'
 import { ConnectionWithCredentials } from '../../type/connection.type'
 import { Provider } from '../../type/provider.type'
-import { AnchorageCredentials } from './anchorage.type'
+import { TransferPartyType } from '../../type/transfer.type'
+import { AnchorageCredentials, AnchorageResourceType } from './anchorage.type'
 
 export function validateConnection(
   connection: ConnectionWithCredentials
@@ -49,5 +52,22 @@ export function validateConnection(
       message: 'Anchorage connection missing API key',
       context
     })
+  }
+}
+
+export const transferPartyTypeToAnchorageResourceType = (type: TransferPartyType): AnchorageResourceType => {
+  switch (type) {
+    case TransferPartyType.WALLET:
+      return AnchorageResourceType.VAULT
+    case TransferPartyType.ACCOUNT:
+      return AnchorageResourceType.WALLET
+    case TransferPartyType.ADDRESS:
+      return AnchorageResourceType.ADDRESS
+    default:
+      throw new BrokerException({
+        message: 'Cannot map transfer party to Anchorage resource type',
+        suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        context: { type }
+      })
   }
 }

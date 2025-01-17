@@ -151,6 +151,116 @@ export type WhitelistedWallet = z.infer<typeof WhitelistedWallet>
 const GetWhitelistedWalletsResponse = z.array(WhitelistedWallet)
 type GetWhitelistedWalletsResponse = z.infer<typeof GetWhitelistedWalletsResponse>
 
+const TransactionAmountInfo = z.object({
+  amount: z.string(),
+  requestedAmount: z.string(),
+  netAmount: z.string().optional(),
+  amountUSD: z.string()
+})
+
+const TransactionFeeInfo = z.object({
+  networkFee: z.string().optional(),
+  gasPrice: z.string().optional()
+})
+export type TransactionFeeInfo = z.infer<typeof TransactionFeeInfo>
+
+const TransactionBlockInfo = z.object({
+  blockHeight: z.string().optional(),
+  blockHash: z.string().nullable()
+})
+
+const TransactionParty = z.object({
+  id: z.string().nullable(),
+  type: z.string(),
+  name: z.string().optional(),
+  subType: z.string()
+})
+
+const Transaction = z.object({
+  addressType: z.string(),
+  amount: z.number(),
+  amountInfo: TransactionAmountInfo,
+  amountUSD: z.number(),
+  assetId: z.string(),
+  assetType: z.string(),
+  blockInfo: TransactionBlockInfo,
+  createdAt: z.number(),
+  createdBy: z.string(),
+  destination: TransactionParty,
+  destinationAddress: z.string(),
+  destinationAddressDescription: z.string(),
+  destinationTag: z.string(),
+  destinations: z.array(z.unknown()),
+  exchangeTxId: z.string(),
+  fee: z.number(),
+  feeCurrency: z.string(),
+  feeInfo: TransactionFeeInfo,
+  id: z.string(),
+  index: z.number().optional(),
+  lastUpdated: z.number(),
+  netAmount: z.number(),
+  networkFee: z.number(),
+  note: z.string(),
+  numOfConfirmations: z.number().optional(),
+  operation: z.string(),
+  rejectedBy: z.string(),
+  requestedAmount: z.number(),
+  signedBy: z.array(z.string()),
+  signedMessages: z.array(z.unknown()),
+  source: TransactionParty,
+  sourceAddress: z.string(),
+  status: z.string(),
+  subStatus: z.string(),
+  txHash: z.string()
+})
+export type Transaction = z.infer<typeof Transaction>
+
+const CreateTransactionResponse = z.object({
+  id: z.string(),
+  status: z.string()
+})
+type CreateTransactionResponse = z.infer<typeof CreateTransactionResponse>
+
+interface RequestParams {
+  apiKey: string
+  signKey: RsaPrivateKey
+  url: string
+}
+
+// IMPORTANT: These aren't all FB create transaction parameters.
+// See https://developers.fireblocks.com/reference/createtransaction
+export interface CreateTransaction {
+  amount: string
+  operation?: string
+  note?: string
+  externalTxId?: string
+  assetId: string
+  source: {
+    type: string
+    id?: string
+  }
+  destination: {
+    type: string
+    id?: string
+    oneTimeAddress?: {
+      address: string
+    }
+  }
+  treatAsGrossAmount?: boolean
+  feeLevel?: string
+  priorityFee?: string
+  failOnLowFee?: boolean
+  maxFee?: string
+  gasLimit?: string
+  gasPrice?: string
+  networkFee?: string
+  replaceTxByHash?: string
+  customerRefId?: string
+  useGasless?: boolean
+  // Headers
+  idempotencyKey?: string
+  requestId?: string
+}
 @Injectable()
 export class FireblocksClient {
   constructor(
@@ -199,7 +309,8 @@ export class FireblocksClient {
 
     const exp = now + 30
 
-    const bodyHash = request.data ? toHex(sha256(JSON.stringify(request.data))).slice(2) : undefined
+    const bodyHash = this.getBodyHash(request)
+
     const payload = {
       uri,
       nonce: opts.nonce || v4(),
@@ -212,8 +323,9 @@ export class FireblocksClient {
     const token = await signJwt(payload, signKey)
 
     const headers = {
-      'X-API-Key': apiKey,
-      Authorization: `Bearer ${token}`
+      ...(request.headers ? request.headers : {}),
+      'x-api-key': apiKey,
+      authorization: `Bearer ${token}`
     }
 
     const data = request.data && request.method !== 'GET' ? request.data : undefined
@@ -223,6 +335,19 @@ export class FireblocksClient {
       headers,
       data
     }
+  }
+
+  /**
+   * Returns a hex-encoded SHA-256 hash of the raw HTTP request body.
+   *
+   * @see https://developers.fireblocks.com/reference/signing-a-request-jwt-structure#jwt-structure
+   */
+  getBodyHash(request: AxiosRequestConfig): string {
+    if (request.data) {
+      return toHex(sha256(JSON.stringify(request.data))).slice(2)
+    }
+
+    return ''
   }
 
   parseEndpoint(url: string): string {
@@ -245,7 +370,7 @@ export class FireblocksClient {
 
       if (error instanceof AxiosError) {
         throw new ProviderHttpException({
-          provider: Provider.ANCHORAGE,
+          provider: Provider.FIREBLOCKS,
           origin: error,
           response: {
             status: error.response?.status ?? HttpStatus.INTERNAL_SERVER_ERROR,
@@ -293,10 +418,11 @@ export class FireblocksClient {
       switchMap((signedRequest) =>
         this.httpService.request(signedRequest).pipe(
           tap((response) => {
-            this.logger.log('Received response', {
+            this.logger.log('Received Fireblocks response', {
               url: opts.request.url,
               method: opts.request.method,
-              nextPage: response.data?.paging?.after
+              nextPage: response.data?.paging?.after,
+              body: response.data || null
             })
           }),
           map((response) => opts.schema.parse(response.data))
@@ -580,6 +706,67 @@ export class FireblocksClient {
           })
         }),
         this.handleError('Failed to get Fireblocks whitelisted contracts')
+      )
+    )
+  }
+
+  async createTransaction(params: RequestParams & { data: CreateTransaction }): Promise<CreateTransactionResponse> {
+    const { apiKey, signKey, url } = params
+    const { idempotencyKey, ...data } = params.data
+
+    this.logger.log('Sending create transaction request to Fireblocks', { url, data: params.data })
+
+    return lastValueFrom(
+      this.sendSignedRequest({
+        schema: CreateTransactionResponse,
+        request: {
+          url: `${url}/v1/transactions`,
+          method: 'POST',
+          data,
+          ...(idempotencyKey
+            ? {
+                headers: {
+                  'idempotency-key': idempotencyKey
+                }
+              }
+            : {})
+        },
+        apiKey,
+        signKey
+      }).pipe(
+        tap((tx) => {
+          this.logger.log('Successfully created Fireblocks transaction', {
+            transactionId: tx.id,
+            url
+          })
+        }),
+        this.handleError('Failed to create Fireblocks transaction')
+      )
+    )
+  }
+
+  async getTransactionById(params: RequestParams & { txId: string }): Promise<Transaction> {
+    const { apiKey, signKey, url, txId } = params
+
+    this.logger.log('Request Fireblocks transaction by ID', { url, txId })
+
+    return lastValueFrom(
+      this.sendSignedRequest({
+        schema: Transaction,
+        request: {
+          url: `${url}/v1/transactions/${txId}`,
+          method: 'GET'
+        },
+        apiKey,
+        signKey
+      }).pipe(
+        tap((tx) => {
+          this.logger.log('Successfully got Fireblocks transaction', {
+            transactionId: tx.id,
+            url
+          })
+        }),
+        this.handleError('Failed to get Fireblocks transaction by ID')
       )
     )
   }

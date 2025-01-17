@@ -14,3 +14,10 @@ export const AnchorageCredentials = z.object({
   privateKey: ed25519PrivateKeySchema
 })
 export type AnchorageCredentials = z.infer<typeof AnchorageCredentials>
+
+export const AnchorageResourceType = {
+  VAULT: 'VAULT',
+  WALLET: 'WALLET',
+  ADDRESS: 'ADDRESS'
+} as const
+export type AnchorageResourceType = (typeof AnchorageResourceType)[keyof typeof AnchorageResourceType]

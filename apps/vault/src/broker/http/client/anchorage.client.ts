@@ -342,7 +342,7 @@ export class AnchorageClient {
       switchMap((signedRequest) =>
         this.httpService.request(signedRequest).pipe(
           tap((response) => {
-            this.logger.log('Received response', {
+            this.logger.log('Received Anchorage response', {
               url: opts.request.url,
               method: opts.request.method,
               nextPage: response.data?.page?.next
@@ -405,7 +405,7 @@ export class AnchorageClient {
         }),
         reduce((vaults: Vault[], response) => [...vaults, ...response.data], []),
         tap((vaults) => {
-          this.logger.log('Completed fetching all vaults', {
+          this.logger.log('Completed fetching all Anchorage vaults', {
             vaultsCount: vaults.length,
             url: opts.url
           })
@@ -457,7 +457,7 @@ export class AnchorageClient {
         }),
         reduce((wallets: Wallet[], response) => [...wallets, ...response.data], []),
         tap((wallets) => {
-          this.logger.log('Completed fetching all wallets', {
+          this.logger.log('Completed fetching all Anchorage wallets', {
             url,
             walletsCount: wallets.length
           })
@@ -511,7 +511,7 @@ export class AnchorageClient {
         }),
         reduce((trustedDestinations: TrustedDestination[], response) => [...trustedDestinations, ...response.data], []),
         tap((trustedDestinations) => {
-          this.logger.log('Completed fetching all trusted-destinations', {
+          this.logger.log('Completed fetching all Anchorage trusted-destinations', {
             trustedDestinationsCount: trustedDestinations.length,
             url: opts.url
           })
@@ -574,7 +574,7 @@ export class AnchorageClient {
         }),
         reduce((addresses: Address[], response) => [...addresses, ...response.data], []),
         tap((addresses) => {
-          this.logger.log('Completed fetching all vault addresses', {
+          this.logger.log('Completed fetching all Anchorage vault addresses', {
             addressesCount: addresses.length,
             vaultId,
             assetType,
@@ -603,7 +603,7 @@ export class AnchorageClient {
       }).pipe(
         map((response) => response.data),
         tap((transfer) => {
-          this.logger.log('Successfully fetched transfer', {
+          this.logger.log('Successfully fetched Anchorage transfer', {
             transferId,
             url,
             status: transfer.status
@@ -617,7 +617,7 @@ export class AnchorageClient {
   async createTransfer(opts: RequestOptions & { data: CreateTransfer }): Promise<CreatedTransfer> {
     const { apiKey, signKey, url, data } = opts
 
-    this.logger.log('Sending create transfer in request to Anchorage', { data })
+    this.logger.log('Sending create transfer request to Anchorage', { url, data })
 
     return lastValueFrom(
       this.sendSignedRequest({
@@ -632,7 +632,7 @@ export class AnchorageClient {
       }).pipe(
         map((response) => response.data),
         tap((transfer) => {
-          this.logger.log('Successfully created transfer', {
+          this.logger.log('Successfully created Anchorage transfer', {
             transferId: transfer.transferId,
             url
           })

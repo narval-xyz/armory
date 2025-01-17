@@ -23,7 +23,7 @@ export class WalletService {
     return this.walletRepository.findAll(clientId, options)
   }
 
-  async findById(clientId: string, accountId: string): Promise<Wallet> {
-    return this.walletRepository.findById(clientId, accountId)
+  async findById(clientId: string, walletId: string): Promise<Wallet> {
+    return this.walletRepository.findById(clientId, walletId)
   }
 }

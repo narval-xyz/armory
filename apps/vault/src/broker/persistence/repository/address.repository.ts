@@ -1,9 +1,8 @@
 import { PaginatedResult, PaginationOptions, applyPagination, getPaginatedResult } from '@narval/nestjs-shared'
-import { HttpStatus, Injectable } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { ProviderAddress } from '@prisma/client/vault'
 import { z } from 'zod'
 import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
-import { BrokerException } from '../../core/exception/broker.exception'
 import { NotFoundException } from '../../core/exception/not-found.exception'
 import { Address } from '../../core/type/indexed-resources.type'
 import { Provider } from '../../core/type/provider.type'
@@ -25,11 +24,11 @@ export class AddressRepository {
   static parseModel(model: ProviderAddress): Address {
     const { id, ...rest } = model
 
-    return {
+    return Address.parse({
       ...rest,
       addressId: id,
       provider: z.nativeEnum(Provider).parse(model.provider)
-    }
+    })
   }
 
   static parseEntity(entity: Address): ProviderAddress {
@@ -75,8 +74,8 @@ export class AddressRepository {
     return AddressRepository.parseModel(address)
   }
 
-  async findByAddress(clientId: string, address: string, networkId: string): Promise<Address | null> {
-    const providerAddresses = await this.prismaService.providerAddress.findMany({
+  async findByAddressAndNetwork(clientId: string, address: string, networkId: string): Promise<Address[]> {
+    const models = await this.prismaService.providerAddress.findMany({
       where: {
         clientId,
         address,
@@ -86,18 +85,7 @@ export class AddressRepository {
       }
     })
 
-    if (providerAddresses.length > 1) {
-      throw new BrokerException({
-        message: 'Cannot resolve the right address due to ambiguity',
-        suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        context: {
-          clientId,
-          addresses: providerAddresses.map(({ address, id }) => ({ addressId: id, address }))
-        }
-      })
-    }
-
-    return providerAddresses.length ? AddressRepository.parseModel(providerAddresses[0]) : null
+    return models.map(AddressRepository.parseModel)
   }
 
   async findAll(clientId: string, opts?: FindAllOptions): Promise<PaginatedResult<Address>> {

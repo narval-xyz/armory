@@ -2,6 +2,7 @@
 
 import { HttpStatus } from '@nestjs/common'
 import { UpdateAccount } from '../../persistence/repository/account.repository'
+import { Asset } from './asset.type'
 import { ConnectionWithCredentials } from './connection.type'
 import { Account, Address, KnownDestination, UpdateWallet, Wallet } from './indexed-resources.type'
 import { InternalTransfer, SendTransfer, Transfer } from './transfer.type'
@@ -326,4 +327,16 @@ export interface ProviderCredentialService<InputCredentials, Credentials> {
    * @returns A promise that resolves to the generated credentials.
    */
   generate<Options extends Record<string, unknown>>(options?: Options): Promise<Credentials>
+}
+
+//
+// Asset
+//
+
+// TODO: still thinking..
+export interface ProviderAssetService {
+  findAll(): Promise<Asset[]>
+  findByExternalId(externalId: string): Promise<Asset | null>
+  findByOnchainId(networkId: string, onchainId: string): Promise<Asset | null>
+  findNativeAsset(networkId: string): Promise<Asset | null>
 }

@@ -52,31 +52,40 @@ export const TransferAsset = z
 export type TransferAsset = z.infer<typeof TransferAsset>
 
 export const SendTransfer = z.object({
+  transferId: z.string().optional().describe('Sets the transfer ID to an arbitrary value'),
   source: Source,
   destination: Destination,
   amount: z.string(),
-
-  assetId: z.string().optional().describe('@deprecated use asset instead'), // @deprecated use asset instead
+  /**
+   * @deprecated use asset instead
+   */
+  assetId: z.string().optional().describe('@deprecated use asset instead'),
   asset: TransferAsset,
-  // This is optional on the base transfer and always default on the
-  // provider-specific transfer service.
-  networkFeeAttribution: z.nativeEnum(NetworkFeeAttribution).optional(),
+  networkFeeAttribution: z
+    .nativeEnum(NetworkFeeAttribution)
+    .optional()
+    .describe(
+      [
+        'Controls how network fees are charged.',
+        'Example: a request to transfer 1 ETH with networkFeeAttribution=ON_TOP would result in exactly 1 ETH received to the destination and just over 1 ETH spent by the source.',
+        'Note: This property is optional and its default always depend on the underlying provider.'
+      ].join('\n')
+    ),
   customerRefId: z.string().optional(),
   idempotenceId: z.string(),
   memo: z.string().optional(),
   provider: z.nativeEnum(Provider).optional(),
-  // Requires `provider` to be set.
   providerSpecific: z.unknown().optional()
 })
 export type SendTransfer = z.infer<typeof SendTransfer>
 
-export const Fee = z.object({
+export const TransferFee = z.object({
   type: z.string(),
-  attribution: z.string(),
+  attribution: z.string().optional(),
   amount: z.string(),
   assetId: z.string()
 })
-export type Fee = z.infer<typeof Fee>
+export type TransferFee = z.infer<typeof TransferFee>
 
 export const TransferStatus = {
   PROCESSING: 'processing',
@@ -92,6 +101,7 @@ export const InternalTransfer = z.object({
   customerRefId: z.string().nullable(),
   destination: Destination,
   externalId: z.string(),
+  externalStatus: z.string().nullable(),
   grossAmount: z.string(),
   idempotenceId: z.string().nullable(),
   memo: z.string().nullable(),
@@ -116,7 +126,7 @@ export const Transfer = InternalTransfer.extend({
   // A transfer always has a status because we check with the provider to
   // combine the information from the API and the database.
   status: z.nativeEnum(TransferStatus),
-  fees: z.array(Fee)
+  fees: z.array(TransferFee)
 })
 export type Transfer = z.infer<typeof Transfer>
 

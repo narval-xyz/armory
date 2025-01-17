@@ -1,9 +1,9 @@
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import { LoggerModule } from '@narval/nestjs-shared'
-import { Ed25519PrivateKey, getPublicKey } from '@narval/signature'
+import { RsaPrivateKey, getPublicKey } from '@narval/signature'
 import { INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
-import { v4 as uuid } from 'uuid'
+import { randomUUID } from 'crypto'
 import { generatePrivateKey, privateKeyToAddress } from 'viem/accounts'
 import { ClientService } from '../../../../../../client/core/service/client.service'
 import { MainModule } from '../../../../../../main.module'
@@ -16,13 +16,12 @@ import { testClient } from '../../../../../__test__/util/mock-data'
 import { AccountRepository } from '../../../../../persistence/repository/account.repository'
 import { AddressRepository } from '../../../../../persistence/repository/address.repository'
 import { ConnectionRepository } from '../../../../../persistence/repository/connection.repository'
-import { KnownDestinationRepository } from '../../../../../persistence/repository/known-destination.repository'
 import { TransferRepository } from '../../../../../persistence/repository/transfer.repository'
 import { WalletRepository } from '../../../../../persistence/repository/wallet.repository'
 import { NetworkSeed } from '../../../../../persistence/seed/network.seed'
 import { setupMockServer, useRequestSpy } from '../../../../../shared/__test__/mock-server'
 import { Connection, ConnectionStatus, ConnectionWithCredentials } from '../../../../type/connection.type'
-import { Account, Address, KnownDestination, Wallet } from '../../../../type/indexed-resources.type'
+import { Account, Address, Wallet } from '../../../../type/indexed-resources.type'
 import { Provider } from '../../../../type/provider.type'
 import {
   InternalTransfer,
@@ -30,137 +29,142 @@ import {
   TransferPartyType,
   TransferStatus
 } from '../../../../type/transfer.type'
-import { AnchorageTransferService } from '../../anchorage-transfer.service'
-import { ANCHORAGE_TEST_API_BASE_URL, getHandlers } from '../server-mock/server'
+import { FireblocksTransferService } from '../../fireblocks-transfer.service'
+import { FIREBLOCKS_TEST_API_BASE_URL, getHandlers } from '../server-mock/server'
 
-describe(AnchorageTransferService.name, () => {
+describe(FireblocksTransferService.name, () => {
   let app: INestApplication
   let module: TestingModule
   let testPrismaService: TestPrismaService
 
   let accountRepository: AccountRepository
-  let addressRepository: AddressRepository
-  let anchorageTransferService: AnchorageTransferService
+  let fireblocksTransferService: FireblocksTransferService
   let clientService: ClientService
   let connectionRepository: ConnectionRepository
-  let knownDestinationRepository: KnownDestinationRepository
   let networkSeed: NetworkSeed
   let provisionService: ProvisionService
   let transferRepository: TransferRepository
   let walletRepository: WalletRepository
+  let addressRepository: AddressRepository
 
   const mockServer = setupMockServer(getHandlers())
 
-  const clientId = uuid()
+  const clientId = randomUUID()
 
-  const externalId = '60a0676772fdbd7a041e9451c61c3cb6b28ee901186e40ac99433308604e2e20'
+  const walletOneId = randomUUID()
 
-  const walletId = uuid()
+  const walletTwoId = randomUUID()
 
-  const eddsaPrivateKey: Ed25519PrivateKey = {
-    kty: 'OKP',
-    crv: 'Ed25519',
-    alg: 'EDDSA',
-    kid: '0xa6fe705025aa4c48abbb3a1ed679d7dc7d18e7994b4d5cb1884479fddeb2e706',
-    x: 'U4WSOMzD7gor6jiVz42jT22JGBcfGfzMomt8PFC_-_U',
-    d: 'evo-fY2BX60V1n3Z690LadH5BvizcM9bESaYk0LsxyQ'
+  const rsaPrivate: RsaPrivateKey = {
+    kty: 'RSA',
+    alg: 'RS256',
+    kid: '0x52920ad0d19d7779106bd9d9d600d26c4b976cdb3cbc49decb7fdc29db00b8e9',
+    n: 'xNdTjWL9hGa4bz4tLKbmFZ4yjQsQzW35-CMS0kno3403jEqg5y2Cs6sLVyPBX4N2hdK5ERPytpf1PrThHqB-eEO6LtEWpENBgFuNIf8DRHrv0tne7dLNxf7sx1aocGRrkgIk4Ws6Is4Ot3whm3-WihmDGnHoogE-EPwVkkSc2FYPXYlNq4htCZXC8_MUI3LuXry2Gn4tna5HsYSehYhfKDD-nfSajeWxdNUv_3wOeSCr9ICm9Udlo7hpIUHQgnX3Nz6kvfGYuweLGoj_ot-oEUCIdlbQqmrfStAclugbM5NI6tY__6wD0z_4ZBjToupXCBlXbYsde6_ZG9xPmYSykw',
+    e: 'AQAB',
+    d: 'QU4rIzpXX8jwob-gHzNUHJH6tX6ZWX6GM0P3p5rrztc8Oag8z9XyigdSYNu0-SpVdTqfOcJDgT7TF7XNBms66k2WBJhMCb1iiuJU5ZWEkQC0dmDgLEkHCgx0pAHlKjy2z580ezEm_YsdqNRfFgbze-fQ7kIiazU8UUhBI-DtpHv7baBgsfqEfQ5nCTiURUPmmpiIU74-ZIJWZjBXTOoJNH0EIsJK9IpZzxpeC9mTMTsWTcHKiR3acze1qf-9I97v461TTZ8e33N6YINyr9I4HZuvxlCJdV_lOM3fLvYM9gPvgkPozhVWL3VKR6xa9JpGGHrCRgH92INuviBB_SmF8Q',
+    p: '9BNku_-t4Df9Dg7M2yjiNgZgcTNKrDnNqexliIUAt67q0tGmSBubjxeI5unDJZ_giXWUR3q-02v7HT5GYx-ZVgKk2lWnbrrm_F7UZW-ueHzeVvQcjDXTk0z8taXzrDJgnIwZIaZ2XSG3P-VPOrXCaMba8GzSq38Gpzi4g3lTO9s',
+    q: 'znUtwrqdnVew14_aFjNTRgzOQNN8JhkjzJy3aTSLBScK5NbiuUUZBWs5dQ7Nv7aAoDss1-o9XVQZ1DVV-o9UufJtyrPNcvTnC0cWRrtJrSN5YiuUbECU3Uj3OvGxnhx9tsmhDHnMTo50ObPYUbHcIkNaXkf2FVgL84y1JRWdPak',
+    dp: 'UNDrFeS-6fMf8zurURXkcQcDf_f_za8GDjGcHOwNJMTiNBP-_vlFNMgSKINWfmrFqj4obtKRxOeIKlKoc8HOv8_4TeL2oY95VC8CHOQx3Otbo2cI3NQlziw7sNnWKTo1CyDIYYAAyS2Uw69l4Ia2bIMLk3g0-VwCE_SQA9h0Wuk',
+    dq: 'VBe6ieSFKn97UnIPfJdvRcsVf6YknUgEIuV6d2mlbnXWpBs6wgf5BxIDl0BuYbYuchVoUJHiaM9Grf8DhEk5U3wBaF0QQ9CpAxjzY-AJRHJ8kJX7oJQ1jmSX_vRPSn2EXx2FcZVyuFSh1pcAd1YgufwBJQHepBb21z7q0a4aG_E',
+    qi: 'KhZpFs6xfyRIjbJV8Q9gWxqF37ONayIzBpgio5mdAQlZ-FUmaWZ2_2VWP2xvsP48BmwFXydHqewHBqGnZYCQ1ZHXJgD_-KKEejoqS5AJN1pdI0ZKjs7UCfZ4RJ4DH5p0_35gpuKRzzdvcIhl1CjIC5W8o7nhwmLBJ_QAo9e4t9U'
   }
+
+  const testApiKey = 'test-api-key'
 
   const connection: ConnectionWithCredentials = {
     clientId,
-    connectionId: uuid(),
+    connectionId: randomUUID(),
     createdAt: new Date(),
-    provider: Provider.ANCHORAGE,
+    provider: Provider.FIREBLOCKS,
     status: ConnectionStatus.ACTIVE,
     updatedAt: new Date(),
-    url: ANCHORAGE_TEST_API_BASE_URL,
+    url: FIREBLOCKS_TEST_API_BASE_URL,
     credentials: {
-      privateKey: eddsaPrivateKey,
-      publicKey: getPublicKey(eddsaPrivateKey),
-      apiKey: 'test-api-key'
+      privateKey: rsaPrivate,
+      publicKey: getPublicKey(rsaPrivate),
+      apiKey: testApiKey
     }
   }
 
   const accountOne: Account = {
-    accountId: uuid(),
+    accountId: randomUUID(),
     addresses: [],
     clientId,
     createdAt: new Date(),
-    externalId: uuid(),
+    externalId: randomUUID(),
     label: 'Account 1',
-    networkId: 'BITCOIN',
-    provider: Provider.ANCHORAGE,
+    networkId: 'POLYGON',
+    provider: Provider.FIREBLOCKS,
     updatedAt: new Date(),
-    walletId
+    walletId: walletOneId
   }
 
   const accountTwo: Account = {
-    accountId: uuid(),
+    accountId: randomUUID(),
     addresses: [],
     clientId,
     createdAt: new Date(),
-    externalId: uuid(),
+    externalId: randomUUID(),
     label: 'Account 2',
-    networkId: 'BITCOIN',
-    provider: Provider.ANCHORAGE,
+    networkId: 'POLYGON',
+    provider: Provider.FIREBLOCKS,
     updatedAt: new Date(),
-    walletId
+    walletId: walletTwoId
+  }
+
+  const walletOne: Wallet = {
+    clientId,
+    connections: [Connection.parse(connection)],
+    createdAt: new Date(),
+    externalId: randomUUID(),
+    label: null,
+    provider: Provider.FIREBLOCKS,
+    updatedAt: new Date(),
+    walletId: walletOneId
+  }
+
+  const walletTwo: Wallet = {
+    clientId,
+    connections: [Connection.parse(connection)],
+    createdAt: new Date(),
+    externalId: randomUUID(),
+    label: null,
+    provider: Provider.FIREBLOCKS,
+    updatedAt: new Date(),
+    walletId: walletTwoId
   }
 
   const address: Address = {
     accountId: accountTwo.accountId,
     address: '0x2c4895215973cbbd778c32c456c074b99daf8bf1',
-    addressId: uuid(),
+    addressId: randomUUID(),
     clientId,
     createdAt: new Date(),
-    externalId: uuid(),
-    provider: Provider.ANCHORAGE,
-    updatedAt: new Date()
-  }
-
-  const wallet: Wallet = {
-    clientId,
-    connections: [Connection.parse(connection)],
-    createdAt: new Date(),
-    externalId: uuid(),
-    label: null,
-    provider: Provider.ANCHORAGE,
-    updatedAt: new Date(),
-    walletId
-  }
-
-  const knownDestination: KnownDestination = {
-    address: '0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b',
-    clientId,
-    connections: [],
-    createdAt: new Date(),
-    externalId: uuid(),
-    knownDestinationId: uuid(),
-    networkId: 'BITCOIN',
-    provider: Provider.ANCHORAGE,
+    externalId: randomUUID(),
+    provider: Provider.FIREBLOCKS,
     updatedAt: new Date()
   }
 
   const internalTransfer: InternalTransfer = {
     clientId,
-    customerRefId: null,
-    idempotenceId: null,
-    destination: {
-      type: TransferPartyType.ACCOUNT,
-      id: accountTwo.accountId
-    },
-    externalId,
-    externalStatus: null,
-    assetId: 'BTC',
-    memo: 'Test transfer',
-    grossAmount: '0.00001',
-    networkFeeAttribution: NetworkFeeAttribution.DEDUCT,
-    provider: Provider.ANCHORAGE,
     source: {
       type: TransferPartyType.ACCOUNT,
       id: accountOne.accountId
     },
-    transferId: uuid(),
+    destination: {
+      type: TransferPartyType.ACCOUNT,
+      id: accountTwo.accountId
+    },
+    customerRefId: null,
+    idempotenceId: null,
+    externalId: randomUUID(),
+    externalStatus: null,
+    assetId: 'MATIC',
+    memo: 'Test transfer',
+    grossAmount: '0.00001',
+    networkFeeAttribution: NetworkFeeAttribution.DEDUCT,
+    provider: Provider.FIREBLOCKS,
+    transferId: randomUUID(),
     createdAt: new Date()
   }
 
@@ -181,14 +185,13 @@ describe(AnchorageTransferService.name, () => {
     app = module.createNestApplication()
 
     testPrismaService = module.get(TestPrismaService)
-    anchorageTransferService = module.get(AnchorageTransferService)
+    fireblocksTransferService = module.get(FireblocksTransferService)
     provisionService = module.get(ProvisionService)
-    clientService = module.get<ClientService>(ClientService)
+    clientService = module.get(ClientService)
 
     accountRepository = module.get(AccountRepository)
     addressRepository = module.get(AddressRepository)
     connectionRepository = module.get(ConnectionRepository)
-    knownDestinationRepository = module.get(KnownDestinationRepository)
     networkSeed = module.get(NetworkSeed)
     transferRepository = module.get(TransferRepository)
     walletRepository = module.get(WalletRepository)
@@ -210,18 +213,17 @@ describe(AnchorageTransferService.name, () => {
     await networkSeed.seed()
 
     await connectionRepository.create(connection)
-    await walletRepository.bulkCreate([wallet])
+    await walletRepository.bulkCreate([walletOne, walletTwo])
     await accountRepository.bulkCreate([accountOne, accountTwo])
     await addressRepository.bulkCreate([address])
     await transferRepository.bulkCreate([internalTransfer])
-    await knownDestinationRepository.bulkCreate([knownDestination])
 
     await app.init()
   })
 
   describe('findById', () => {
     it('maps data from internal transfer', async () => {
-      const transfer = await anchorageTransferService.findById(connection, internalTransfer.transferId)
+      const transfer = await fireblocksTransferService.findById(connection, internalTransfer.transferId)
 
       expect(transfer).toMatchObject({
         assetId: internalTransfer.assetId,
@@ -237,35 +239,43 @@ describe(AnchorageTransferService.name, () => {
       })
     })
 
-    it('maps gross amount from inbound transfer', async () => {
-      const transfer = await anchorageTransferService.findById(connection, internalTransfer.transferId)
+    it('maps gross amount from inbound transaction', async () => {
+      const transfer = await fireblocksTransferService.findById(connection, internalTransfer.transferId)
 
-      expect(transfer.grossAmount).toEqual('0.00001')
+      expect(transfer.grossAmount).toEqual('0.001')
     })
 
-    it('maps status from inbound transfer', async () => {
-      const transfer = await anchorageTransferService.findById(connection, internalTransfer.transferId)
+    it('maps status from inbound transaction', async () => {
+      const transfer = await fireblocksTransferService.findById(connection, internalTransfer.transferId)
 
       expect(transfer.status).toEqual(TransferStatus.SUCCESS)
     })
 
-    it('maps memo from internal transfer when inbound transferMemo is undefined', async () => {
-      const transfer = await anchorageTransferService.findById(connection, internalTransfer.transferId)
+    it('maps memo from internal transfer when inbound note is undefined', async () => {
+      const transfer = await fireblocksTransferService.findById(connection, internalTransfer.transferId)
 
       expect(transfer.memo).toEqual(internalTransfer.memo)
     })
 
-    it('maps network fee from inbound anchorage transfer', async () => {
-      const transfer = await anchorageTransferService.findById(connection, internalTransfer.transferId)
+    it('maps network fee from inbound transaction ', async () => {
+      const transfer = await fireblocksTransferService.findById(connection, internalTransfer.transferId)
 
-      expect(transfer.fees).toEqual([
-        {
-          amount: '0.00001771',
-          assetId: 'BTC_S',
-          attribution: internalTransfer.networkFeeAttribution,
-          type: 'network'
-        }
-      ])
+      expect(transfer.fees.find(({ type }) => type === 'network')).toEqual({
+        amount: '0.002354982918981',
+        assetId: 'MATIC_POLYGON',
+        attribution: internalTransfer.networkFeeAttribution,
+        type: 'network'
+      })
+    })
+
+    it('maps gas price as a fee from inbound transaction', async () => {
+      const transfer = await fireblocksTransferService.findById(connection, internalTransfer.transferId)
+
+      expect(transfer.fees.find(({ type }) => type === 'gas-price')).toEqual({
+        amount: '112.14204376100001',
+        assetId: 'MATIC_POLYGON',
+        type: 'gas-price'
+      })
     })
   })
 
@@ -279,31 +289,15 @@ describe(AnchorageTransferService.name, () => {
         type: TransferPartyType.ACCOUNT,
         id: accountTwo.accountId
       },
-      amount: '0.00005',
+      amount: '0.001',
       asset: {
-        assetId: 'BTC'
+        externalAssetId: 'MATIC_POLYGON'
       },
-      idempotenceId: uuid()
-    }
-
-    const transferAmlQuestionnaire = {
-      destinationType: 'SELFHOSTED_WALLET',
-      recipientType: 'PERSON',
-      purpose: 'INVESTMENT',
-      originatorType: 'MY_ORGANIZATION',
-      selfhostedDescription: 'a wallet description',
-      recipientFirstName: 'John',
-      recipientLastName: 'Recipient',
-      recipientFullName: 'John Recipient Full Name',
-      recipientCountry: 'US',
-      recipientStreetAddress: 'Some Recipient Street',
-      recipientCity: 'New York',
-      recipientStateProvince: 'NY',
-      recipientPostalCode: '10101'
+      idempotenceId: randomUUID()
     }
 
     it('creates an internal transfer on success', async () => {
-      const { externalStatus, ...transfer } = await anchorageTransferService.send(connection, requiredSendTransfer)
+      const { externalStatus, ...transfer } = await fireblocksTransferService.send(connection, requiredSendTransfer)
       const actualInternalTransfer = await transferRepository.findById(clientId, transfer.transferId)
 
       expect(actualInternalTransfer).toMatchObject(transfer)
@@ -314,58 +308,88 @@ describe(AnchorageTransferService.name, () => {
       const sendTransfer = {
         ...requiredSendTransfer,
         memo: 'Integration test transfer',
+        customerRefId: 'test-customer-ref-id',
         networkFeeAttribution: NetworkFeeAttribution.DEDUCT,
-        idempotenceId: uuid()
+        idempotenceId: randomUUID()
       }
 
-      const internalTransfer = await anchorageTransferService.send(connection, sendTransfer)
+      const internalTransfer = await fireblocksTransferService.send(connection, sendTransfer)
       const actualInternalTransfer = await transferRepository.findById(clientId, internalTransfer.transferId)
 
       expect(actualInternalTransfer.idempotenceId).toEqual(sendTransfer.idempotenceId)
       expect(actualInternalTransfer.memo).toEqual(sendTransfer.memo)
-      // Anchorage does not support customerRefId.
-      expect(actualInternalTransfer.customerRefId).toEqual(null)
+      expect(actualInternalTransfer.customerRefId).toEqual(sendTransfer.customerRefId)
       expect(actualInternalTransfer.networkFeeAttribution).toEqual(sendTransfer.networkFeeAttribution)
     })
 
-    it('defaults network fee attribution to on_top', async () => {
-      const internalTransfer = await anchorageTransferService.send(connection, requiredSendTransfer)
+    it('defaults network fee attribution to deduct', async () => {
+      const internalTransfer = await fireblocksTransferService.send(connection, requiredSendTransfer)
 
-      expect(internalTransfer.networkFeeAttribution).toEqual(NetworkFeeAttribution.ON_TOP)
+      expect(internalTransfer.networkFeeAttribution).toEqual(NetworkFeeAttribution.DEDUCT)
     })
 
-    it('calls Anchorage', async () => {
+    it('calls Fireblocks', async () => {
       const [spy] = useRequestSpy(mockServer)
       const sendTransfer = {
         ...requiredSendTransfer,
-        memo: 'Integration test transfer'
+        memo: 'Integration test transfer',
+        transferId: 'test-transfer-id'
       }
 
-      await anchorageTransferService.send(connection, sendTransfer)
+      await fireblocksTransferService.send(connection, sendTransfer)
 
       expect(spy).toHaveBeenCalledWith(
         expect.objectContaining({
           body: {
+            amount: '0.001',
+            assetId: 'MATIC_POLYGON',
             source: {
-              type: 'WALLET',
-              id: accountOne.externalId
+              type: 'VAULT_ACCOUNT',
+              id: walletOne.externalId
             },
             destination: {
-              type: 'WALLET',
-              id: accountTwo.externalId
+              type: 'VAULT_ACCOUNT',
+              id: walletTwo.externalId
             },
-            assetType: sendTransfer.asset.assetId,
-            amount: sendTransfer.amount,
-            transferMemo: sendTransfer.memo,
-            idempotentId: sendTransfer.idempotenceId,
-            // Default `deductFeeFromAmountIfSameType` to false.
-            deductFeeFromAmountIfSameType: false
-          }
+            note: 'Integration test transfer',
+            externalTxId: sendTransfer.transferId,
+            treatAsGrossAmount: true
+          },
+          headers: expect.objectContaining({
+            'x-api-key': testApiKey,
+            'idempotency-key': requiredSendTransfer.idempotenceId
+          })
         })
       )
     })
 
-    it('calls Anchorage with address', async () => {
+    it('calls Fireblocks with vault account as destination for internal address', async () => {
+      const [spy] = useRequestSpy(mockServer)
+      const sendTransfer = {
+        ...requiredSendTransfer,
+        destination: { address: address.address },
+        transferId: 'test-transfer-id'
+      }
+
+      await fireblocksTransferService.send(connection, sendTransfer)
+
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          body: expect.objectContaining({
+            source: {
+              type: 'VAULT_ACCOUNT',
+              id: walletOne.externalId
+            },
+            destination: {
+              type: 'VAULT_ACCOUNT',
+              id: walletTwo.externalId
+            }
+          })
+        })
+      )
+    })
+
+    it('calls Fireblocks with one-time address', async () => {
       const [spy] = useRequestSpy(mockServer)
       const address = privateKeyToAddress(generatePrivateKey())
       const sendTransfer = {
@@ -374,48 +398,48 @@ describe(AnchorageTransferService.name, () => {
         transferId: 'test-transfer-id'
       }
 
-      await anchorageTransferService.send(connection, sendTransfer)
+      await fireblocksTransferService.send(connection, sendTransfer)
 
       expect(spy).toHaveBeenCalledWith(
         expect.objectContaining({
           body: expect.objectContaining({
             source: {
-              type: 'WALLET',
-              id: accountOne.externalId
+              type: 'VAULT_ACCOUNT',
+              id: walletOne.externalId
             },
             destination: {
-              type: 'ADDRESS',
-              id: address
+              type: 'ONE_TIME_ADDRESS',
+              oneTimeAddress: { address }
             }
           })
         })
       )
     })
 
-    // IMPORTANT: We never send the customerRefId to Anchorage because they
-    // have deprecated it and it seems to get transfers stuck on their side.
-    it('does not send customerRefId', async () => {
-      const [spy] = useRequestSpy(mockServer)
-      const sendTransfer = {
-        ...requiredSendTransfer,
-        customerRefId: uuid()
-      }
-
-      await anchorageTransferService.send(connection, sendTransfer)
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      expect('customerRefId' in (spy.mock.calls[0][0] as any)).toEqual(false)
-    })
-
     it('handles provider specific', async () => {
       const [spy] = useRequestSpy(mockServer)
+      const providerSpecific = {
+        extraParameters: {
+          nodeControls: {
+            type: 'NODE_ROUTER'
+          },
+          rawMessageData: {
+            messages: [
+              {
+                preHash: {
+                  hashAlgorithm: 'SHA256'
+                }
+              }
+            ]
+          }
+        }
+      }
       const sendTransfer = {
         ...requiredSendTransfer,
-        provider: Provider.ANCHORAGE,
-        providerSpecific: { transferAmlQuestionnaire }
+        providerSpecific
       }
 
-      const internalTransfer = await anchorageTransferService.send(connection, sendTransfer)
+      const internalTransfer = await fireblocksTransferService.send(connection, sendTransfer)
       const actualInternalTransfer = await transferRepository.findById(clientId, internalTransfer.transferId)
 
       expect(spy).toHaveBeenCalledWith(
@@ -427,10 +451,10 @@ describe(AnchorageTransferService.name, () => {
       expect(actualInternalTransfer.providerSpecific).toEqual(sendTransfer.providerSpecific)
     })
 
-    it('maps networkFeeAttribution on_top to deductFeeFromAmountIfSameType false', async () => {
+    it('maps networkFeeAttribution on_top to treatAsGrossAmount false', async () => {
       const [spy] = useRequestSpy(mockServer)
 
-      await anchorageTransferService.send(connection, {
+      await fireblocksTransferService.send(connection, {
         ...requiredSendTransfer,
         networkFeeAttribution: NetworkFeeAttribution.ON_TOP
       })
@@ -438,24 +462,7 @@ describe(AnchorageTransferService.name, () => {
       expect(spy).toHaveBeenCalledWith(
         expect.objectContaining({
           body: expect.objectContaining({
-            deductFeeFromAmountIfSameType: false
-          })
-        })
-      )
-    })
-
-    it('maps networkFeeAttribution deduct to deductFeeFromAmountIfSameType true', async () => {
-      const [spy] = useRequestSpy(mockServer)
-
-      await anchorageTransferService.send(connection, {
-        ...requiredSendTransfer,
-        networkFeeAttribution: NetworkFeeAttribution.DEDUCT
-      })
-
-      expect(spy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          body: expect.objectContaining({
-            deductFeeFromAmountIfSameType: true
+            treatAsGrossAmount: false
           })
         })
       )

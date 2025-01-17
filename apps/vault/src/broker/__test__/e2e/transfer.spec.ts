@@ -23,6 +23,7 @@ import { Provider } from '../../core/type/provider.type'
 import {
   InternalTransfer,
   NetworkFeeAttribution,
+  SendTransfer,
   TransferPartyType,
   TransferStatus
 } from '../../core/type/transfer.type'
@@ -127,6 +128,7 @@ describe('Transfer', () => {
       id: accountTwo.accountId
     },
     externalId: uuid(),
+    externalStatus: null,
     grossAmount: '0.00001',
     idempotenceId: uuid(),
     memo: 'Test transfer',
@@ -198,21 +200,25 @@ describe('Transfer', () => {
   })
 
   describe(`POST ${ENDPOINT}`, () => {
-    const requiredPayload = {
-      source: {
-        type: TransferPartyType.ACCOUNT,
-        id: accountOne.accountId
-      },
-      destination: {
-        type: TransferPartyType.ACCOUNT,
-        id: accountTwo.accountId
-      },
-      amount: '0.0001',
-      asset: {
-        assetId: 'BTC_S'
-      },
-      idempotenceId: uuid()
-    }
+    let requiredPayload: SendTransfer
+
+    beforeEach(() => {
+      requiredPayload = {
+        source: {
+          type: TransferPartyType.ACCOUNT,
+          id: accountOne.accountId
+        },
+        destination: {
+          type: TransferPartyType.ACCOUNT,
+          id: accountTwo.accountId
+        },
+        amount: '0.0001',
+        asset: {
+          assetId: 'BTC_S'
+        },
+        idempotenceId: uuid()
+      }
+    })
 
     it('sends transfer to anchorage', async () => {
       const { status, body } = await request(app.getHttpServer())
@@ -238,6 +244,7 @@ describe('Transfer', () => {
           createdAt: expect.any(String),
           customerRefId: null,
           destination: requiredPayload.destination,
+          externalStatus: expect.any(String),
           grossAmount: requiredPayload.amount,
           idempotenceId: expect.any(String),
           memo: null,
@@ -353,10 +360,44 @@ describe('Transfer', () => {
         message: 'Missing or invalid x-connection-id header'
       })
     })
+
+    it('responds with conflict when idempotence id was already used', async () => {
+      await request(app.getHttpServer())
+        .post(ENDPOINT)
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(REQUEST_HEADER_CONNECTION_ID, connection.connectionId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            payload: requiredPayload,
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: ENDPOINT,
+            htm: 'POST'
+          })
+        )
+        .send(requiredPayload)
+
+      const { status } = await request(app.getHttpServer())
+        .post(ENDPOINT)
+        .set(REQUEST_HEADER_CLIENT_ID, clientId)
+        .set(REQUEST_HEADER_CONNECTION_ID, connection.connectionId)
+        .set(
+          'detached-jws',
+          await getJwsd({
+            payload: requiredPayload,
+            userPrivateJwk: testUserPrivateJwk,
+            requestUrl: ENDPOINT,
+            htm: 'POST'
+          })
+        )
+        .send(requiredPayload)
+
+      expect(status).toEqual(HttpStatus.CONFLICT)
+    })
   })
 
   describe(`GET ${ENDPOINT}/:transferId`, () => {
-    const transfer = {
+    const internalTransfer = {
       assetId: 'BTC',
       clientId: connection.clientId,
       createdAt: new Date(),
@@ -366,6 +407,7 @@ describe('Transfer', () => {
         id: accountTwo.accountId
       },
       externalId: uuid(),
+      externalStatus: null,
       grossAmount: '0.00001',
       idempotenceId: uuid(),
       memo: 'Test transfer',
@@ -381,12 +423,12 @@ describe('Transfer', () => {
     }
 
     beforeEach(async () => {
-      await transferRepository.bulkCreate([transfer])
+      await transferRepository.bulkCreate([internalTransfer])
     })
 
     it('responds with the specific transfer', async () => {
       const { status, body } = await request(app.getHttpServer())
-        .get(`${ENDPOINT}/${transfer.transferId}`)
+        .get(`${ENDPOINT}/${internalTransfer.transferId}`)
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set(REQUEST_HEADER_CONNECTION_ID, connection.connectionId)
         .set(
@@ -394,7 +436,7 @@ describe('Transfer', () => {
           await getJwsd({
             payload: {},
             userPrivateJwk: testUserPrivateJwk,
-            requestUrl: `${ENDPOINT}/${transfer.transferId}`,
+            requestUrl: `${ENDPOINT}/${internalTransfer.transferId}`,
             htm: 'GET'
           })
         )
@@ -402,11 +444,12 @@ describe('Transfer', () => {
 
       expect(body).toEqual({
         data: {
-          ...transfer,
+          ...internalTransfer,
           // NOTE: The status is different from `transfer` because it's coming
           // from the Anchorage API. The `findById` merges the state we have in
           // the database with the API's.
           status: TransferStatus.SUCCESS,
+          externalStatus: expect.any(String),
           createdAt: expect.any(String)
         }
       })
@@ -416,14 +459,14 @@ describe('Transfer', () => {
 
     it('fails if connection header is missing', async () => {
       const { body } = await request(app.getHttpServer())
-        .get(`${ENDPOINT}/${transfer.transferId}`)
+        .get(`${ENDPOINT}/${internalTransfer.transferId}`)
         .set(REQUEST_HEADER_CLIENT_ID, clientId)
         .set(
           'detached-jws',
           await getJwsd({
             payload: {},
             userPrivateJwk: testUserPrivateJwk,
-            requestUrl: `${ENDPOINT}/${transfer.transferId}`,
+            requestUrl: `${ENDPOINT}/${internalTransfer.transferId}`,
             htm: 'GET'
           })
         )
