@@ -183,7 +183,7 @@ const Transaction = z.object({
   amountUSD: z.number(),
   assetId: z.string(),
   assetType: z.string(),
-  blockInfo: TransactionBlockInfo,
+  blockInfo: TransactionBlockInfo.optional(),
   createdAt: z.number(),
   createdBy: z.string(),
   destination: TransactionParty,
