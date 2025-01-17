@@ -166,7 +166,7 @@ export type TransactionFeeInfo = z.infer<typeof TransactionFeeInfo>
 
 const TransactionBlockInfo = z.object({
   blockHeight: z.string().optional(),
-  blockHash: z.string().nullable()
+  blockHash: z.string().optional()
 })
 
 const TransactionParty = z.object({
@@ -183,7 +183,7 @@ const Transaction = z.object({
   amountUSD: z.number(),
   assetId: z.string(),
   assetType: z.string(),
-  blockInfo: TransactionBlockInfo.optional(),
+  blockInfo: TransactionBlockInfo,
   createdAt: z.number(),
   createdBy: z.string(),
   destination: TransactionParty,
