@@ -95,6 +95,19 @@ describe(AnchorageClient.name, () => {
       expect(client.buildSignatureMessage(request, nowTimestamp)).toEqual(`${nowTimestamp}POST/v2/accounts?foo=bar`)
     })
 
+    it('adds params as query string even if the url already has query params', () => {
+      const request: AxiosRequestConfig = {
+        method: 'POST',
+        url: '/v2/accounts?after=first',
+        data: undefined,
+        params: { foo: 'bar' }
+      }
+
+      expect(client.buildSignatureMessage(request, nowTimestamp)).toEqual(
+        `${nowTimestamp}POST/v2/accounts?after=first&foo=bar`
+      )
+    })
+
     it('does not add ? to the url when params is defined with undefined items', () => {
       const request: AxiosRequestConfig = {
         method: 'POST',

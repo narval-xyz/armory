@@ -320,8 +320,20 @@ export class AnchorageClient {
 
     const endpoint = this.parseEndpoint(request.url)
     const method = request.method.toUpperCase()
-    const queryParams = new URLSearchParams(omitBy(request.params, isNil)).toString()
-    const path = queryParams ? `${endpoint}?${queryParams}` : endpoint
+
+    // Parse existing query params from the endpoint
+    const [endpointPath, existingParams] = endpoint.split('?')
+    const searchParams = new URLSearchParams(existingParams || '')
+
+    // Add additional params from request.params
+    if (request.params) {
+      Object.entries(omitBy(request.params, isNil)).forEach(([key, value]) => {
+        searchParams.append(key, String(value))
+      })
+    }
+
+    const queryString = searchParams.toString()
+    const path = queryString ? `${endpointPath}?${queryString}` : endpointPath
 
     return `${timestamp}${method}${path}${request.data && method !== 'GET' ? JSON.stringify(request.data) : ''}`
   }
