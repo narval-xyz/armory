@@ -11,10 +11,11 @@ import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/per
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
 import { Provider } from '../../core/type/provider.type'
+import { AssetDto } from '../../http/rest/dto/response/asset.dto'
+import { AssetSeed } from '../../persistence/seed/asset.seed'
 import { NetworkSeed } from '../../persistence/seed/network.seed'
 import { TEST_CLIENT_ID, getJwsd, testClient, testUserPrivateJwk } from '../util/mock-data'
 
-import { ProviderAssetDto } from '../../http/rest/dto/response/provider-asset.dto'
 import '../../shared/__test__/matcher'
 
 describe('Asset', () => {
@@ -24,6 +25,7 @@ describe('Asset', () => {
   let provisionService: ProvisionService
   let clientService: ClientService
   let networkSeed: NetworkSeed
+  let assetSeed: AssetSeed
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -43,6 +45,7 @@ describe('Asset', () => {
 
     clientService = module.get(ClientService)
     networkSeed = module.get(NetworkSeed)
+    assetSeed = module.get(AssetSeed)
     provisionService = module.get(ProvisionService)
     testPrismaService = module.get(TestPrismaService)
 
@@ -61,6 +64,7 @@ describe('Asset', () => {
     await clientService.save(testClient)
 
     await networkSeed.seed()
+    await assetSeed.seed()
 
     await app.init()
   })
@@ -81,43 +85,8 @@ describe('Asset', () => {
           })
         )
 
-      expect(body).toMatchZodSchema(ProviderAssetDto.schema)
+      expect(body).toMatchZodSchema(AssetDto.schema)
       expect(status).toEqual(HttpStatus.OK)
-    })
-
-    it('returns 400 when provider parameter is missing', async () => {
-      const { status } = await request(app.getHttpServer())
-        .get('/provider/assets')
-        .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
-        .set(
-          'detached-jws',
-          await getJwsd({
-            userPrivateJwk: testUserPrivateJwk,
-            requestUrl: '/provider/assets',
-            payload: {},
-            htm: 'GET'
-          })
-        )
-
-      expect(status).toEqual(HttpStatus.BAD_REQUEST)
-    })
-
-    it('returns 400 when provider is invalid', async () => {
-      const { status } = await request(app.getHttpServer())
-        .get('/provider/assets')
-        .query({ provider: 'INVALID' })
-        .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
-        .set(
-          'detached-jws',
-          await getJwsd({
-            userPrivateJwk: testUserPrivateJwk,
-            requestUrl: '/provider/assets?provider=INVALID',
-            payload: {},
-            htm: 'GET'
-          })
-        )
-
-      expect(status).toEqual(HttpStatus.BAD_REQUEST)
     })
 
     it('returns different assets for different providers', async () => {

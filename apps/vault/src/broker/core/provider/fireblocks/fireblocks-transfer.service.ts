@@ -7,8 +7,8 @@ import { TransferRepository } from '../../../persistence/repository/transfer.rep
 import { BrokerException } from '../../exception/broker.exception'
 import { AccountService } from '../../service/account.service'
 import { AddressService } from '../../service/address.service'
+import { AssetService } from '../../service/asset.service'
 import { WalletService } from '../../service/wallet.service'
-import { Asset } from '../../type/asset.type'
 import { ConnectionWithCredentials } from '../../type/connection.type'
 import { Network } from '../../type/network.type'
 import { Provider, ProviderTransferService } from '../../type/provider.type'
@@ -18,19 +18,18 @@ import {
   NetworkFeeAttribution,
   SendTransfer,
   Transfer,
-  TransferAsset,
   TransferPartyType,
   TransferStatus,
   isAddressDestination,
   isProviderSpecific
 } from '../../type/transfer.type'
-import { FireblocksAssetService } from './fireblocks-asset.service'
+import { getExternalAsset } from '../../util/asset.util'
 import { validateConnection } from './fireblocks.util'
 
 @Injectable()
 export class FireblocksTransferService implements ProviderTransferService {
   constructor(
-    private readonly fireblocksAssetService: FireblocksAssetService,
+    private readonly assetService: AssetService,
     private readonly fireblocksClient: FireblocksClient,
     private readonly networkRepository: NetworkRepository,
     private readonly walletService: WalletService,
@@ -121,28 +120,38 @@ export class FireblocksTransferService implements ProviderTransferService {
 
     validateConnection(connection)
 
-    const asset = await this.resolveAsset(sendTransfer.asset)
+    const asset = await this.assetService.findTransferAsset(Provider.FIREBLOCKS, sendTransfer.asset)
     if (!asset) {
       throw new BrokerException({
-        message: 'Cannot resolve asset',
-        suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Transfer asset not found',
+        suggestedHttpStatusCode: HttpStatus.NOT_FOUND,
         context: { asset: sendTransfer.asset }
+      })
+    }
+
+    const externalAsset = getExternalAsset(asset, Provider.FIREBLOCKS)
+    if (!externalAsset) {
+      throw new BrokerException({
+        message: 'Unsupported asset by Fireblocks',
+        suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+        context: { asset }
       })
     }
 
     const network = await this.networkRepository.findById(asset.networkId)
     if (!network) {
       throw new BrokerException({
-        message: 'Cannot resolve Narval networkId from Anchorage networkId',
+        message: 'Cannot find asset network',
         suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         context: { asset }
       })
     }
 
     const source = await this.getSource(connection.clientId, sendTransfer)
+
     const destination = await this.getDestination(connection.clientId, network, sendTransfer.destination)
 
-    this.logger.log('Resolved source and destination', {
+    this.logger.log('Resolved Fireblocks transfer source and destination', {
       ...context,
       destination,
       source,
@@ -160,12 +169,14 @@ export class FireblocksTransferService implements ProviderTransferService {
     //
     // See https://developers.fireblocks.com/reference/createtransaction
     const networkFeeAttribution = sendTransfer.networkFeeAttribution || NetworkFeeAttribution.DEDUCT
+
     const transferId = sendTransfer.transferId || randomUUID()
+
     const data: CreateTransaction = {
       source,
       destination,
       amount: sendTransfer.amount,
-      assetId: asset.externalId,
+      assetId: externalAsset.externalId,
       customerRefId: sendTransfer.customerRefId,
       externalTxId: transferId,
       note: sendTransfer.memo,
@@ -186,8 +197,7 @@ export class FireblocksTransferService implements ProviderTransferService {
     this.logger.log('Fireblocks transaction created', context)
 
     const internalTransfer: InternalTransfer = {
-      // TODO: switch this to the Narval assetId once that is a real thing.
-      assetId: asset.externalId,
+      assetId: asset.assetId,
       clientId: connection.clientId,
       createdAt: new Date(),
       customerRefId: sendTransfer.customerRefId || null,
@@ -210,32 +220,6 @@ export class FireblocksTransferService implements ProviderTransferService {
     await this.transferRepository.bulkCreate([internalTransfer])
 
     return internalTransfer
-  }
-
-  private async resolveAsset(asset: TransferAsset): Promise<Asset | null> {
-    if (asset.externalAssetId) {
-      return this.fireblocksAssetService.findByExternalId(asset.externalAssetId)
-    }
-
-    if (asset.assetId) {
-      // TODO: Look up by the narval assetId; for now we just treat it as the
-      // same as the Fireblocks one.
-      return this.fireblocksAssetService.findByExternalId(asset.assetId)
-    }
-
-    if (!asset.networkId) {
-      throw new BrokerException({
-        message: 'Cannot resolve asset without networkId',
-        suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        context: { asset }
-      })
-    }
-
-    if (asset.address) {
-      return this.fireblocksAssetService.findByOnchainId(asset.networkId, asset.address)
-    }
-
-    return this.fireblocksAssetService.findNativeAsset(asset.networkId)
   }
 
   /**

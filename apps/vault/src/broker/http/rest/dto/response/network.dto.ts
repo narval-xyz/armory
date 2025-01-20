@@ -3,7 +3,7 @@ import { createZodDto } from 'nestjs-zod'
 import { z } from 'zod'
 import { Network } from '../../../../core/type/network.type'
 
-export class ProviderNetworkDto extends createZodDto(
+export class NetworkDto extends createZodDto(
   z.object({
     data: z.array(
       Network.extend({

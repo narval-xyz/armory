@@ -18,6 +18,7 @@ import { AddressRepository } from '../../../../../persistence/repository/address
 import { ConnectionRepository } from '../../../../../persistence/repository/connection.repository'
 import { TransferRepository } from '../../../../../persistence/repository/transfer.repository'
 import { WalletRepository } from '../../../../../persistence/repository/wallet.repository'
+import { AssetSeed } from '../../../../../persistence/seed/asset.seed'
 import { NetworkSeed } from '../../../../../persistence/seed/network.seed'
 import { setupMockServer, useRequestSpy } from '../../../../../shared/__test__/mock-server'
 import { Connection, ConnectionStatus, ConnectionWithCredentials } from '../../../../type/connection.type'
@@ -38,14 +39,15 @@ describe(FireblocksTransferService.name, () => {
   let testPrismaService: TestPrismaService
 
   let accountRepository: AccountRepository
-  let fireblocksTransferService: FireblocksTransferService
+  let addressRepository: AddressRepository
+  let assetSeed: AssetSeed
   let clientService: ClientService
   let connectionRepository: ConnectionRepository
+  let fireblocksTransferService: FireblocksTransferService
   let networkSeed: NetworkSeed
   let provisionService: ProvisionService
   let transferRepository: TransferRepository
   let walletRepository: WalletRepository
-  let addressRepository: AddressRepository
 
   const mockServer = setupMockServer(getHandlers())
 
@@ -184,15 +186,15 @@ describe(FireblocksTransferService.name, () => {
 
     app = module.createNestApplication()
 
-    testPrismaService = module.get(TestPrismaService)
-    fireblocksTransferService = module.get(FireblocksTransferService)
-    provisionService = module.get(ProvisionService)
-    clientService = module.get(ClientService)
-
     accountRepository = module.get(AccountRepository)
     addressRepository = module.get(AddressRepository)
+    assetSeed = module.get(AssetSeed)
+    clientService = module.get(ClientService)
     connectionRepository = module.get(ConnectionRepository)
+    fireblocksTransferService = module.get(FireblocksTransferService)
     networkSeed = module.get(NetworkSeed)
+    provisionService = module.get(ProvisionService)
+    testPrismaService = module.get(TestPrismaService)
     transferRepository = module.get(TransferRepository)
     walletRepository = module.get(WalletRepository)
 
@@ -211,6 +213,7 @@ describe(FireblocksTransferService.name, () => {
     await provisionService.provision()
     await clientService.save(testClient)
     await networkSeed.seed()
+    await assetSeed.seed()
 
     await connectionRepository.create(connection)
     await walletRepository.bulkCreate([walletOne, walletTwo])

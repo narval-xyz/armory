@@ -26,6 +26,7 @@ export class PersistenceModule {
       exports: [PrismaService, TestPrismaService]
     }
   }
+
   static register(config: { imports?: Array<Type | DynamicModule | ForwardReference> } = {}): DynamicModule {
     return {
       module: PersistenceModule,

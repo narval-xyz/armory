@@ -286,6 +286,7 @@ model Network {
   createdAt DateTime @default(now()) @map("created_at")
 
   externalNetworks ProviderNetwork[]
+  assets           Asset[]
 
   @@map("network")
 }
@@ -298,9 +299,37 @@ model ProviderNetwork {
 
   network Network? @relation(fields: [networkId], references: [id])
 
-  // Prevent duplication of external network by provider.
-  @@unique([provider, externalId])
+  @@id([provider, externalId])
   // Prevent duplication of provider supported network.
   @@unique([provider, networkId])
   @@map("provider_network")
+}
+
+model Asset {
+  id        String   @id
+  name      String
+  symbol    String?
+  decimals  Int?
+  networkId String   @map("network_id")
+  onchainId String?  @map("onchain_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  network        Network         @relation(fields: [networkId], references: [id])
+  externalAssets ProviderAsset[]
+
+  @@unique([networkId, onchainId])
+  @@map("asset")
+}
+
+model ProviderAsset {
+  assetId    String   @map("asset_id")
+  provider   String
+  externalId String   @map("external_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  asset Asset @relation(fields: [assetId], references: [id])
+
+  @@id([provider, externalId])
+  @@unique([provider, assetId])
+  @@map("provider_asset")
 }

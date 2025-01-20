@@ -10,18 +10,17 @@ import { PersistenceModule } from '../shared/module/persistence/persistence.modu
 import { EncryptionKeyService } from '../transit-encryption/core/service/encryption-key.service'
 import { EncryptionKeyRepository } from '../transit-encryption/persistence/encryption-key.repository'
 import { TransitEncryptionModule } from '../transit-encryption/transit-encryption.module'
-import { AnchorageAssetService } from './core/provider/anchorage/anchorage-asset.service'
 import { AnchorageCredentialService } from './core/provider/anchorage/anchorage-credential.service'
 import { AnchorageProxyService } from './core/provider/anchorage/anchorage-proxy.service'
 import { AnchorageSyncService } from './core/provider/anchorage/anchorage-sync.service'
 import { AnchorageTransferService } from './core/provider/anchorage/anchorage-transfer.service'
-import { FireblocksAssetService } from './core/provider/fireblocks/fireblocks-asset.service'
 import { FireblocksCredentialService } from './core/provider/fireblocks/fireblocks-credential.service'
 import { FireblocksProxyService } from './core/provider/fireblocks/fireblocks-proxy.service'
 import { FireblocksSyncService } from './core/provider/fireblocks/fireblocks-sync.service'
 import { FireblocksTransferService } from './core/provider/fireblocks/fireblocks-transfer.service'
 import { AccountService } from './core/service/account.service'
 import { AddressService } from './core/service/address.service'
+import { AssetService } from './core/service/asset.service'
 import { ConnectionService } from './core/service/connection.service'
 import { KnownDestinationService } from './core/service/known-destination.service'
 import { ProxyService } from './core/service/proxy.service'
@@ -43,15 +42,17 @@ import { TransferController } from './http/rest/controller/transfer.controller'
 import { ProviderWalletController } from './http/rest/controller/wallet.controller'
 import { AccountRepository } from './persistence/repository/account.repository'
 import { AddressRepository } from './persistence/repository/address.repository'
+import { AssetRepository } from './persistence/repository/asset.repository'
 import { ConnectionRepository } from './persistence/repository/connection.repository'
 import { KnownDestinationRepository } from './persistence/repository/known-destination.repository'
 import { NetworkRepository } from './persistence/repository/network.repository'
 import { SyncRepository } from './persistence/repository/sync.repository'
 import { TransferRepository } from './persistence/repository/transfer.repository'
 import { WalletRepository } from './persistence/repository/wallet.repository'
+import { AssetSeed } from './persistence/seed/asset.seed'
 import { NetworkSeed } from './persistence/seed/network.seed'
 
-const SEEDS = [NetworkSeed]
+const SEEDS = [NetworkSeed, AssetSeed]
 
 @Module({
   imports: [
@@ -81,24 +82,24 @@ const SEEDS = [NetworkSeed]
       provide: APP_FILTER,
       useClass: ProviderHttpExceptionFilter
     },
+    FireblocksCredentialService,
     AccountRepository,
     AccountService,
     AddressRepository,
     AddressService,
-    AnchorageAssetService,
     AnchorageClient,
     AnchorageCredentialService,
     AnchorageProxyService,
     AnchorageSyncService,
     AnchorageTransferService,
+    AssetRepository,
+    AssetService,
     ConnectionRepository,
     ConnectionService,
     ConnectionSyncEventHandler,
     EncryptionKeyRepository,
     EncryptionKeyService,
-    FireblocksAssetService,
     FireblocksClient,
-    FireblocksCredentialService,
     FireblocksProxyService,
     FireblocksSyncService,
     FireblocksTransferService,

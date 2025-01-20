@@ -3,9 +3,13 @@ import { createZodDto } from 'nestjs-zod'
 import { z } from 'zod'
 import { Asset } from '../../../../core/type/asset.type'
 
-export class ProviderAssetDto extends createZodDto(
+export class AssetDto extends createZodDto(
   z.object({
-    data: z.array(Asset),
+    data: z.array(
+      Asset.extend({
+        createdAt: z.coerce.date().optional()
+      })
+    ),
     page: Page
   })
 ) {}

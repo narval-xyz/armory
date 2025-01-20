@@ -10,10 +10,10 @@ import { KeyValueRepository } from '../../../shared/module/key-value/core/reposi
 import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
+import { NetworkDto } from '../../http/rest/dto/response/network.dto'
 import { NetworkSeed } from '../../persistence/seed/network.seed'
 import { TEST_CLIENT_ID, getJwsd, testClient, testUserPrivateJwk } from '../util/mock-data'
 
-import { ProviderNetworkDto } from '../../http/rest/dto/response/provider-network.dto'
 import '../../shared/__test__/matcher'
 
 describe('Network', () => {
@@ -80,7 +80,7 @@ describe('Network', () => {
           })
         )
 
-      expect(body).toMatchZodSchema(ProviderNetworkDto.schema)
+      expect(body).toMatchZodSchema(NetworkDto.schema)
       expect(body.data).toHaveLength(networkSeed.getNetworks().length)
       expect(status).toEqual(HttpStatus.OK)
     })

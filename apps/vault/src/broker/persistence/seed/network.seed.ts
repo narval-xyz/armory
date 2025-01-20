@@ -1,5 +1,7 @@
+import { ConfigService } from '@narval/config-module'
 import { LoggerService } from '@narval/nestjs-shared'
 import { Injectable } from '@nestjs/common'
+import { Config, Env } from '../../../main.config'
 import { Provider } from '../../core/type/provider.type'
 import { NetworkRepository } from '../repository/network.repository'
 
@@ -7,48 +9,58 @@ import { NetworkRepository } from '../repository/network.repository'
 export class NetworkSeed {
   constructor(
     private readonly networkRepository: NetworkRepository,
+    private readonly configService: ConfigService<Config>,
     private readonly logger: LoggerService
   ) {}
 
   // IMPORTANT: There's already a data migration for base networks.
   // See 20250115095035_add_network_table_and_data/migration.sql
   async seed(): Promise<void> {
-    this.logger.log('🌐 Seeding networks')
+    if (this.configService.get('env') === Env.PRODUCTION) {
+      throw new Error('You CANNOT seed the production database')
+    }
 
-    await this.networkRepository.bulkCreate(
-      this.getNetworks().map((network) => ({
-        networkId: network.networkId,
-        coinType: network.coinType,
-        name: network.name,
-        externalNetworks: [
-          ...(network.anchorageId
-            ? [
-                {
-                  provider: Provider.ANCHORAGE,
-                  externalId: network.anchorageId
-                }
-              ]
-            : []),
-          ...(network.fireblocksId
-            ? [
-                {
-                  provider: Provider.FIREBLOCKS,
-                  externalId: network.fireblocksId
-                }
-              ]
-            : [])
-        ]
-      }))
-    )
+    const networks = this.getNetworks().map((network) => ({
+      networkId: network.networkId,
+      coinType: network.coinType,
+      name: network.name,
+      externalNetworks: [
+        ...(network.anchorageId
+          ? [
+              {
+                provider: Provider.ANCHORAGE,
+                externalId: network.anchorageId
+              }
+            ]
+          : []),
+        ...(network.fireblocksId
+          ? [
+              {
+                provider: Provider.FIREBLOCKS,
+                externalId: network.fireblocksId
+              }
+            ]
+          : [])
+      ]
+    }))
+
+    this.logger.log(`🌐 Seeding ${networks.length} networks`)
+
+    await this.networkRepository.bulkCreate(networks)
   }
 
   getNetworks() {
     return [
       {
+        networkId: 'ARBITRUM',
+        coinType: 9001,
+        name: 'Arbitrum',
+        fireblocksId: 'ETH-AETH'
+      },
+      {
         networkId: 'AETH',
         coinType: 514,
-        name: 'Aetherius',
-        fireblocksId: 'ETH-AETH'
+        name: 'Aetherius'
       },
       {
         networkId: 'AEVO',
@@ -462,8 +474,15 @@ export class NetworkSeed {
         networkId: 'SOLANA_TESTNET',
         coinType: 1,
         name: 'Solana Testnet',
-        anchorageId: 'SOL_TD',
+        anchorageId: null,
         fireblocksId: 'SOL_TEST'
+      },
+      {
+        networkId: 'SOLANA_DEVNET',
+        coinType: 1,
+        name: 'Solana Devnet',
+        anchorageId: 'SOL_TD',
+        fireblocksId: null
       },
       {
         networkId: 'STARKNET',

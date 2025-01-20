@@ -5,7 +5,7 @@ import { PermissionGuard } from '../../../../shared/decorator/permission-guard.d
 import { VaultPermission } from '../../../../shared/type/domain.type'
 import { Provider } from '../../../core/type/provider.type'
 import { NetworkRepository } from '../../../persistence/repository/network.repository'
-import { ProviderNetworkDto } from '../dto/response/provider-network.dto'
+import { NetworkDto } from '../dto/response/network.dto'
 
 @Controller({
   path: 'networks',
@@ -25,11 +25,11 @@ export class NetworkController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'The networks were successfully retrieved.',
-    type: ProviderNetworkDto
+    type: NetworkDto
   })
-  async list(@Query('provider') provider: Provider): Promise<ProviderNetworkDto> {
+  async list(@Query('provider') provider: Provider): Promise<NetworkDto> {
     const data = await this.networkRepository.findAll({ filters: { provider } })
 
-    return ProviderNetworkDto.create({ data })
+    return NetworkDto.create({ data })
   }
 }

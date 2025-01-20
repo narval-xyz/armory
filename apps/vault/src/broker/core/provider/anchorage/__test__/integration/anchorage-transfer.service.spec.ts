@@ -19,6 +19,7 @@ import { ConnectionRepository } from '../../../../../persistence/repository/conn
 import { KnownDestinationRepository } from '../../../../../persistence/repository/known-destination.repository'
 import { TransferRepository } from '../../../../../persistence/repository/transfer.repository'
 import { WalletRepository } from '../../../../../persistence/repository/wallet.repository'
+import { AssetSeed } from '../../../../../persistence/seed/asset.seed'
 import { NetworkSeed } from '../../../../../persistence/seed/network.seed'
 import { setupMockServer, useRequestSpy } from '../../../../../shared/__test__/mock-server'
 import { Connection, ConnectionStatus, ConnectionWithCredentials } from '../../../../type/connection.type'
@@ -41,6 +42,7 @@ describe(AnchorageTransferService.name, () => {
   let accountRepository: AccountRepository
   let addressRepository: AddressRepository
   let anchorageTransferService: AnchorageTransferService
+  let assetSeed: AssetSeed
   let clientService: ClientService
   let connectionRepository: ConnectionRepository
   let knownDestinationRepository: KnownDestinationRepository
@@ -187,6 +189,7 @@ describe(AnchorageTransferService.name, () => {
 
     accountRepository = module.get(AccountRepository)
     addressRepository = module.get(AddressRepository)
+    assetSeed = module.get(AssetSeed)
     connectionRepository = module.get(ConnectionRepository)
     knownDestinationRepository = module.get(KnownDestinationRepository)
     networkSeed = module.get(NetworkSeed)
@@ -208,6 +211,7 @@ describe(AnchorageTransferService.name, () => {
     await provisionService.provision()
     await clientService.save(testClient)
     await networkSeed.seed()
+    await assetSeed.seed()
 
     await connectionRepository.create(connection)
     await walletRepository.bulkCreate([wallet])

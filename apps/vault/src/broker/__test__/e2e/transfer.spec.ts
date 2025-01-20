@@ -31,6 +31,7 @@ import { AccountRepository } from '../../persistence/repository/account.reposito
 import { ConnectionRepository } from '../../persistence/repository/connection.repository'
 import { TransferRepository } from '../../persistence/repository/transfer.repository'
 import { WalletRepository } from '../../persistence/repository/wallet.repository'
+import { AssetSeed } from '../../persistence/seed/asset.seed'
 import { NetworkSeed } from '../../persistence/seed/network.seed'
 import { setupMockServer } from '../../shared/__test__/mock-server'
 import { REQUEST_HEADER_CONNECTION_ID } from '../../shared/constant'
@@ -48,6 +49,7 @@ describe('Transfer', () => {
   let accountRepository: AccountRepository
   let connectionRepository: ConnectionRepository
   let networkSeed: NetworkSeed
+  let assetSeed: AssetSeed
   let transferRepository: TransferRepository
   let walletRepository: WalletRepository
 
@@ -164,15 +166,15 @@ describe('Transfer', () => {
 
     app = module.createNestApplication()
 
-    testPrismaService = module.get(TestPrismaService)
-    provisionService = module.get(ProvisionService)
-    clientService = module.get(ClientService)
-
-    transferRepository = module.get(TransferRepository)
-    connectionRepository = module.get(ConnectionRepository)
-    walletRepository = module.get(WalletRepository)
     accountRepository = module.get(AccountRepository)
+    assetSeed = module.get(AssetSeed)
+    clientService = module.get(ClientService)
+    connectionRepository = module.get(ConnectionRepository)
     networkSeed = module.get(NetworkSeed)
+    provisionService = module.get(ProvisionService)
+    testPrismaService = module.get(TestPrismaService)
+    transferRepository = module.get(TransferRepository)
+    walletRepository = module.get(WalletRepository)
 
     await testPrismaService.truncateAll()
   })
@@ -195,6 +197,7 @@ describe('Transfer', () => {
     await transferRepository.bulkCreate([internalTransfer])
 
     await networkSeed.seed()
+    await assetSeed.seed()
 
     await app.init()
   })
@@ -214,7 +217,7 @@ describe('Transfer', () => {
         },
         amount: '0.0001',
         asset: {
-          assetId: 'BTC_S'
+          assetId: 'BTC'
         },
         idempotenceId: uuid()
       }
