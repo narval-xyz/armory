@@ -383,6 +383,16 @@ export class AssetSeed {
         onchainId: '0x912ce59144191c1204e64559fe8253a0e49e6548',
         anchorageId: null,
         fireblocksId: 'ARB_ARB_FRK9'
+      },
+      {
+        assetId: 'LINK_ZKSYNC_SEPOLIA',
+        name: 'Chainlink',
+        symbol: 'LINK',
+        decimals: 18,
+        networkId: 'ZKSYNC_SEPOLIA',
+        onchainId: '0x23a1afd896c8c8876af46adc38521f4432658d1e',
+        anchorageId: 'LINK_ZKSYNC_T',
+        fireblocksId: null
       }
     ]
   }
