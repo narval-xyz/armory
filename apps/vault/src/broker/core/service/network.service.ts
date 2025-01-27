@@ -52,7 +52,7 @@ export class NetworkService {
 
     this.logger.log('Network list cache not found. Fallback to database', { key })
 
-    const assets = this.networkRepository.findAll(options)
+    const assets = await this.networkRepository.findAll(options)
 
     await this.cacheManager.set(key, assets)
 
