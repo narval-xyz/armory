@@ -1,0 +1,14 @@
+clientId: "YOUR NARVAL CLIENT ID"
+narvalAuthPrivateKey: "YOUR NARVAL AUTH PRIVATE KEY, HEX ENCODED (0x...)"
+baseUrl: "https://vault.armory.playnarval.com"
+connection:
+  url: "https://api.anchorage-staging.com"
+  id: null
+  credentials:
+    apiKey: "YOUR ANCHORAGE API KEY"
+    privateKey: "YOUR ANCHORAGE API SIGNING PRIVATE KEY, HEX ENCODED (0x...)"
+destinationId: null
+destinationType: null
+destinationAddress: null
+amount: null
+assetId: null

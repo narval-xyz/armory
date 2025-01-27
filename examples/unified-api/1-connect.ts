@@ -5,9 +5,9 @@ import { config, setConfig, vaultClient } from './vault.client'
 dotenv.config()
 
 const main = async () => {
-  const apiKey = config.connectionApiKey
-  const privateKey = config.connectionPrivateKey
-  const url = config.connectionUrl
+  const apiKey = config.connection.credentials.apiKey
+  const privateKey = config.connection.credentials.privateKey
+  const url = config.connection.url
   const credentials = {
     apiKey,
     privateKey
@@ -22,12 +22,40 @@ const main = async () => {
     data: { url, encryptedCredentials, provider: 'anchorage' }
   })
 
+  const rawAccounts = await vaultClient.listProviderRawAccounts({
+    connectionId: connection.data.connectionId
+  })
+
+  console.log(
+    'Syncing raw accounts',
+    rawAccounts.data.map((rawAccount) => `${rawAccount.label} - ${rawAccount.externalId}`)
+  )
+
+  await vaultClient.scopedSync({
+    data: {
+      connectionId: connection.data.connectionId,
+      rawAccounts: rawAccounts.data
+    }
+  })
+
   // Save the connectionId to the config file
-  setConfig('connectionId', connection.data.connectionId)
+  setConfig('connection.id', connection.data.connectionId)
 
   console.dir(connection.data)
 }
 
 main()
   .then(() => console.log('done'))
-  .catch(console.error)
+  .catch((error) => {
+    if ('response' in error) {
+      console.dir(
+        {
+          status: error.response?.status,
+          body: error.response?.data
+        },
+        { depth: null }
+      )
+    } else {
+      console.error('Error', error)
+    }
+  })

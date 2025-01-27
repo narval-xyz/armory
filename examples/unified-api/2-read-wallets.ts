@@ -1,13 +1,15 @@
+import { AxiosError } from 'axios'
 import { config, vaultClient } from './vault.client'
 
 const main = async () => {
-  if (!config.connectionId) {
-    console.error('No connectionId found in config.json. Please connect first.')
+  if (!config.connection.id) {
+    console.error('No connection.id found in config.yaml. Please connect first.')
     process.exit(1)
   }
 
-  const { data, page } = await vaultClient.listProviderWallets({
-    connectionId: config.connectionId
+  const { data } = await vaultClient.listProviderWallets({
+    connectionId: config.connection.id,
+    pagination: { limit: 100 }
   })
 
   console.dir(
@@ -15,11 +17,29 @@ const main = async () => {
       label: wallet.label,
       walletId: wallet.walletId,
       provider: wallet.provider,
-      externalId: wallet.externalId
-    }))
+      externalId: wallet.externalId,
+      accounts: (wallet.accounts || []).map((account) => ({
+        accountId: account.accountId,
+        networkId: account.networkId,
+        label: account.label
+      }))
+    })),
+    { depth: null }
   )
 }
 
 main()
   .then(() => console.log('done'))
-  .catch(console.error)
+  .catch((error) => {
+    if (error instanceof AxiosError) {
+      console.dir(
+        {
+          status: error.response?.status,
+          body: error.response?.data
+        },
+        { depth: null }
+      )
+    } else {
+      console.error(error)
+    }
+  })

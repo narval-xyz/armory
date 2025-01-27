@@ -13,7 +13,7 @@ Note: This has only been tested on Mac
 
 Set up the example project
 
-- `cp config.default.json config.json`
+- `cp config.default.yaml config.yaml`
 - `npm install`
 
 ### Narval Credential Setup
@@ -34,15 +34,11 @@ Provide the PUBLIC key when activating your Narval account.
 
 > Use the provided invite link to activate your Narval account, then return here with your Client ID.
 
-Set up the following into your `config.json` file:
+Set up the following into your `config.yaml` file:
 
-```json
-// config.json
-{
-  "clientId": "YOUR NARVAL CLIENT ID",
-  "narvalAuthPrivateKey": "YOUR NARVAL AUTH PRIVATE KEY, HEX ENCODED (0x...)"
-  // ...
-}
+```yaml
+clientId: "YOUR NARVAL CLIENT ID"
+narvalAuthPrivateKey: "YOUR NARVAL AUTH PRIVATE KEY, HEX ENCODED (0x...)"
 ```
 
 ### Anchorage API Setup
@@ -65,14 +61,14 @@ tsx generate-key.ts
 
 > Go create your Anchorage API Key if you don't have one already. When finished, return here to set your config.json
 
-```json
-// config.json
-{
-  // ...
-  "connectionPrivateKey": "YOUR ANCHORAGE API SIGNING PRIVATE KEY, HEX ENCODED (0x...)",
-  "connectionApiKey": "YOUR ANCHORAGE API KEY"
-  // ...
-}
+```yaml
+connection:
+  provider: "anchorage"
+  url: "https://api.anchorage-staging.com"
+  id: null
+  credentials:
+    apiKey: "YOUR ANCHORAGE API KEY"
+    privateKey: "YOUR ANCHORAGE API SIGNING PRIVATE KEY, HEX ENCODED (0x...)"
 ```
 
 ## Script Usage Guide
@@ -106,18 +102,14 @@ Basic scripts are available for the following operations:
 4. Create Transfer
 
    Creates a transfer between two accounts.
-   Using `tsx 3-read-accounts.ts`, you can get the account IDs for the source and destination. Set the `sourceId`, `destinationId`, `destinationType`, `assetId`, and `amount` in the `config.json` file. `destinationAddress` can be used for external transfers.
+
+   Using `tsx 3-read-accounts.ts`, you can get the account IDs for the source
+   and destination. Set the `sourceId`, `destinationId`, `destinationType`,
+   `assetId`, and `amount` in the `config.yaml` file. `destinationAddress` can
+   be used for external transfers.
 
    ```shell
    tsx 4-create-transfer.ts
-   ```
-
-5. Re-sync Connection
-
-   Re-syncs the connection with the provider. This is useful if new Accounts have been created since the connection was established.
-
-   ```shell
-   tsx 5-sync.ts
    ```
 
 ## More Info

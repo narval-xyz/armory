@@ -12,13 +12,13 @@ const main = async () => {
         ? { address: config.destinationAddress }
         : null
 
-  if (!config.connectionId || !config.sourceId || !destination || !config.assetId || !config.amount) {
+  if (!config.connection.id || !config.sourceId || !destination || !config.assetId || !config.amount) {
     console.error('Please provide transfer parameters in config.json')
     process.exit(1)
   }
 
   const initiatedTransfer = await vaultClient.sendTransfer({
-    connectionId: config.connectionId,
+    connectionId: config.connection.id,
     data: {
       idempotenceId: uuid(),
       source: {
@@ -56,9 +56,10 @@ const main = async () => {
 
   // Poll transfer status until it's no longer processing
   let transfer
+
   do {
     transfer = await vaultClient.getTransfer({
-      connectionId: config.connectionId,
+      connectionId: config.connection.id,
       transferId: initiatedTransfer.data.transferId
     })
 
@@ -74,4 +75,16 @@ const main = async () => {
 
 main()
   .then(() => console.log('done'))
-  .catch(console.error)
+  .catch((error) => {
+    if ('response' in error) {
+      console.dir(
+        {
+          status: error.response?.status,
+          body: error.response?.data
+        },
+        { depth: null }
+      )
+    } else {
+      console.error('Error', error)
+    }
+  })

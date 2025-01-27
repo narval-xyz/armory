@@ -1,23 +1,29 @@
-import { Hex, privateKeyToJwk } from '@narval-xyz/armory-sdk'
+import { Hex, privateKeyToJwk, VaultClient } from '@narval-xyz/armory-sdk'
 import { buildSignerEdDSA } from '@narval-xyz/armory-sdk/signature'
 import dotenv from 'dotenv'
 import fs from 'fs'
+import { cloneDeep, set } from 'lodash'
 import path from 'path'
+import * as YAML from 'yaml'
 import { z } from 'zod'
-import { VaultClient } from '../../packages/armory-sdk/src/lib/vault/client'
+
 dotenv.config()
 
-const configSchema = z.object({
+const Config = z.object({
   // Narval variables
   clientId: z.string(),
   narvalAuthPrivateKey: z.string(),
   baseUrl: z.string(),
 
   // Connection variables
-  connectionPrivateKey: z.string(),
-  connectionApiKey: z.string(),
-  connectionUrl: z.string(),
-  connectionId: z.string().nullable(),
+  connection: z.object({
+    url: z.string(),
+    id: z.string().nullable(),
+    credentials: z.object({
+      apiKey: z.string(),
+      privateKey: z.string()
+    })
+  }),
 
   // Transfer variables
   sourceId: z.string().nullable(),
@@ -27,9 +33,12 @@ const configSchema = z.object({
   amount: z.string().nullable(),
   assetId: z.string().nullable()
 })
+type Config = z.infer<typeof Config>
 
-let config: z.infer<typeof configSchema>
-const configPath = path.join(__dirname, 'config.json')
+let config: Config
+
+const configPath = path.join(__dirname, 'config.yaml')
+
 try {
   if (!fs.existsSync(configPath)) {
     const CLIENT_ID = process.env.CLIENT_ID
@@ -45,43 +54,55 @@ try {
       clientId: CLIENT_ID,
       narvalAuthPrivateKey: NARVAL_AUTH_PRIVATE_KEY_HEX,
       baseUrl: BASE_URL,
-      connectionId: null,
-      connectionPrivateKey: '',
-      connectionApiKey: '',
-      connectionUrl: 'https://api.anchorage-staging.com',
       sourceId: null,
       destinationId: null,
       destinationType: null,
       destinationAddress: null,
       amount: null,
-      assetId: null
+      assetId: null,
+      connection: {
+        id: null,
+        url: 'https://api.anchorage-staging.com',
+        credentials: {
+          apiKey: '',
+          privateKey: ''
+        }
+      }
     }
-    fs.writeFileSync(configPath, JSON.stringify(defaultConfig, null, 2))
+
+    fs.writeFileSync(configPath, YAML.stringify(defaultConfig))
+
     config = defaultConfig
   } else {
     const configFile = fs.readFileSync(configPath, 'utf8')
-    config = configSchema.parse(JSON.parse(configFile))
+    config = Config.parse(YAML.parse(configFile))
   }
 } catch (error) {
-  console.error('Error handling config.json:', error)
+  console.error('Error handling config.yaml:', error)
   throw error
 }
 
-if (!config.connectionApiKey || !config.connectionPrivateKey) {
-  console.error('Missing `connectionApiKey` or `connectionPrivateKey` in config.json. Please add them and try again.')
-  process.exit(1)
-}
+type KeyPath<T> = T extends object
+  ? {
+      [K in keyof T]: K extends string ? (T[K] extends object ? K | `${K}.${KeyPath<T[K]>}` : K) : never
+    }[keyof T]
+  : never
 
-export const setConfig = (
-  key: keyof z.infer<typeof configSchema>,
-  value: z.infer<typeof configSchema>[keyof z.infer<typeof configSchema>]
-) => {
-  const newConfig = configSchema.parse({ ...config, [key]: value })
-  fs.writeFileSync(configPath, JSON.stringify(newConfig, null, 2))
-  config = newConfig
-}
+type ValuePath<T, P extends string> = P extends keyof T
+  ? T[P]
+  : P extends `${infer K}.${infer R}`
+    ? K extends keyof T
+      ? ValuePath<T[K], R>
+      : never
+    : never
 
-export { config }
+export const setConfig = <P extends KeyPath<Config>>(path: P, value: ValuePath<Config, P>) => {
+  const newConfig = cloneDeep(config)
+  set(newConfig, path, value)
+  const validConfig = Config.parse(newConfig)
+  fs.writeFileSync(configPath, YAML.stringify(validConfig))
+  config = validConfig
+}
 
 export const vaultClient = new VaultClient({
   clientId: config.clientId,
@@ -92,3 +113,5 @@ export const vaultClient = new VaultClient({
   },
   host: config.baseUrl
 })
+
+export { config }
