@@ -6,6 +6,8 @@ import { ConnectionWithCredentials } from '../../type/connection.type'
 import { Provider } from '../../type/provider.type'
 import { FireblocksCredentials } from './fireblocks.type'
 
+export const CONCURRENT_FIREBLOCKS_REQUESTS = 5
+
 export function validateConnection(
   connection: ConnectionWithCredentials
 ): asserts connection is ConnectionWithCredentials & {
@@ -54,24 +56,63 @@ export function validateConnection(
   }
 }
 
-export type FireblocksAccountExternalId = `fireblocks/vaults/${string}/wallets/${string}`
-export function getFireblocksAssetWalletExternalId({ vaultId, assetId }: { vaultId: string; assetId: string }): string {
-  return `fireblocks/vaults/${vaultId}/wallets/${assetId}`
+export type FireblocksAccountExternalId = `${string}-${string}`
+export function getFireblocksAssetWalletExternalId({
+  vaultId,
+  networkId
+}: {
+  vaultId: string
+  networkId: string
+}): string {
+  return `${vaultId.toString()}-${networkId}`
 }
 
-export type FireblocksAssetWalletId = { vaultId: string; assetId: string }
+export type FireblocksAssetWalletId = { vaultId: string; networkId: string }
 export function toFireblocksAssetWalletExternalId(externalId: string): FireblocksAssetWalletId {
-  const matches = externalId.match(/^fireblocks\/vaults\/([^/]+)\/wallets\/([^/]+)$/)
+  const matches = externalId.match(/^([^-]+)-([^-]+)$/)
   if (!matches) {
     throw new BrokerException({
       message: 'The external ID does not match composed standard for fireblocks',
-      suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY
+      suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+      context: { externalId }
     })
   }
 
-  const [, vaultId, assetId] = matches
+  const [, vaultId, networkId] = matches
   return {
     vaultId,
-    assetId
+    networkId
+  }
+}
+
+export type FireblocksAddressExternalId = `${string}-${string}-${string}`
+export function getFireblocksAssetAddressExternalId({
+  vaultId,
+  networkId,
+  address
+}: {
+  vaultId: string
+  networkId: string
+  address: string
+}): string {
+  return `${vaultId}-${networkId}-${address}`
+}
+
+export type FireblocksAssetAddressId = { vaultId: string; networkId: string; address: string }
+export function toFireblocksAssetAddressExternalId(externalId: string): FireblocksAssetAddressId {
+  const matches = externalId.match(/^([^-]+)-([^-]+)-([^-]+)$/)
+  if (!matches) {
+    throw new BrokerException({
+      message: 'The external ID does not match composed standard for fireblocks',
+      suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+      context: { externalId }
+    })
+  }
+
+  const [, vaultId, networkId, address] = matches
+  return {
+    vaultId,
+    networkId,
+    address
   }
 }

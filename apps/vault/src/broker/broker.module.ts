@@ -1,9 +1,9 @@
 import { HttpModule, OpenTelemetryModule } from '@narval/nestjs-shared'
-import { Module } from '@nestjs/common'
+import { CacheModule } from '@nestjs/cache-manager'
+import { Module, OnApplicationBootstrap } from '@nestjs/common'
 import { APP_FILTER } from '@nestjs/core'
 import { EventEmitterModule } from '@nestjs/event-emitter'
 import { ClientModule } from '../client/client.module'
-import { Env, getEnv } from '../main.config'
 import { DEFAULT_HTTP_MODULE_PROVIDERS } from '../shared/constant'
 import { ProviderHttpExceptionFilter } from '../shared/filter/provider-http-exception.filter'
 import { PersistenceModule } from '../shared/module/persistence/persistence.module'
@@ -11,23 +11,30 @@ import { EncryptionKeyService } from '../transit-encryption/core/service/encrypt
 import { EncryptionKeyRepository } from '../transit-encryption/persistence/encryption-key.repository'
 import { TransitEncryptionModule } from '../transit-encryption/transit-encryption.module'
 import { AnchorageCredentialService } from './core/provider/anchorage/anchorage-credential.service'
+import { AnchorageKnownDestinationService } from './core/provider/anchorage/anchorage-known-destination.service'
 import { AnchorageProxyService } from './core/provider/anchorage/anchorage-proxy.service'
-import { AnchorageSyncService } from './core/provider/anchorage/anchorage-sync.service'
+import { AnchorageScopedSyncService } from './core/provider/anchorage/anchorage-scoped-sync.service'
 import { AnchorageTransferService } from './core/provider/anchorage/anchorage-transfer.service'
+import { BitgoCredentialService } from './core/provider/bitgo/bitgo-credential.service'
 import { FireblocksCredentialService } from './core/provider/fireblocks/fireblocks-credential.service'
+import { FireblocksKnownDestinationService } from './core/provider/fireblocks/fireblocks-known-destination.service'
 import { FireblocksProxyService } from './core/provider/fireblocks/fireblocks-proxy.service'
-import { FireblocksSyncService } from './core/provider/fireblocks/fireblocks-sync.service'
+import { FireblocksScopedSyncService } from './core/provider/fireblocks/fireblocks-scoped-sync.service'
 import { FireblocksTransferService } from './core/provider/fireblocks/fireblocks-transfer.service'
 import { AccountService } from './core/service/account.service'
 import { AddressService } from './core/service/address.service'
 import { AssetService } from './core/service/asset.service'
 import { ConnectionService } from './core/service/connection.service'
 import { KnownDestinationService } from './core/service/known-destination.service'
+import { NetworkService } from './core/service/network.service'
 import { ProxyService } from './core/service/proxy.service'
+import { RawAccountService } from './core/service/raw-account.service'
+import { ScopedSyncService } from './core/service/scoped-sync.service'
 import { SyncService } from './core/service/sync.service'
+import { TransferAssetService } from './core/service/transfer-asset.service'
 import { TransferService } from './core/service/transfer.service'
 import { WalletService } from './core/service/wallet.service'
-import { ConnectionSyncEventHandler } from './event/handler/connection-sync.event-handler'
+import { ConnectionScopedSyncEventHandler } from './event/handler/connection-scoped-sync.event-handler'
 import { AnchorageClient } from './http/client/anchorage.client'
 import { FireblocksClient } from './http/client/fireblocks.client'
 import { ProviderAccountController } from './http/rest/controller/account.controller'
@@ -37,6 +44,7 @@ import { ConnectionController } from './http/rest/controller/connection.controll
 import { KnownDestinationController } from './http/rest/controller/known-destination.controller'
 import { NetworkController } from './http/rest/controller/network.controller'
 import { ProxyController } from './http/rest/controller/proxy.controller'
+import { ScopedSyncController } from './http/rest/controller/scoped-sync.controller'
 import { SyncController } from './http/rest/controller/sync.controller'
 import { TransferController } from './http/rest/controller/transfer.controller'
 import { ProviderWalletController } from './http/rest/controller/wallet.controller'
@@ -44,18 +52,17 @@ import { AccountRepository } from './persistence/repository/account.repository'
 import { AddressRepository } from './persistence/repository/address.repository'
 import { AssetRepository } from './persistence/repository/asset.repository'
 import { ConnectionRepository } from './persistence/repository/connection.repository'
-import { KnownDestinationRepository } from './persistence/repository/known-destination.repository'
 import { NetworkRepository } from './persistence/repository/network.repository'
+import { ScopedSyncRepository } from './persistence/repository/scoped-sync.repository'
 import { SyncRepository } from './persistence/repository/sync.repository'
 import { TransferRepository } from './persistence/repository/transfer.repository'
 import { WalletRepository } from './persistence/repository/wallet.repository'
 import { AssetSeed } from './persistence/seed/asset.seed'
 import { NetworkSeed } from './persistence/seed/network.seed'
 
-const SEEDS = [NetworkSeed, AssetSeed]
-
 @Module({
   imports: [
+    CacheModule.register(),
     ClientModule,
     EventEmitterModule.forRoot(),
     HttpModule.register({ retry: { retries: 3 } }),
@@ -73,10 +80,12 @@ const SEEDS = [NetworkSeed, AssetSeed]
     ProviderWalletController,
     ProxyController,
     SyncController,
+    ScopedSyncController,
     TransferController
   ],
   providers: [
-    ...(getEnv() !== Env.PRODUCTION ? SEEDS : []),
+    NetworkSeed,
+    AssetSeed,
     ...DEFAULT_HTTP_MODULE_PROVIDERS,
     {
       provide: APP_FILTER,
@@ -85,34 +94,51 @@ const SEEDS = [NetworkSeed, AssetSeed]
     FireblocksCredentialService,
     AccountRepository,
     AccountService,
+    RawAccountService,
     AddressRepository,
     AddressService,
     AnchorageClient,
     AnchorageCredentialService,
+    AnchorageKnownDestinationService,
     AnchorageProxyService,
-    AnchorageSyncService,
+    AnchorageScopedSyncService,
     AnchorageTransferService,
     AssetRepository,
     AssetService,
+    BitgoCredentialService,
     ConnectionRepository,
     ConnectionService,
-    ConnectionSyncEventHandler,
+    ConnectionScopedSyncEventHandler,
     EncryptionKeyRepository,
     EncryptionKeyService,
     FireblocksClient,
+    FireblocksKnownDestinationService,
     FireblocksProxyService,
-    FireblocksSyncService,
     FireblocksTransferService,
-    KnownDestinationRepository,
+    FireblocksScopedSyncService,
     KnownDestinationService,
     NetworkRepository,
+    NetworkService,
     ProxyService,
+    ScopedSyncRepository,
+    ScopedSyncService,
     SyncRepository,
     SyncService,
     TransferRepository,
     TransferService,
+    TransferAssetService,
     WalletRepository,
     WalletService
   ]
 })
-export class BrokerModule {}
+export class BrokerModule implements OnApplicationBootstrap {
+  constructor(
+    private networkSeed: NetworkSeed,
+    private assetSeed: AssetSeed
+  ) {}
+
+  async onApplicationBootstrap() {
+    await this.networkSeed.seed()
+    await this.assetSeed.seed()
+  }
+}

@@ -40,6 +40,17 @@ const RewardsInfo = z.object({
 })
 type RewardsInfo = z.infer<typeof RewardsInfo>
 
+export const SupportedAsset = z.object({
+  id: z.string(),
+  name: z.string(),
+  type: z.string(),
+  contractAddress: z.string(),
+  nativeAsset: z.string(),
+  decimals: z.number(),
+  issuerAddress: z.string().optional()
+})
+export type SupportedAsset = z.infer<typeof SupportedAsset>
+
 // Fireblocks API is not consistent in the response format for Asset and AssetWallet, but they seem to be the same underlying data
 const Asset = z.object({
   // !![This is NOT discretionary.](https://developers.fireblocks.com/docs/list-supported-assets-1)
@@ -66,7 +77,7 @@ const VaultAccount = z.object({
   customerRefId: z.string().optional(),
   autoFuel: z.boolean()
 })
-type VaultAccount = z.infer<typeof VaultAccount>
+export type VaultAccount = z.infer<typeof VaultAccount>
 
 const Paging = z.object({
   before: z.string().optional(),
@@ -121,7 +132,7 @@ const AssetAddress = z.object({
   bip44AddressIndex: z.number(),
   userDefined: z.boolean()
 })
-type AssetAddress = z.infer<typeof AssetAddress>
+export type AssetAddress = z.infer<typeof AssetAddress>
 
 const GetAddressListResponse = z.object({
   addresses: z.array(AssetAddress),
@@ -261,6 +272,12 @@ export interface CreateTransaction {
   idempotencyKey?: string
   requestId?: string
 }
+
+export const FIREBLOCKS_API_ERROR_CODES = {
+  INVALID_SPECIFIED_VAULT_ACCOUNT: 11001
+} as const
+export type FIREBLOCKS_API_ERROR_CODES = (typeof FIREBLOCKS_API_ERROR_CODES)[keyof typeof FIREBLOCKS_API_ERROR_CODES]
+
 @Injectable()
 export class FireblocksClient {
   constructor(
@@ -421,8 +438,7 @@ export class FireblocksClient {
             this.logger.log('Received Fireblocks response', {
               url: opts.request.url,
               method: opts.request.method,
-              nextPage: response.data?.paging?.after,
-              body: response.data || null
+              nextPage: response.data?.paging?.after
             })
           }),
           map((response) => opts.schema.parse(response.data))
@@ -480,6 +496,56 @@ export class FireblocksClient {
         tap((accounts) => {
           this.logger.log('Completed fetching all vault accounts', {
             accountsCount: accounts.length,
+            url: opts.url
+          })
+        }),
+        this.handleError('Failed to get Fireblocks vault accounts')
+      )
+    )
+  }
+
+  async getVaultAccountsV2(opts: {
+    apiKey: string
+    signKey: RsaPrivateKey
+    url: string
+    options?: {
+      limit?: number
+      after?: string
+      namePrefix?: string
+      nameSuffix?: string
+      assetId?: string // Fireblocks externalId
+    }
+  }): Promise<{ accounts: VaultAccount[]; page?: { cursor?: string } }> {
+    this.logger.log('Requesting Fireblocks vault accounts page', {
+      url: opts.url,
+      options: opts.options
+    })
+
+    return lastValueFrom(
+      this.sendSignedRequest({
+        schema: GetVaultAccountsResponse,
+        request: {
+          url: `${opts.url}/v1/vault/accounts_paged`,
+          params: {
+            limit: opts.options?.limit ?? 500,
+            after: opts.options?.after,
+            namePrefix: opts.options?.namePrefix,
+            nameSuffix: opts.options?.nameSuffix,
+            assetId: opts.options?.assetId
+          },
+          method: 'GET'
+        },
+        apiKey: opts.apiKey,
+        signKey: opts.signKey
+      }).pipe(
+        map((response) => ({
+          accounts: response.accounts,
+          page: response.paging ? { cursor: response.paging.after } : undefined
+        })),
+        tap((response) => {
+          this.logger.log('Completed fetching vault accounts', {
+            accountsCount: response.accounts.length,
+            page: response.page,
             url: opts.url
           })
         }),
@@ -767,6 +833,62 @@ export class FireblocksClient {
           })
         }),
         this.handleError('Failed to get Fireblocks transaction by ID')
+      )
+    )
+  }
+
+  async getVaultAccount(opts: {
+    apiKey: string
+    signKey: RsaPrivateKey
+    url: string
+    vaultAccountId: string
+  }): Promise<VaultAccount> {
+    this.logger.log('Requesting vault account per ID', {
+      url: opts.url
+    })
+
+    return lastValueFrom(
+      this.sendSignedRequest({
+        schema: VaultAccount,
+        request: {
+          url: `${opts.url}/v1/vault/accounts/${opts.vaultAccountId}`,
+          method: 'GET'
+        },
+        apiKey: opts.apiKey,
+        signKey: opts.signKey
+      }).pipe(
+        tap((vaultAccount) => {
+          this.logger.log('Completed fetching Vault Account', {
+            vaultAccountId: vaultAccount.id,
+            url: opts.url
+          })
+        }),
+        this.handleError('Failed to get Fireblocks Vault Account')
+      )
+    )
+  }
+
+  async getSupportedAssets(params: RequestParams): Promise<SupportedAsset[]> {
+    const { apiKey, signKey, url } = params
+
+    this.logger.log('Request Fireblocks supported assets', { url })
+
+    return lastValueFrom(
+      this.sendSignedRequest({
+        schema: z.array(SupportedAsset),
+        request: {
+          url: `${params.url}/v1/supported_assets`,
+          method: 'GET'
+        },
+        apiKey,
+        signKey
+      }).pipe(
+        tap((supportedAssets) => {
+          this.logger.log('Successfully got Fireblocks supported assets', {
+            supportedAssetsCount: supportedAssets.length
+          })
+        }),
+        this.handleError('Failed to get Fireblocks supported assets')
       )
     )
   }

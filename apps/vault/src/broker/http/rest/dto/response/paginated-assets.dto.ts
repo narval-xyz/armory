@@ -3,7 +3,7 @@ import { createZodDto } from 'nestjs-zod'
 import { z } from 'zod'
 import { Asset } from '../../../../core/type/asset.type'
 
-export class AssetDto extends createZodDto(
+export class PaginatedAssetsDto extends createZodDto(
   z.object({
     data: z.array(
       Asset.extend({

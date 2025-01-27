@@ -3,6 +3,7 @@ import { HttpStatus, Injectable } from '@nestjs/common'
 import { AddressRepository, FindAllOptions } from '../../persistence/repository/address.repository'
 import { BrokerException } from '../exception/broker.exception'
 import { Address } from '../type/indexed-resources.type'
+import { ConnectionScope } from '../type/scope.type'
 
 @Injectable()
 export class AddressService {
@@ -12,20 +13,16 @@ export class AddressService {
     return this.addressRepository.findByClientId(clientId, options)
   }
 
-  async getAddress(clientId: string, AddressId: string): Promise<Address> {
-    return this.addressRepository.findById(clientId, AddressId)
-  }
-
   async bulkCreate(addresses: Address[]): Promise<Address[]> {
     return this.addressRepository.bulkCreate(addresses)
   }
 
-  async findAll(clientId: string, opts?: FindAllOptions): Promise<PaginatedResult<Address>> {
-    return this.addressRepository.findAll(clientId, opts)
+  async findAll(scope: ConnectionScope, opts?: FindAllOptions): Promise<PaginatedResult<Address>> {
+    return this.addressRepository.findAll(scope, opts)
   }
 
-  async findById(clientId: string, addressId: string): Promise<Address> {
-    return this.addressRepository.findById(clientId, addressId)
+  async findById(scope: ConnectionScope, addressId: string): Promise<Address> {
+    return this.addressRepository.findById(scope, addressId)
   }
 
   async findByAddressAndNetwork(clientId: string, address: string, networkId: string): Promise<Address | null> {

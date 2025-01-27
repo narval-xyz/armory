@@ -1,5 +1,6 @@
 import { ConfigModule } from '@narval/config-module'
 import { LoggerModule } from '@narval/nestjs-shared'
+import { CacheModule } from '@nestjs/cache-manager'
 import { Test } from '@nestjs/testing'
 import { PrismaClientKnownRequestError } from '@prisma/client/vault/runtime/library'
 import { load } from '../../../../../main.config'
@@ -12,13 +13,13 @@ import { AssetException } from '../../../exception/asset.exception'
 import { Asset } from '../../../type/asset.type'
 import { Network } from '../../../type/network.type'
 import { Provider } from '../../../type/provider.type'
-import { TransferAsset } from '../../../type/transfer.type'
 import { AssetService } from '../../asset.service'
+import { NetworkService } from '../../network.service'
 
 describe(AssetService.name, () => {
   let testPrismaService: TestPrismaService
   let assetService: AssetService
-  let networkRepository: NetworkRepository
+  let networkService: NetworkService
 
   const ethereum: Network = {
     networkId: 'ETHEREUM',
@@ -47,18 +48,19 @@ describe(AssetService.name, () => {
       imports: [
         AppModule,
         PersistenceModule.register({ imports: [] }),
+        CacheModule.register(),
         LoggerModule.forTest(),
         ConfigModule.forRoot({
           load: [load],
           isGlobal: true
         })
       ],
-      providers: [AssetService, AssetRepository, NetworkRepository]
+      providers: [AssetService, AssetRepository, NetworkService, NetworkRepository]
     }).compile()
 
     testPrismaService = module.get(TestPrismaService)
     assetService = module.get(AssetService)
-    networkRepository = module.get(NetworkRepository)
+    networkService = module.get(NetworkService)
 
     await testPrismaService.truncateAll()
   })
@@ -69,7 +71,7 @@ describe(AssetService.name, () => {
 
   beforeEach(async () => {
     await testPrismaService.truncateAll()
-    await networkRepository.bulkCreate([ethereum])
+    await networkService.bulkCreate([ethereum])
   })
 
   describe('bulkCreate', () => {
@@ -113,81 +115,6 @@ describe(AssetService.name, () => {
 
       // NOTE: Invariant protected by a unique key in the database.
       await expect(assetService.bulkCreate([usdc])).rejects.toThrow(PrismaClientKnownRequestError)
-    })
-  })
-
-  describe('findTransferAsset', () => {
-    const baseTransferAsset: TransferAsset = {
-      assetId: usdc.assetId
-    }
-
-    beforeEach(async () => {
-      await assetService.bulkCreate([usdc])
-    })
-
-    it('finds by provider and externalId when externalAssetId is present', async () => {
-      const result = await assetService.findTransferAsset(Provider.FIREBLOCKS, {
-        ...baseTransferAsset,
-        externalAssetId: 'USDC'
-      })
-
-      expect(result).toEqual({
-        ...usdc,
-        createdAt: expect.any(Date)
-      })
-    })
-
-    it('finds by assetId when present', async () => {
-      const result = await assetService.findTransferAsset(Provider.FIREBLOCKS, {
-        ...baseTransferAsset
-      })
-
-      expect(result).toEqual({
-        ...usdc,
-        createdAt: expect.any(Date)
-      })
-    })
-
-    it('finds by onchainId when address and networkId are set', async () => {
-      const result = await assetService.findTransferAsset(Provider.FIREBLOCKS, {
-        address: usdc.onchainId as string,
-        networkId: ethereum.networkId
-      })
-
-      expect(result).toEqual({
-        ...usdc,
-        createdAt: expect.any(Date)
-      })
-    })
-
-    it('finds native asset when only networkId is set', async () => {
-      const nativeEth: Asset = {
-        assetId: 'ETH',
-        name: 'Ethereum',
-        symbol: 'ETH',
-        decimals: 18,
-        networkId: ethereum.networkId,
-        onchainId: null,
-        externalAssets: []
-      }
-      await assetService.bulkCreate([nativeEth])
-
-      const result = await assetService.findTransferAsset(Provider.FIREBLOCKS, {
-        networkId: ethereum.networkId
-      })
-
-      expect(result).toEqual({
-        ...nativeEth,
-        createdAt: expect.any(Date)
-      })
-    })
-
-    it('throws AssetException when address is set but networkId is not', async () => {
-      await expect(
-        assetService.findTransferAsset(Provider.FIREBLOCKS, {
-          address: usdc.onchainId as string
-        })
-      ).rejects.toThrow(AssetException)
     })
   })
 })

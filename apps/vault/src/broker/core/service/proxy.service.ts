@@ -4,10 +4,11 @@ import { AnchorageProxyService } from '../provider/anchorage/anchorage-proxy.ser
 import { FireblocksProxyService } from '../provider/fireblocks/fireblocks-proxy.service'
 import { isActiveConnection } from '../type/connection.type'
 import { Provider, ProviderProxyService, ProxyResponse } from '../type/provider.type'
+import { ConnectionScope } from '../type/scope.type'
 import { ConnectionService } from './connection.service'
 
 type ProxyRequestOptions = {
-  connectionId: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data?: any
   endpoint: string
   method: string
@@ -21,8 +22,7 @@ export class ProxyService {
     private readonly fireblocksProxyService: FireblocksProxyService
   ) {}
 
-  async forward(clientId: string, options: ProxyRequestOptions): Promise<ProxyResponse> {
-    const { connectionId } = options
+  async forward({ clientId, connectionId }: ConnectionScope, options: ProxyRequestOptions): Promise<ProxyResponse> {
     const connection = await this.connectionRepository.findById(clientId, connectionId)
 
     if (!isActiveConnection(connection)) {

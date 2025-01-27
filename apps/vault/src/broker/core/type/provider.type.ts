@@ -1,14 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import { PaginatedResult } from '@narval/nestjs-shared'
 import { HttpStatus } from '@nestjs/common'
 import { UpdateAccount } from '../../persistence/repository/account.repository'
 import { ConnectionWithCredentials } from './connection.type'
-import { Account, Address, KnownDestination, UpdateWallet, Wallet } from './indexed-resources.type'
+import { Account, Address, UpdateWallet, Wallet } from './indexed-resources.type'
+import { KnownDestination as KnownDestinationNext } from './known-destination.type'
+import { RawAccount } from './scoped-sync.type'
 import { InternalTransfer, SendTransfer, Transfer } from './transfer.type'
 
 export const Provider = {
   ANCHORAGE: 'anchorage',
-  FIREBLOCKS: 'fireblocks'
+  FIREBLOCKS: 'fireblocks',
+  BITGO: 'bitgo'
 } as const
 export type Provider = (typeof Provider)[keyof typeof Provider]
 
@@ -24,6 +28,29 @@ export const SyncOperationType = {
   SKIP: 'skip'
 } as const
 export type SyncOperationType = (typeof SyncOperationType)[keyof typeof SyncOperationType]
+
+export const ScopedSyncOperationType = {
+  CREATE: 'create',
+  UPDATE: 'update',
+  FAILED: 'failed'
+} as const
+export type ScopedSyncOperationType = (typeof ScopedSyncOperationType)[keyof typeof ScopedSyncOperationType]
+
+export type CreateScopedSyncOperation<CreateParams> = {
+  type: typeof SyncOperationType.CREATE
+  create: CreateParams
+}
+export type UpdateScopedSyncOperation<UpdateParams> = {
+  type: typeof ScopedSyncOperationType.UPDATE
+  update: UpdateParams
+}
+
+export type FailedScopedSyncOperation = {
+  type: typeof ScopedSyncOperationType.FAILED
+  externalId: string
+  message: string
+  context?: unknown
+}
 
 export type CreateSyncOperation<CreateParams> = {
   type: typeof SyncOperationType.CREATE
@@ -68,6 +95,11 @@ export type SyncOperation<CreateParams, UpdateParams> =
   | DeleteSyncOperation
   | FailedSyncOperation
   | SkipSyncOperation
+
+export type ScopedSyncOperation<CreateParams, UpdateParams> =
+  | CreateScopedSyncOperation<CreateParams>
+  | UpdateScopedSyncOperation<UpdateParams>
+  | FailedSyncOperation
 
 export const isCreateOperation = <CreateParams, UpdateParams>(
   operation: SyncOperation<CreateParams, UpdateParams>
@@ -126,12 +158,6 @@ export type SyncContext = {
   addresses: SyncOperation<Address, any>[]
 
   /**
-   * A map of known destination synchronization operations, keyed by
-   * destination external ID.
-   */
-  knownDestinations: SyncOperation<KnownDestination, KnownDestination>[]
-
-  /**
    * An optional timestamp used for setting the `createdAt` and `updatedAt`
    * fields during synchronization operations.
    */
@@ -142,7 +168,16 @@ export type SyncResult = {
   wallets: SyncOperation<Wallet, any>[]
   accounts: SyncOperation<Account, UpdateAccount>[]
   addresses: SyncOperation<Address, any>[]
-  knownDestinations: SyncOperation<KnownDestination, KnownDestination>[]
+}
+
+export type ScopedSyncResult = {
+  wallets: ScopedSyncOperation<Wallet, UpdateWallet>[]
+  accounts: ScopedSyncOperation<Account, UpdateAccount>[]
+  addresses: ScopedSyncOperation<Address, never>[]
+}
+
+export interface ProviderScopedSyncService {
+  scopedSync(connection: ConnectionWithCredentials, rawAccounts: RawAccount[]): Promise<ScopedSyncResult>
 }
 
 export interface ProviderSyncService {
@@ -195,17 +230,6 @@ export interface ProviderSyncService {
    * @returns A promise that resolves to the updated synchronization context.
    */
   syncAddresses(context: SyncContext): Promise<SyncContext>
-
-  /**
-   * Synchronizes known destination data within the provided context and
-   * returns an updated context.
-   *
-   * @param context - The current synchronization context containing existing
-   * data and operations.
-   *
-   * @returns A promise that resolves to the updated synchronization context.
-   */
-  syncKnownDestinations(context: SyncContext): Promise<SyncContext>
 }
 
 //
@@ -247,7 +271,6 @@ export interface ProviderTransferService {
  * endpoint, and HTTP method.
  */
 export type ProxyRequestOptions = {
-  connectionId: string
   data?: any
   nonce?: string
   endpoint: string
@@ -326,4 +349,20 @@ export interface ProviderCredentialService<InputCredentials, Credentials> {
    * @returns A promise that resolves to the generated credentials.
    */
   generate<Options extends Record<string, unknown>>(options?: Options): Promise<Credentials>
+}
+
+//
+// Known Destination
+//
+
+export type ProviderKnownDestinationPaginationOptions = {
+  cursor?: string
+  limit?: number
+}
+
+export interface ProviderKnownDestinationService {
+  findAll(
+    connection: ConnectionWithCredentials,
+    options?: ProviderKnownDestinationPaginationOptions
+  ): Promise<PaginatedResult<KnownDestinationNext>>
 }

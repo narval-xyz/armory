@@ -26,10 +26,7 @@ export type Sync = z.infer<typeof Sync>
 
 export const StartSync = z.object({
   clientId: z.string(),
-  connectionId: z
-    .string()
-    .describe('The connection to sync. If undefined, start the sync on all active connections')
-    .optional()
+  connectionId: z.string().describe('The connection to sync')
 })
 export type StartSync = z.infer<typeof StartSync>
 

@@ -1,8 +1,9 @@
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import { LoggerModule, REQUEST_HEADER_CLIENT_ID } from '@narval/nestjs-shared'
 import { HttpStatus, INestApplication } from '@nestjs/common'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 import { Test, TestingModule } from '@nestjs/testing'
-import request from 'supertest'
+import { mock } from 'jest-mock-extended'
 import { ClientService } from '../../../client/core/service/client.service'
 import { MainModule } from '../../../main.module'
 import { ProvisionService } from '../../../provision.service'
@@ -10,9 +11,10 @@ import { KeyValueRepository } from '../../../shared/module/key-value/core/reposi
 import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
-import { NetworkDto } from '../../http/rest/dto/response/network.dto'
+import { PaginatedNetworksDto } from '../../http/rest/dto/response/paginated-networks.dto'
 import { NetworkSeed } from '../../persistence/seed/network.seed'
-import { TEST_CLIENT_ID, getJwsd, testClient, testUserPrivateJwk } from '../util/mock-data'
+import { signedRequest } from '../../shared/__test__/request'
+import { TEST_CLIENT_ID, testClient, testUserPrivateJwk } from '../util/mock-data'
 
 import '../../shared/__test__/matcher'
 
@@ -37,6 +39,10 @@ describe('Network', () => {
       .useValue({
         keyring: getTestRawAesKeyring()
       })
+      // Mock the event emitter because we don't want to send a
+      // connection.activated event after the creation.
+      .overrideProvider(EventEmitter2)
+      .useValue(mock<EventEmitter2>())
       .compile()
 
     app = module.createNestApplication()
@@ -67,20 +73,12 @@ describe('Network', () => {
 
   describe('GET /networks', () => {
     it('returns the list of networks', async () => {
-      const { status, body } = await request(app.getHttpServer())
+      const { status, body } = await signedRequest(app, testUserPrivateJwk)
         .get('/provider/networks')
         .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
-        .set(
-          'detached-jws',
-          await getJwsd({
-            userPrivateJwk: testUserPrivateJwk,
-            requestUrl: '/provider/networks',
-            payload: {},
-            htm: 'GET'
-          })
-        )
+        .send()
 
-      expect(body).toMatchZodSchema(NetworkDto.schema)
+      expect(body).toMatchZodSchema(PaginatedNetworksDto.schema)
       expect(body.data).toHaveLength(networkSeed.getNetworks().length)
       expect(status).toEqual(HttpStatus.OK)
     })

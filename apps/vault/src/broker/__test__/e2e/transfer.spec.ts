@@ -17,7 +17,7 @@ import { TestPrismaService } from '../../../shared/module/persistence/service/te
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
 import postAnchorageTransferBadRequest from '../../core/provider/anchorage/__test__/server-mock/response/post-transfer-400.json'
 import { ANCHORAGE_TEST_API_BASE_URL, getHandlers } from '../../core/provider/anchorage/__test__/server-mock/server'
-import { Connection, ConnectionStatus, ConnectionWithCredentials } from '../../core/type/connection.type'
+import { ConnectionStatus, ConnectionWithCredentials } from '../../core/type/connection.type'
 import { Account, Wallet } from '../../core/type/indexed-resources.type'
 import { Provider } from '../../core/type/provider.type'
 import {
@@ -91,6 +91,7 @@ describe('Transfer', () => {
     externalId: uuid(),
     label: 'Account 1',
     networkId: 'BTC',
+    connectionId: connection.connectionId,
     provider: Provider.ANCHORAGE,
     updatedAt: new Date(),
     walletId
@@ -104,6 +105,7 @@ describe('Transfer', () => {
     externalId: uuid(),
     label: 'Account 2',
     networkId: 'BTC',
+    connectionId: connection.connectionId,
     provider: Provider.ANCHORAGE,
     updatedAt: new Date(),
     walletId
@@ -111,7 +113,7 @@ describe('Transfer', () => {
 
   const wallet: Wallet = {
     clientId,
-    connections: [Connection.parse(connection)],
+    connectionId: connection.connectionId,
     createdAt: new Date(),
     externalId: uuid(),
     label: null,
@@ -122,6 +124,7 @@ describe('Transfer', () => {
 
   const internalTransfer: InternalTransfer = {
     clientId,
+    assetExternalId: null,
     assetId: 'BTC',
     createdAt: new Date(),
     customerRefId: null,
@@ -133,6 +136,7 @@ describe('Transfer', () => {
     externalStatus: null,
     grossAmount: '0.00001',
     idempotenceId: uuid(),
+    connectionId: connection.connectionId,
     memo: 'Test transfer',
     networkFeeAttribution: NetworkFeeAttribution.DEDUCT,
     provider: Provider.ANCHORAGE,
@@ -244,11 +248,13 @@ describe('Transfer', () => {
           clientId,
           externalId,
           assetId: requiredPayload.asset.assetId,
+          assetExternalId: requiredPayload.asset.assetId,
           createdAt: expect.any(String),
           customerRefId: null,
           destination: requiredPayload.destination,
           externalStatus: expect.any(String),
           grossAmount: requiredPayload.amount,
+          connectionId: connection.connectionId,
           idempotenceId: expect.any(String),
           memo: null,
           networkFeeAttribution: NetworkFeeAttribution.ON_TOP,
@@ -401,6 +407,7 @@ describe('Transfer', () => {
 
   describe(`GET ${ENDPOINT}/:transferId`, () => {
     const internalTransfer = {
+      assetExternalId: null,
       assetId: 'BTC',
       clientId: connection.clientId,
       createdAt: new Date(),
@@ -416,6 +423,7 @@ describe('Transfer', () => {
       memo: 'Test transfer',
       networkFeeAttribution: NetworkFeeAttribution.DEDUCT,
       provider: Provider.ANCHORAGE,
+      connectionId: connection.connectionId,
       providerSpecific: null,
       source: {
         type: TransferPartyType.ACCOUNT,

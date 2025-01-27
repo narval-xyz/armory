@@ -1,12 +1,13 @@
-import { ApiClientIdHeader, Paginated, PaginationOptions, PaginationParam } from '@narval/nestjs-shared'
-import { Controller, Get, HttpStatus, Param, Query } from '@nestjs/common'
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ApiClientIdHeader, Paginated } from '@narval/nestjs-shared'
+import { Controller, Get, Query } from '@nestjs/common'
+import { ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
 import { VaultPermission } from '../../../../shared/type/domain.type'
 import { KnownDestinationService } from '../../../core/service/known-destination.service'
+import { REQUEST_HEADER_CONNECTION_ID } from '../../../shared/constant'
+import { ConnectionId } from '../../../shared/decorator/connection-id.decorator'
 import { PaginatedKnownDestinationsDto } from '../dto/response/paginated-known-destinations.dto'
-import { KnownDestinationDto } from '../dto/response/provider-known-destination.dto'
 
 @Controller({
   path: 'known-destinations',
@@ -20,42 +21,31 @@ export class KnownDestinationController {
   @Get()
   @PermissionGuard(VaultPermission.CONNECTION_READ)
   @ApiOperation({ summary: 'Get known destinations across providers' })
+  @ApiHeader({
+    name: REQUEST_HEADER_CONNECTION_ID,
+    description: 'The provider connection through which the resource is accessed'
+  })
   @Paginated({
     type: PaginatedKnownDestinationsDto,
     description: 'Returns a paginated list of known-destinations for the client'
   })
   async list(
     @ClientId() clientId: string,
-    @PaginationParam() pagination: PaginationOptions,
-    @Query('connectionId') connectionId?: string
+    @ConnectionId() connectionId: string,
+    @Query('limit') limit?: number,
+    @Query('cursor') cursor?: string
   ): Promise<PaginatedKnownDestinationsDto> {
-    const filters = connectionId ? { connections: [connectionId] } : {}
-
-    const { data, page } = await this.knownDestinationService.findAll(clientId, {
-      filters,
-      pagination
-    })
+    const { data, page } = await this.knownDestinationService.findAll(
+      {
+        clientId,
+        connectionId
+      },
+      {
+        limit,
+        cursor
+      }
+    )
 
     return PaginatedKnownDestinationsDto.create({ data, page })
-  }
-
-  @Get(':knownDestinationId')
-  @PermissionGuard(VaultPermission.CONNECTION_READ)
-  @ApiOperation({ summary: 'Get known destination by ID' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Returns known destination',
-    type: KnownDestinationDto
-  })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'Known destination not found'
-  })
-  async getById(
-    @ClientId() clientId: string,
-    @Param('knownDestinationId') knownDestinationId: string
-  ): Promise<KnownDestinationDto> {
-    const data = await this.knownDestinationService.getKnownDestination(clientId, knownDestinationId)
-    return KnownDestinationDto.create({ data })
   }
 }

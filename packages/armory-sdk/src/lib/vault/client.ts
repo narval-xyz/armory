@@ -18,20 +18,25 @@ import {
   ImportPrivateKeyDto,
   ImportWalletDto,
   InitiateConnectionDto,
-  KnownDestinationDto,
   PaginatedAccountsDto,
   PaginatedAddressesDto,
+  PaginatedAssetsDto,
   PaginatedConnectionsDto,
   PaginatedKnownDestinationsDto,
+  PaginatedNetworksDto,
+  PaginatedRawAccountsDto,
+  PaginatedScopedSyncsDto,
   PaginatedSyncsDto,
   PaginatedWalletsDto,
   PongDto,
   ProviderAccountApiFactory,
   ProviderAccountDto,
   ProviderAddressApiFactory,
+  ProviderAssetApiFactory,
   ProviderConnectionApiFactory,
   ProviderConnectionDto,
   ProviderKnownDestinationApiFactory,
+  ProviderNetworkApiFactory,
   ProviderPendingConnectionDto,
   ProviderProxyApiDeleteRequest,
   ProviderProxyApiFactory,
@@ -41,16 +46,16 @@ import {
   ProviderProxyApiPatchRequest,
   ProviderProxyApiPostRequest,
   ProviderProxyApiPutRequest,
+  ProviderScopedSyncApiFactory,
   ProviderSyncApiFactory,
   ProviderTransferApiFactory,
   ProviderWalletApiFactory,
   ProviderWalletDto,
+  ScopedSyncDto,
   SendTransferDto,
   SignApiFactory,
   SignatureDto,
-  StartSyncDto,
-  SyncDto,
-  SyncStartedDto,
+  StartScopedSyncDto,
   TransferDto,
   UpdateConnectionDto,
   WalletApiFactory,
@@ -103,9 +108,15 @@ export class VaultClient {
 
   private signHttp
 
+  private providerNetworkHttp
+
+  private providerAssetHttp
+
   private providerConnectionHttp
 
   private providerSyncHttp
+
+  private providerScopedSyncHttp
 
   private providerWalletHttp
 
@@ -141,12 +152,15 @@ export class VaultClient {
     // Provider API clients
     this.providerConnectionHttp = ProviderConnectionApiFactory(httpConfig, config.host, axiosInstance)
     this.providerSyncHttp = ProviderSyncApiFactory(httpConfig, config.host, axiosInstance)
+    this.providerScopedSyncHttp = ProviderScopedSyncApiFactory(httpConfig, config.host, axiosInstance)
     this.providerWalletHttp = ProviderWalletApiFactory(httpConfig, config.host, axiosInstance)
     this.providerAccountHttp = ProviderAccountApiFactory(httpConfig, config.host, axiosInstance)
     this.providerAddressHttp = ProviderAddressApiFactory(httpConfig, config.host, axiosInstance)
     this.providerKnownDestinationHttp = ProviderKnownDestinationApiFactory(httpConfig, config.host, axiosInstance)
     this.providerTransferHttp = ProviderTransferApiFactory(httpConfig, config.host, axiosInstance)
     this.providerProxyHttp = ProviderProxyApiFactory(httpConfig, config.host, axiosInstance)
+    this.providerNetworkHttp = ProviderNetworkApiFactory(httpConfig, config.host, axiosInstance)
+    this.providerAssetHttp = ProviderAssetApiFactory(httpConfig, config.host, axiosInstance)
     this.applicationApi = new ApplicationApi(httpConfig, config.host, axiosInstance)
   }
 
@@ -287,6 +301,46 @@ export class VaultClient {
     return signature
   }
 
+  async listNetworks({
+    accessToken,
+    pagination
+  }: {
+    accessToken?: AccessToken
+    pagination?: RequestPagination
+  } = {}): Promise<PaginatedNetworksDto> {
+    const token = accessToken ? prefixGnapToken(accessToken) : undefined
+
+    const { data } = await this.providerNetworkHttp.list({
+      xClientId: this.config.clientId,
+      authorization: token,
+      cursor: pagination?.cursor,
+      limit: pagination?.limit,
+      desc: pagination?.desc
+    })
+
+    return data
+  }
+
+  async listAssets({
+    accessToken,
+    pagination
+  }: {
+    accessToken?: AccessToken
+    pagination?: RequestPagination
+  } = {}): Promise<PaginatedAssetsDto> {
+    const token = accessToken ? prefixGnapToken(accessToken) : undefined
+
+    const { data } = await this.providerAssetHttp.list({
+      xClientId: this.config.clientId,
+      authorization: token,
+      cursor: pagination?.cursor,
+      limit: pagination?.limit,
+      desc: pagination?.desc
+    })
+
+    return data
+  }
+
   /**
    * Provider Connection
    */
@@ -404,7 +458,7 @@ export class VaultClient {
     accessToken,
     pagination
   }: {
-    connectionId?: string
+    connectionId: string
     walletId?: string
     accessToken?: AccessToken
     pagination?: RequestPagination
@@ -421,57 +475,62 @@ export class VaultClient {
       })
 
       return accounts
-    } else if (connectionId) {
-      const { data: accounts } = await this.providerConnectionHttp.listAccounts({
-        xClientId: this.config.clientId,
-        connectionId,
-        authorization: token,
-        cursor: pagination?.cursor,
-        limit: pagination?.limit,
-        desc: pagination?.desc
-      })
-
-      return accounts
     }
 
     const { data: accounts } = await this.providerAccountHttp.list({
       xClientId: this.config.clientId,
+      xConnectionId: connectionId,
       authorization: token,
       cursor: pagination?.cursor,
       limit: pagination?.limit,
       desc: pagination?.desc
     })
+
     return accounts
   }
 
-  /**
-   * Provider Sync
-   */
-
-  async startSync({ data, accessToken }: { data: StartSyncDto; accessToken?: AccessToken }): Promise<SyncStartedDto> {
+  async listProviderRawAccounts({
+    accessToken,
+    assetId,
+    connectionId,
+    includeAddress,
+    namePrefix,
+    nameSuffix,
+    networkId,
+    pagination
+  }: {
+    accessToken?: AccessToken
+    assetId?: string
+    connectionId: string
+    includeAddress?: boolean
+    namePrefix?: string
+    nameSuffix?: string
+    networkId?: string
+    pagination?: RequestPagination
+    walletId?: string
+  }): Promise<PaginatedRawAccountsDto> {
     const token = accessToken ? prefixGnapToken(accessToken) : undefined
 
-    const { data: sync } = await this.providerSyncHttp.start({
-      xClientId: this.config.clientId,
+    const { data } = await this.providerAccountHttp.listRaw({
+      assetId,
+      includeAddress,
+      namePrefix,
+      nameSuffix,
+      networkId,
       authorization: token,
-      startSyncDto: data
-    })
-
-    return sync
-  }
-
-  async getSync({ syncId, accessToken }: { syncId: string; accessToken?: AccessToken }): Promise<SyncDto> {
-    const token = accessToken ? prefixGnapToken(accessToken) : undefined
-
-    const { data: sync } = await this.providerSyncHttp.getById({
+      cursor: pagination?.cursor,
+      desc: pagination?.desc,
+      limit: pagination?.limit,
       xClientId: this.config.clientId,
-      syncId,
-      authorization: token
+      xConnectionId: connectionId
     })
 
-    return sync
+    return data
   }
 
+  /**
+   * @deprecated Use listScopedSyncs() instead.
+   */
   async listSyncs({
     connectionId,
     accessToken,
@@ -485,7 +544,7 @@ export class VaultClient {
 
     const { data: syncs } = await this.providerSyncHttp.list({
       xClientId: this.config.clientId,
-      connectionId,
+      xConnectionId: connectionId,
       authorization: token,
       cursor: pagination?.cursor,
       limit: pagination?.limit,
@@ -522,26 +581,15 @@ export class VaultClient {
     accessToken,
     pagination
   }: {
-    connectionId?: string
+    connectionId: string
     accessToken?: AccessToken
     pagination?: RequestPagination
-  } = {}): Promise<PaginatedWalletsDto> {
+  }): Promise<PaginatedWalletsDto> {
     const token = accessToken ? prefixGnapToken(accessToken) : undefined
-
-    if (connectionId) {
-      const { data: wallets } = await this.providerConnectionHttp.listWallets({
-        xClientId: this.config.clientId,
-        connectionId,
-        authorization: token,
-        cursor: pagination?.cursor,
-        limit: pagination?.limit,
-        desc: pagination?.desc
-      })
-      return wallets
-    }
 
     const { data: wallets } = await this.providerWalletHttp.list({
       xClientId: this.config.clientId,
+      xConnectionId: connectionId,
       authorization: token,
       cursor: pagination?.cursor,
       limit: pagination?.limit,
@@ -646,7 +694,7 @@ export class VaultClient {
 
     const { data: knownDestinations } = await this.providerKnownDestinationHttp.list({
       xClientId: this.config.clientId,
-      connectionId,
+      xConnectionId: connectionId,
       authorization: token,
       cursor: pagination?.cursor,
       limit: pagination?.limit,
@@ -654,24 +702,6 @@ export class VaultClient {
     })
 
     return knownDestinations
-  }
-
-  async getProviderKnownDestination({
-    knownDestinationId,
-    accessToken
-  }: {
-    knownDestinationId: string
-    accessToken?: AccessToken
-  }): Promise<KnownDestinationDto> {
-    const token = accessToken ? prefixGnapToken(accessToken) : undefined
-
-    const { data: knownDestination } = await this.providerKnownDestinationHttp.getById({
-      xClientId: this.config.clientId,
-      knownDestinationId,
-      authorization: token
-    })
-
-    return knownDestination
   }
 
   /**
@@ -848,5 +878,61 @@ export class VaultClient {
       xConnectionId: data.xConnectionId
     })
     return ret
+  }
+
+  async scopedSync({ data, accessToken }: { data: StartScopedSyncDto; accessToken?: AccessToken }) {
+    const token = accessToken ? prefixGnapToken(accessToken) : undefined
+
+    const { data: sync } = await this.providerScopedSyncHttp.start({
+      xClientId: this.config.clientId,
+      authorization: token,
+      startScopedSyncDto: data
+    })
+
+    return sync
+  }
+
+  async getScopedSync({
+    scopedSyncId,
+    accessToken,
+    connectionId
+  }: {
+    scopedSyncId: string
+    connectionId: string
+    accessToken?: AccessToken
+  }): Promise<ScopedSyncDto> {
+    const token = accessToken ? prefixGnapToken(accessToken) : undefined
+
+    const { data: sync } = await this.providerScopedSyncHttp.getById({
+      xClientId: this.config.clientId,
+      xConnectionId: connectionId,
+      scopedSyncId,
+      authorization: token
+    })
+
+    return sync
+  }
+
+  async listScopedSyncs({
+    connectionId,
+    accessToken,
+    pagination
+  }: {
+    connectionId: string
+    accessToken?: AccessToken
+    pagination?: RequestPagination
+  }): Promise<PaginatedScopedSyncsDto> {
+    const token = accessToken ? prefixGnapToken(accessToken) : undefined
+
+    const { data: scopedSyncs } = await this.providerScopedSyncHttp.list({
+      xClientId: this.config.clientId,
+      xConnectionId: connectionId,
+      authorization: token,
+      cursor: pagination?.cursor,
+      limit: pagination?.limit,
+      desc: pagination?.desc
+    })
+
+    return scopedSyncs
   }
 }

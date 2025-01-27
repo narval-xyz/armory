@@ -14,16 +14,17 @@ export class TransferRepository {
 
   static parseEntity(entity: InternalTransfer): ProviderTransfer {
     return {
+      assetExternalId: entity.assetExternalId,
       assetId: entity.assetId,
       clientId: entity.clientId,
+      connectionId: entity.connectionId,
       createdAt: entity.createdAt,
       customerRefId: entity.customerRefId,
-      destinationAddressRaw: null, // TODO
       externalId: entity.externalId,
+      grossAmount: entity.grossAmount,
       id: entity.transferId,
       idempotenceId: entity.idempotenceId,
       memo: entity.memo,
-      grossAmount: entity.grossAmount,
       networkFeeAttribution: entity.networkFeeAttribution,
       provider: entity.provider,
       providerSpecific: PrismaService.toStringJson(entity.providerSpecific),
@@ -73,12 +74,15 @@ export class TransferRepository {
         ? {
             destinationAddressRaw: entity.destination.address
           }
-        : {})
+        : {
+            destinationAddressRaw: null
+          })
     }
   }
 
   static parseModel(model: ProviderTransfer): InternalTransfer {
     return InternalTransfer.parse({
+      assetExternalId: model.assetExternalId,
       assetId: model.assetId,
       clientId: model.clientId,
       createdAt: model.createdAt,
@@ -89,6 +93,7 @@ export class TransferRepository {
       grossAmount: model.grossAmount,
       idempotenceId: model.idempotenceId,
       memo: model.memo,
+      connectionId: model.connectionId,
       networkFeeAttribution: model.networkFeeAttribution,
       provider: model.provider,
       providerSpecific: PrismaService.toJson(model.providerSpecific),

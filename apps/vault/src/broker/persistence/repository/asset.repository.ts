@@ -37,6 +37,44 @@ export class AssetRepository {
     })
   }
 
+  async bulkCreate(assets: Asset[]): Promise<Asset[]> {
+    for (const asset of assets) {
+      const createdAt = asset.createdAt || new Date()
+
+      const data = {
+        createdAt,
+        id: asset.assetId,
+        name: asset.name,
+        symbol: asset.symbol,
+        decimals: asset.decimals,
+        networkId: asset.networkId,
+        onchainId: asset.onchainId
+      }
+
+      await this.prismaService.asset.upsert({
+        where: {
+          id: asset.assetId
+        },
+        create: data,
+        update: data
+      })
+
+      const externalAssets = asset.externalAssets.map(({ provider, externalId }) => ({
+        provider,
+        externalId,
+        assetId: asset.assetId,
+        createdAt
+      }))
+
+      await this.prismaService.providerAsset.createMany({
+        data: externalAssets,
+        skipDuplicates: true
+      })
+    }
+
+    return assets
+  }
+
   async create(asset: Asset): Promise<Asset> {
     const parse = Asset.parse(asset)
     const createdAt = parse.createdAt || new Date()
@@ -119,7 +157,7 @@ export class AssetRepository {
   async findById(assetId: string): Promise<Asset | null> {
     const model = await this.prismaService.asset.findUnique({
       where: {
-        id: assetId
+        id: assetId.toUpperCase()
       },
       include: {
         externalAssets: true
@@ -139,7 +177,7 @@ export class AssetRepository {
         externalAssets: {
           some: {
             provider,
-            externalId
+            externalId: externalId.toUpperCase()
           }
         }
       },
@@ -158,8 +196,8 @@ export class AssetRepository {
   async findByOnchainId(networkId: string, onchainId: string): Promise<Asset | null> {
     const models = await this.prismaService.asset.findMany({
       where: {
-        networkId,
-        onchainId
+        networkId: networkId.toUpperCase(),
+        onchainId: onchainId.toLowerCase()
       },
       include: {
         externalAssets: true

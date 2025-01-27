@@ -16,14 +16,13 @@ import { testClient } from '../../../../../__test__/util/mock-data'
 import { AccountRepository } from '../../../../../persistence/repository/account.repository'
 import { AddressRepository } from '../../../../../persistence/repository/address.repository'
 import { ConnectionRepository } from '../../../../../persistence/repository/connection.repository'
-import { KnownDestinationRepository } from '../../../../../persistence/repository/known-destination.repository'
 import { TransferRepository } from '../../../../../persistence/repository/transfer.repository'
 import { WalletRepository } from '../../../../../persistence/repository/wallet.repository'
 import { AssetSeed } from '../../../../../persistence/seed/asset.seed'
 import { NetworkSeed } from '../../../../../persistence/seed/network.seed'
 import { setupMockServer, useRequestSpy } from '../../../../../shared/__test__/mock-server'
-import { Connection, ConnectionStatus, ConnectionWithCredentials } from '../../../../type/connection.type'
-import { Account, Address, KnownDestination, Wallet } from '../../../../type/indexed-resources.type'
+import { ConnectionStatus, ConnectionWithCredentials } from '../../../../type/connection.type'
+import { Account, Address, Wallet } from '../../../../type/indexed-resources.type'
 import { Provider } from '../../../../type/provider.type'
 import {
   InternalTransfer,
@@ -45,7 +44,6 @@ describe(AnchorageTransferService.name, () => {
   let assetSeed: AssetSeed
   let clientService: ClientService
   let connectionRepository: ConnectionRepository
-  let knownDestinationRepository: KnownDestinationRepository
   let networkSeed: NetworkSeed
   let provisionService: ProvisionService
   let transferRepository: TransferRepository
@@ -88,6 +86,7 @@ describe(AnchorageTransferService.name, () => {
     addresses: [],
     clientId,
     createdAt: new Date(),
+    connectionId: connection.connectionId,
     externalId: uuid(),
     label: 'Account 1',
     networkId: 'BITCOIN',
@@ -100,6 +99,7 @@ describe(AnchorageTransferService.name, () => {
     accountId: uuid(),
     addresses: [],
     clientId,
+    connectionId: connection.connectionId,
     createdAt: new Date(),
     externalId: uuid(),
     label: 'Account 2',
@@ -112,6 +112,7 @@ describe(AnchorageTransferService.name, () => {
   const address: Address = {
     accountId: accountTwo.accountId,
     address: '0x2c4895215973cbbd778c32c456c074b99daf8bf1',
+    connectionId: connection.connectionId,
     addressId: uuid(),
     clientId,
     createdAt: new Date(),
@@ -122,25 +123,13 @@ describe(AnchorageTransferService.name, () => {
 
   const wallet: Wallet = {
     clientId,
-    connections: [Connection.parse(connection)],
+    connectionId: connection.connectionId,
     createdAt: new Date(),
     externalId: uuid(),
     label: null,
     provider: Provider.ANCHORAGE,
     updatedAt: new Date(),
     walletId
-  }
-
-  const knownDestination: KnownDestination = {
-    address: '0x04b12f0863b83c7162429f0ebb0dfda20e1aa97b',
-    clientId,
-    connections: [],
-    createdAt: new Date(),
-    externalId: uuid(),
-    knownDestinationId: uuid(),
-    networkId: 'BITCOIN',
-    provider: Provider.ANCHORAGE,
-    updatedAt: new Date()
   }
 
   const internalTransfer: InternalTransfer = {
@@ -154,6 +143,8 @@ describe(AnchorageTransferService.name, () => {
     externalId,
     externalStatus: null,
     assetId: 'BTC',
+    assetExternalId: null,
+    connectionId: connection.connectionId,
     memo: 'Test transfer',
     grossAmount: '0.00001',
     networkFeeAttribution: NetworkFeeAttribution.DEDUCT,
@@ -191,7 +182,6 @@ describe(AnchorageTransferService.name, () => {
     addressRepository = module.get(AddressRepository)
     assetSeed = module.get(AssetSeed)
     connectionRepository = module.get(ConnectionRepository)
-    knownDestinationRepository = module.get(KnownDestinationRepository)
     networkSeed = module.get(NetworkSeed)
     transferRepository = module.get(TransferRepository)
     walletRepository = module.get(WalletRepository)
@@ -218,7 +208,6 @@ describe(AnchorageTransferService.name, () => {
     await accountRepository.bulkCreate([accountOne, accountTwo])
     await addressRepository.bulkCreate([address])
     await transferRepository.bulkCreate([internalTransfer])
-    await knownDestinationRepository.bulkCreate([knownDestination])
 
     await app.init()
   })
@@ -231,6 +220,7 @@ describe(AnchorageTransferService.name, () => {
         assetId: internalTransfer.assetId,
         clientId: internalTransfer.clientId,
         customerRefId: internalTransfer.customerRefId,
+        connectionId: connection.connectionId,
         destination: internalTransfer.destination,
         externalId: internalTransfer.externalId,
         idempotenceId: internalTransfer.idempotenceId,

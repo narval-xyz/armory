@@ -7,15 +7,19 @@ import { Provider } from '../../type/provider.type'
 import { TransferPartyType } from '../../type/transfer.type'
 import { AnchorageCredentials, AnchorageResourceType } from './anchorage.type'
 
-export function validateConnection(
-  connection: ConnectionWithCredentials
-): asserts connection is ConnectionWithCredentials & {
+export const CONCURRENT_ANCHORAGE_REQUESTS = 5
+
+export type ValidConnection = {
   url: string
   credentials: {
     apiKey: string
     privateKey: Ed25519PrivateKey
   }
-} {
+}
+
+export function validateConnection(
+  connection: ConnectionWithCredentials
+): asserts connection is ConnectionWithCredentials & ValidConnection {
   const context = {
     clientId: connection.clientId,
     connectionId: connection.connectionId,

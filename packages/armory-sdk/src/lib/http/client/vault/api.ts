@@ -2,7 +2,7 @@
 /* eslint-disable */
 /**
  * Vault
- * Secure storage for private keys and sensitive data, designed to protect your most critical assets in web3.0
+ * Secure Enclave-backed authorization proxy for web3 secrets. Holds encrypted credentials and proxies API requests to custodians and wallet tech providers. Can also generate evm wallet private keys & sign transactions.
  *
  * The version of the OpenAPI document: 1.0
  * 
@@ -1004,7 +1004,8 @@ export interface CreateConnectionDto {
 
 export const CreateConnectionDtoProviderEnum = {
     Anchorage: 'anchorage',
-    Fireblocks: 'fireblocks'
+    Fireblocks: 'fireblocks',
+    Bitgo: 'bitgo'
 } as const;
 
 export type CreateConnectionDtoProviderEnum = typeof CreateConnectionDtoProviderEnum[keyof typeof CreateConnectionDtoProviderEnum];
@@ -1262,24 +1263,12 @@ export interface InitiateConnectionDto {
 
 export const InitiateConnectionDtoProviderEnum = {
     Anchorage: 'anchorage',
-    Fireblocks: 'fireblocks'
+    Fireblocks: 'fireblocks',
+    Bitgo: 'bitgo'
 } as const;
 
 export type InitiateConnectionDtoProviderEnum = typeof InitiateConnectionDtoProviderEnum[keyof typeof InitiateConnectionDtoProviderEnum];
 
-/**
- * 
- * @export
- * @interface KnownDestinationDto
- */
-export interface KnownDestinationDto {
-    /**
-     * 
-     * @type {PaginatedKnownDestinationsDtoDataInner}
-     * @memberof KnownDestinationDto
-     */
-    'data': PaginatedKnownDestinationsDtoDataInner;
-}
 /**
  * 
  * @export
@@ -1294,10 +1283,10 @@ export interface PaginatedAccountsDto {
     'data': Array<PaginatedWalletsDtoDataInnerAccountsInner>;
     /**
      * 
-     * @type {PaginatedConnectionsDtoPage}
+     * @type {PaginatedAssetsDtoPage}
      * @memberof PaginatedAccountsDto
      */
-    'page'?: PaginatedConnectionsDtoPage;
+    'page'?: PaginatedAssetsDtoPage;
 }
 /**
  * 
@@ -1313,10 +1302,125 @@ export interface PaginatedAddressesDto {
     'data': Array<PaginatedWalletsDtoDataInnerAccountsInnerAddressesInner>;
     /**
      * 
-     * @type {PaginatedConnectionsDtoPage}
+     * @type {PaginatedAssetsDtoPage}
      * @memberof PaginatedAddressesDto
      */
-    'page'?: PaginatedConnectionsDtoPage;
+    'page'?: PaginatedAssetsDtoPage;
+}
+/**
+ * 
+ * @export
+ * @interface PaginatedAssetsDto
+ */
+export interface PaginatedAssetsDto {
+    /**
+     * 
+     * @type {Array<PaginatedAssetsDtoDataInner>}
+     * @memberof PaginatedAssetsDto
+     */
+    'data': Array<PaginatedAssetsDtoDataInner>;
+    /**
+     * 
+     * @type {PaginatedAssetsDtoPage}
+     * @memberof PaginatedAssetsDto
+     */
+    'page'?: PaginatedAssetsDtoPage;
+}
+/**
+ * 
+ * @export
+ * @interface PaginatedAssetsDtoDataInner
+ */
+export interface PaginatedAssetsDtoDataInner {
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedAssetsDtoDataInner
+     */
+    'assetId': string;
+    /**
+     * 
+     * @type {any}
+     * @memberof PaginatedAssetsDtoDataInner
+     */
+    'createdAt'?: any;
+    /**
+     * 
+     * @type {number}
+     * @memberof PaginatedAssetsDtoDataInner
+     */
+    'decimals': number | null;
+    /**
+     * 
+     * @type {Array<PaginatedAssetsDtoDataInnerExternalAssetsInner>}
+     * @memberof PaginatedAssetsDtoDataInner
+     */
+    'externalAssets'?: Array<PaginatedAssetsDtoDataInnerExternalAssetsInner>;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedAssetsDtoDataInner
+     */
+    'name': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedAssetsDtoDataInner
+     */
+    'networkId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedAssetsDtoDataInner
+     */
+    'onchainId': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedAssetsDtoDataInner
+     */
+    'symbol': string | null;
+}
+/**
+ * 
+ * @export
+ * @interface PaginatedAssetsDtoDataInnerExternalAssetsInner
+ */
+export interface PaginatedAssetsDtoDataInnerExternalAssetsInner {
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedAssetsDtoDataInnerExternalAssetsInner
+     */
+    'externalId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedAssetsDtoDataInnerExternalAssetsInner
+     */
+    'provider': PaginatedAssetsDtoDataInnerExternalAssetsInnerProviderEnum;
+}
+
+export const PaginatedAssetsDtoDataInnerExternalAssetsInnerProviderEnum = {
+    Anchorage: 'anchorage',
+    Fireblocks: 'fireblocks',
+    Bitgo: 'bitgo'
+} as const;
+
+export type PaginatedAssetsDtoDataInnerExternalAssetsInnerProviderEnum = typeof PaginatedAssetsDtoDataInnerExternalAssetsInnerProviderEnum[keyof typeof PaginatedAssetsDtoDataInnerExternalAssetsInnerProviderEnum];
+
+/**
+ * 
+ * @export
+ * @interface PaginatedAssetsDtoPage
+ */
+export interface PaginatedAssetsDtoPage {
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedAssetsDtoPage
+     */
+    'next': string | null;
 }
 /**
  * 
@@ -1332,23 +1436,10 @@ export interface PaginatedConnectionsDto {
     'data': Array<ProviderConnectionDtoData>;
     /**
      * 
-     * @type {PaginatedConnectionsDtoPage}
+     * @type {PaginatedAssetsDtoPage}
      * @memberof PaginatedConnectionsDto
      */
-    'page'?: PaginatedConnectionsDtoPage;
-}
-/**
- * 
- * @export
- * @interface PaginatedConnectionsDtoPage
- */
-export interface PaginatedConnectionsDtoPage {
-    /**
-     * 
-     * @type {string}
-     * @memberof PaginatedConnectionsDtoPage
-     */
-    'next': string | null;
+    'page'?: PaginatedAssetsDtoPage;
 }
 /**
  * 
@@ -1364,10 +1455,10 @@ export interface PaginatedKnownDestinationsDto {
     'data': Array<PaginatedKnownDestinationsDtoDataInner>;
     /**
      * 
-     * @type {PaginatedConnectionsDtoPage}
+     * @type {PaginatedAssetsDtoPage}
      * @memberof PaginatedKnownDestinationsDto
      */
-    'page'?: PaginatedConnectionsDtoPage;
+    'page'?: PaginatedAssetsDtoPage;
 }
 /**
  * 
@@ -1380,19 +1471,13 @@ export interface PaginatedKnownDestinationsDtoDataInner {
      * @type {string}
      * @memberof PaginatedKnownDestinationsDtoDataInner
      */
-    'knownDestinationId': string;
+    'clientId': string;
     /**
      * 
      * @type {string}
      * @memberof PaginatedKnownDestinationsDtoDataInner
      */
-    'clientId': string;
-    /**
-     * 
-     * @type {Array<ProviderConnectionDtoData>}
-     * @memberof PaginatedKnownDestinationsDtoDataInner
-     */
-    'connections': Array<ProviderConnectionDtoData>;
+    'connectionId': string;
     /**
      * 
      * @type {string}
@@ -1435,27 +1520,224 @@ export interface PaginatedKnownDestinationsDtoDataInner {
      * @memberof PaginatedKnownDestinationsDtoDataInner
      */
     'networkId': string;
-    /**
-     * 
-     * @type {any}
-     * @memberof PaginatedKnownDestinationsDtoDataInner
-     */
-    'createdAt': any;
-    /**
-     * 
-     * @type {any}
-     * @memberof PaginatedKnownDestinationsDtoDataInner
-     */
-    'updatedAt': any;
 }
 
 export const PaginatedKnownDestinationsDtoDataInnerProviderEnum = {
     Anchorage: 'anchorage',
-    Fireblocks: 'fireblocks'
+    Fireblocks: 'fireblocks',
+    Bitgo: 'bitgo'
 } as const;
 
 export type PaginatedKnownDestinationsDtoDataInnerProviderEnum = typeof PaginatedKnownDestinationsDtoDataInnerProviderEnum[keyof typeof PaginatedKnownDestinationsDtoDataInnerProviderEnum];
 
+/**
+ * 
+ * @export
+ * @interface PaginatedNetworksDto
+ */
+export interface PaginatedNetworksDto {
+    /**
+     * 
+     * @type {Array<PaginatedNetworksDtoDataInner>}
+     * @memberof PaginatedNetworksDto
+     */
+    'data': Array<PaginatedNetworksDtoDataInner>;
+    /**
+     * 
+     * @type {PaginatedAssetsDtoPage}
+     * @memberof PaginatedNetworksDto
+     */
+    'page'?: PaginatedAssetsDtoPage;
+}
+/**
+ * 
+ * @export
+ * @interface PaginatedNetworksDtoDataInner
+ */
+export interface PaginatedNetworksDtoDataInner {
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedNetworksDtoDataInner
+     */
+    'networkId': string;
+    /**
+     * 
+     * @type {number}
+     * @memberof PaginatedNetworksDtoDataInner
+     */
+    'coinType': number | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedNetworksDtoDataInner
+     */
+    'name': string;
+    /**
+     * 
+     * @type {Array<PaginatedAssetsDtoDataInnerExternalAssetsInner>}
+     * @memberof PaginatedNetworksDtoDataInner
+     */
+    'externalNetworks'?: Array<PaginatedAssetsDtoDataInnerExternalAssetsInner>;
+    /**
+     * 
+     * @type {any}
+     * @memberof PaginatedNetworksDtoDataInner
+     */
+    'createdAt'?: any;
+}
+/**
+ * 
+ * @export
+ * @interface PaginatedRawAccountsDto
+ */
+export interface PaginatedRawAccountsDto {
+    /**
+     * 
+     * @type {Array<PaginatedRawAccountsDtoDataInner>}
+     * @memberof PaginatedRawAccountsDto
+     */
+    'data': Array<PaginatedRawAccountsDtoDataInner>;
+    /**
+     * 
+     * @type {PaginatedAssetsDtoPage}
+     * @memberof PaginatedRawAccountsDto
+     */
+    'page'?: PaginatedAssetsDtoPage;
+}
+/**
+ * 
+ * @export
+ * @interface PaginatedRawAccountsDtoDataInner
+ */
+export interface PaginatedRawAccountsDtoDataInner {
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedRawAccountsDtoDataInner
+     */
+    'provider': PaginatedRawAccountsDtoDataInnerProviderEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedRawAccountsDtoDataInner
+     */
+    'externalId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedRawAccountsDtoDataInner
+     */
+    'label': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedRawAccountsDtoDataInner
+     */
+    'subLabel'?: string;
+    /**
+     * The deposit address for the account, if there are multiple
+     * @type {string}
+     * @memberof PaginatedRawAccountsDtoDataInner
+     */
+    'defaultAddress'?: string;
+    /**
+     * 
+     * @type {PaginatedRawAccountsDtoDataInnerNetwork}
+     * @memberof PaginatedRawAccountsDtoDataInner
+     */
+    'network'?: PaginatedRawAccountsDtoDataInnerNetwork | null;
+    /**
+     * The assets of the account
+     * @type {Array<PaginatedRawAccountsDtoDataInnerAssetsInner>}
+     * @memberof PaginatedRawAccountsDtoDataInner
+     */
+    'assets'?: Array<PaginatedRawAccountsDtoDataInnerAssetsInner>;
+}
+
+export const PaginatedRawAccountsDtoDataInnerProviderEnum = {
+    Anchorage: 'anchorage',
+    Fireblocks: 'fireblocks',
+    Bitgo: 'bitgo'
+} as const;
+
+export type PaginatedRawAccountsDtoDataInnerProviderEnum = typeof PaginatedRawAccountsDtoDataInnerProviderEnum[keyof typeof PaginatedRawAccountsDtoDataInnerProviderEnum];
+
+/**
+ * 
+ * @export
+ * @interface PaginatedRawAccountsDtoDataInnerAssetsInner
+ */
+export interface PaginatedRawAccountsDtoDataInnerAssetsInner {
+    /**
+     * 
+     * @type {PaginatedAssetsDtoDataInner}
+     * @memberof PaginatedRawAccountsDtoDataInnerAssetsInner
+     */
+    'asset': PaginatedAssetsDtoDataInner;
+    /**
+     * The balance of the this asset in this account
+     * @type {string}
+     * @memberof PaginatedRawAccountsDtoDataInnerAssetsInner
+     */
+    'balance'?: string;
+}
+/**
+ * The network of the account
+ * @export
+ * @interface PaginatedRawAccountsDtoDataInnerNetwork
+ */
+export interface PaginatedRawAccountsDtoDataInnerNetwork {
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedRawAccountsDtoDataInnerNetwork
+     */
+    'networkId': string;
+    /**
+     * 
+     * @type {number}
+     * @memberof PaginatedRawAccountsDtoDataInnerNetwork
+     */
+    'coinType': number | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedRawAccountsDtoDataInnerNetwork
+     */
+    'name': string;
+    /**
+     * 
+     * @type {Array<PaginatedAssetsDtoDataInnerExternalAssetsInner>}
+     * @memberof PaginatedRawAccountsDtoDataInnerNetwork
+     */
+    'externalNetworks'?: Array<PaginatedAssetsDtoDataInnerExternalAssetsInner>;
+    /**
+     * 
+     * @type {any}
+     * @memberof PaginatedRawAccountsDtoDataInnerNetwork
+     */
+    'createdAt'?: any;
+}
+/**
+ * 
+ * @export
+ * @interface PaginatedScopedSyncsDto
+ */
+export interface PaginatedScopedSyncsDto {
+    /**
+     * 
+     * @type {Array<ScopedSyncStartedDtoDataScopedSyncsInner>}
+     * @memberof PaginatedScopedSyncsDto
+     */
+    'data': Array<ScopedSyncStartedDtoDataScopedSyncsInner>;
+    /**
+     * 
+     * @type {PaginatedAssetsDtoPage}
+     * @memberof PaginatedScopedSyncsDto
+     */
+    'page'?: PaginatedAssetsDtoPage;
+}
 /**
  * 
  * @export
@@ -1464,16 +1746,99 @@ export type PaginatedKnownDestinationsDtoDataInnerProviderEnum = typeof Paginate
 export interface PaginatedSyncsDto {
     /**
      * 
-     * @type {Array<SyncStartedDtoDataSyncsInner>}
+     * @type {Array<PaginatedSyncsDtoDataInner>}
      * @memberof PaginatedSyncsDto
      */
-    'data': Array<SyncStartedDtoDataSyncsInner>;
+    'data': Array<PaginatedSyncsDtoDataInner>;
     /**
      * 
-     * @type {PaginatedConnectionsDtoPage}
+     * @type {PaginatedAssetsDtoPage}
      * @memberof PaginatedSyncsDto
      */
-    'page'?: PaginatedConnectionsDtoPage;
+    'page'?: PaginatedAssetsDtoPage;
+}
+/**
+ * 
+ * @export
+ * @interface PaginatedSyncsDtoDataInner
+ */
+export interface PaginatedSyncsDtoDataInner {
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedSyncsDtoDataInner
+     */
+    'clientId': string;
+    /**
+     * 
+     * @type {any}
+     * @memberof PaginatedSyncsDtoDataInner
+     */
+    'completedAt'?: any;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedSyncsDtoDataInner
+     */
+    'connectionId': string;
+    /**
+     * 
+     * @type {any}
+     * @memberof PaginatedSyncsDtoDataInner
+     */
+    'createdAt': any;
+    /**
+     * 
+     * @type {PaginatedSyncsDtoDataInnerError}
+     * @memberof PaginatedSyncsDtoDataInner
+     */
+    'error'?: PaginatedSyncsDtoDataInnerError;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedSyncsDtoDataInner
+     */
+    'status'?: PaginatedSyncsDtoDataInnerStatusEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedSyncsDtoDataInner
+     */
+    'syncId': string;
+}
+
+export const PaginatedSyncsDtoDataInnerStatusEnum = {
+    Processing: 'processing',
+    Success: 'success',
+    Failed: 'failed'
+} as const;
+
+export type PaginatedSyncsDtoDataInnerStatusEnum = typeof PaginatedSyncsDtoDataInnerStatusEnum[keyof typeof PaginatedSyncsDtoDataInnerStatusEnum];
+
+/**
+ * 
+ * @export
+ * @interface PaginatedSyncsDtoDataInnerError
+ */
+export interface PaginatedSyncsDtoDataInnerError {
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedSyncsDtoDataInnerError
+     */
+    'name'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedSyncsDtoDataInnerError
+     */
+    'message'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedSyncsDtoDataInnerError
+     */
+    'traceId'?: string;
 }
 /**
  * 
@@ -1489,10 +1854,10 @@ export interface PaginatedWalletsDto {
     'data': Array<PaginatedWalletsDtoDataInner>;
     /**
      * 
-     * @type {PaginatedConnectionsDtoPage}
+     * @type {PaginatedAssetsDtoPage}
      * @memberof PaginatedWalletsDto
      */
-    'page'?: PaginatedConnectionsDtoPage;
+    'page'?: PaginatedAssetsDtoPage;
 }
 /**
  * 
@@ -1505,7 +1870,7 @@ export interface PaginatedWalletsDtoDataInner {
      * @type {Array<PaginatedWalletsDtoDataInnerAccountsInner>}
      * @memberof PaginatedWalletsDtoDataInner
      */
-    'accounts'?: Array<PaginatedWalletsDtoDataInnerAccountsInner>;
+    'accounts': Array<PaginatedWalletsDtoDataInnerAccountsInner>;
     /**
      * 
      * @type {string}
@@ -1514,10 +1879,10 @@ export interface PaginatedWalletsDtoDataInner {
     'clientId': string;
     /**
      * 
-     * @type {Array<ProviderConnectionDtoData>}
+     * @type {string}
      * @memberof PaginatedWalletsDtoDataInner
      */
-    'connections': Array<ProviderConnectionDtoData>;
+    'connectionId': string;
     /**
      * 
      * @type {any}
@@ -1558,7 +1923,8 @@ export interface PaginatedWalletsDtoDataInner {
 
 export const PaginatedWalletsDtoDataInnerProviderEnum = {
     Anchorage: 'anchorage',
-    Fireblocks: 'fireblocks'
+    Fireblocks: 'fireblocks',
+    Bitgo: 'bitgo'
 } as const;
 
 export type PaginatedWalletsDtoDataInnerProviderEnum = typeof PaginatedWalletsDtoDataInnerProviderEnum[keyof typeof PaginatedWalletsDtoDataInnerProviderEnum];
@@ -1580,13 +1946,19 @@ export interface PaginatedWalletsDtoDataInnerAccountsInner {
      * @type {Array<PaginatedWalletsDtoDataInnerAccountsInnerAddressesInner>}
      * @memberof PaginatedWalletsDtoDataInnerAccountsInner
      */
-    'addresses'?: Array<PaginatedWalletsDtoDataInnerAccountsInnerAddressesInner>;
+    'addresses': Array<PaginatedWalletsDtoDataInnerAccountsInnerAddressesInner>;
     /**
      * 
      * @type {string}
      * @memberof PaginatedWalletsDtoDataInnerAccountsInner
      */
     'clientId': string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoDataInnerAccountsInner
+     */
+    'connectionId': string;
     /**
      * 
      * @type {any}
@@ -1633,7 +2005,8 @@ export interface PaginatedWalletsDtoDataInnerAccountsInner {
 
 export const PaginatedWalletsDtoDataInnerAccountsInnerProviderEnum = {
     Anchorage: 'anchorage',
-    Fireblocks: 'fireblocks'
+    Fireblocks: 'fireblocks',
+    Bitgo: 'bitgo'
 } as const;
 
 export type PaginatedWalletsDtoDataInnerAccountsInnerProviderEnum = typeof PaginatedWalletsDtoDataInnerAccountsInnerProviderEnum[keyof typeof PaginatedWalletsDtoDataInnerAccountsInnerProviderEnum];
@@ -1670,6 +2043,12 @@ export interface PaginatedWalletsDtoDataInnerAccountsInnerAddressesInner {
     'clientId': string;
     /**
      * 
+     * @type {string}
+     * @memberof PaginatedWalletsDtoDataInnerAccountsInnerAddressesInner
+     */
+    'connectionId': string;
+    /**
+     * 
      * @type {any}
      * @memberof PaginatedWalletsDtoDataInnerAccountsInnerAddressesInner
      */
@@ -1696,7 +2075,8 @@ export interface PaginatedWalletsDtoDataInnerAccountsInnerAddressesInner {
 
 export const PaginatedWalletsDtoDataInnerAccountsInnerAddressesInnerProviderEnum = {
     Anchorage: 'anchorage',
-    Fireblocks: 'fireblocks'
+    Fireblocks: 'fireblocks',
+    Bitgo: 'bitgo'
 } as const;
 
 export type PaginatedWalletsDtoDataInnerAccountsInnerAddressesInnerProviderEnum = typeof PaginatedWalletsDtoDataInnerAccountsInnerAddressesInnerProviderEnum[keyof typeof PaginatedWalletsDtoDataInnerAccountsInnerAddressesInnerProviderEnum];
@@ -1810,7 +2190,8 @@ export interface ProviderConnectionDtoDataOneOf {
 
 export const ProviderConnectionDtoDataOneOfProviderEnum = {
     Anchorage: 'anchorage',
-    Fireblocks: 'fireblocks'
+    Fireblocks: 'fireblocks',
+    Bitgo: 'bitgo'
 } as const;
 
 export type ProviderConnectionDtoDataOneOfProviderEnum = typeof ProviderConnectionDtoDataOneOfProviderEnum[keyof typeof ProviderConnectionDtoDataOneOfProviderEnum];
@@ -1884,7 +2265,8 @@ export interface ProviderConnectionDtoDataOneOf1 {
 
 export const ProviderConnectionDtoDataOneOf1ProviderEnum = {
     Anchorage: 'anchorage',
-    Fireblocks: 'fireblocks'
+    Fireblocks: 'fireblocks',
+    Bitgo: 'bitgo'
 } as const;
 
 export type ProviderConnectionDtoDataOneOf1ProviderEnum = typeof ProviderConnectionDtoDataOneOf1ProviderEnum[keyof typeof ProviderConnectionDtoDataOneOf1ProviderEnum];
@@ -1964,7 +2346,8 @@ export interface ProviderConnectionDtoDataOneOf2 {
 
 export const ProviderConnectionDtoDataOneOf2ProviderEnum = {
     Anchorage: 'anchorage',
-    Fireblocks: 'fireblocks'
+    Fireblocks: 'fireblocks',
+    Bitgo: 'bitgo'
 } as const;
 
 export type ProviderConnectionDtoDataOneOf2ProviderEnum = typeof ProviderConnectionDtoDataOneOf2ProviderEnum[keyof typeof ProviderConnectionDtoDataOneOf2ProviderEnum];
@@ -2039,7 +2422,8 @@ export interface ProviderPendingConnectionDtoData {
 
 export const ProviderPendingConnectionDtoDataProviderEnum = {
     Anchorage: 'anchorage',
-    Fireblocks: 'fireblocks'
+    Fireblocks: 'fireblocks',
+    Bitgo: 'bitgo'
 } as const;
 
 export type ProviderPendingConnectionDtoDataProviderEnum = typeof ProviderPendingConnectionDtoDataProviderEnum[keyof typeof ProviderPendingConnectionDtoDataProviderEnum];
@@ -2073,6 +2457,12 @@ export interface ProviderPendingConnectionDtoDataPublicKey {
      * @memberof ProviderPendingConnectionDtoDataPublicKey
      */
     'hex'?: any;
+    /**
+     * Certificate Signing Request PEM format of RSA public key encoded as base64
+     * @type {string}
+     * @memberof ProviderPendingConnectionDtoDataPublicKey
+     */
+    'csr'?: string;
 }
 /**
  * 
@@ -2087,6 +2477,115 @@ export interface ProviderWalletDto {
      */
     'data': PaginatedWalletsDtoDataInner;
 }
+/**
+ * 
+ * @export
+ * @interface ScopedSyncDto
+ */
+export interface ScopedSyncDto {
+    /**
+     * 
+     * @type {ScopedSyncStartedDtoDataScopedSyncsInner}
+     * @memberof ScopedSyncDto
+     */
+    'data': ScopedSyncStartedDtoDataScopedSyncsInner;
+}
+/**
+ * 
+ * @export
+ * @interface ScopedSyncStartedDto
+ */
+export interface ScopedSyncStartedDto {
+    /**
+     * 
+     * @type {ScopedSyncStartedDtoData}
+     * @memberof ScopedSyncStartedDto
+     */
+    'data': ScopedSyncStartedDtoData;
+}
+/**
+ * 
+ * @export
+ * @interface ScopedSyncStartedDtoData
+ */
+export interface ScopedSyncStartedDtoData {
+    /**
+     * 
+     * @type {boolean}
+     * @memberof ScopedSyncStartedDtoData
+     */
+    'started': boolean;
+    /**
+     * 
+     * @type {Array<ScopedSyncStartedDtoDataScopedSyncsInner>}
+     * @memberof ScopedSyncStartedDtoData
+     */
+    'scopedSyncs': Array<ScopedSyncStartedDtoDataScopedSyncsInner>;
+}
+/**
+ * 
+ * @export
+ * @interface ScopedSyncStartedDtoDataScopedSyncsInner
+ */
+export interface ScopedSyncStartedDtoDataScopedSyncsInner {
+    /**
+     * 
+     * @type {string}
+     * @memberof ScopedSyncStartedDtoDataScopedSyncsInner
+     */
+    'clientId': string;
+    /**
+     * 
+     * @type {any}
+     * @memberof ScopedSyncStartedDtoDataScopedSyncsInner
+     */
+    'completedAt'?: any;
+    /**
+     * 
+     * @type {string}
+     * @memberof ScopedSyncStartedDtoDataScopedSyncsInner
+     */
+    'connectionId': string;
+    /**
+     * 
+     * @type {any}
+     * @memberof ScopedSyncStartedDtoDataScopedSyncsInner
+     */
+    'createdAt': any;
+    /**
+     * 
+     * @type {PaginatedSyncsDtoDataInnerError}
+     * @memberof ScopedSyncStartedDtoDataScopedSyncsInner
+     */
+    'error'?: PaginatedSyncsDtoDataInnerError;
+    /**
+     * 
+     * @type {string}
+     * @memberof ScopedSyncStartedDtoDataScopedSyncsInner
+     */
+    'status'?: ScopedSyncStartedDtoDataScopedSyncsInnerStatusEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof ScopedSyncStartedDtoDataScopedSyncsInner
+     */
+    'scopedSyncId': string;
+    /**
+     * 
+     * @type {Array<StartScopedSyncDtoRawAccountsInner>}
+     * @memberof ScopedSyncStartedDtoDataScopedSyncsInner
+     */
+    'rawAccounts': Array<StartScopedSyncDtoRawAccountsInner>;
+}
+
+export const ScopedSyncStartedDtoDataScopedSyncsInnerStatusEnum = {
+    Processing: 'processing',
+    Success: 'success',
+    Failed: 'failed'
+} as const;
+
+export type ScopedSyncStartedDtoDataScopedSyncsInnerStatusEnum = typeof ScopedSyncStartedDtoDataScopedSyncsInnerStatusEnum[keyof typeof ScopedSyncStartedDtoDataScopedSyncsInnerStatusEnum];
+
 /**
  * 
  * @export
@@ -2124,7 +2623,7 @@ export interface SendTransferDto {
      */
     'asset': SendTransferDtoAsset;
     /**
-     * 
+     * Controls how network fees are charged. Example: a request to transfer 1 ETH with networkFeeAttribution=ON_TOP would result in exactly 1 ETH received to the destination and just over 1 ETH spent by the source. Note: This property is optional and its default always depend on the underlying provider.
      * @type {string}
      * @memberof SendTransferDto
      */
@@ -2169,7 +2668,8 @@ export const SendTransferDtoNetworkFeeAttributionEnum = {
 export type SendTransferDtoNetworkFeeAttributionEnum = typeof SendTransferDtoNetworkFeeAttributionEnum[keyof typeof SendTransferDtoNetworkFeeAttributionEnum];
 export const SendTransferDtoProviderEnum = {
     Anchorage: 'anchorage',
-    Fireblocks: 'fireblocks'
+    Fireblocks: 'fireblocks',
+    Bitgo: 'bitgo'
 } as const;
 
 export type SendTransferDtoProviderEnum = typeof SendTransferDtoProviderEnum[keyof typeof SendTransferDtoProviderEnum];
@@ -2847,144 +3347,50 @@ export interface SignatureDto {
 /**
  * 
  * @export
- * @interface StartSyncDto
+ * @interface StartScopedSyncDto
  */
-export interface StartSyncDto {
+export interface StartScopedSyncDto {
     /**
-     * The connection to sync. If undefined, start the sync on all active connections
+     * The connection to sync.
      * @type {string}
-     * @memberof StartSyncDto
-     */
-    'connectionId'?: string;
-}
-/**
- * 
- * @export
- * @interface SyncDto
- */
-export interface SyncDto {
-    /**
-     * 
-     * @type {SyncStartedDtoDataSyncsInner}
-     * @memberof SyncDto
-     */
-    'data': SyncStartedDtoDataSyncsInner;
-}
-/**
- * 
- * @export
- * @interface SyncStartedDto
- */
-export interface SyncStartedDto {
-    /**
-     * 
-     * @type {SyncStartedDtoData}
-     * @memberof SyncStartedDto
-     */
-    'data': SyncStartedDtoData;
-}
-/**
- * 
- * @export
- * @interface SyncStartedDtoData
- */
-export interface SyncStartedDtoData {
-    /**
-     * 
-     * @type {boolean}
-     * @memberof SyncStartedDtoData
-     */
-    'started': boolean;
-    /**
-     * 
-     * @type {Array<SyncStartedDtoDataSyncsInner>}
-     * @memberof SyncStartedDtoData
-     */
-    'syncs': Array<SyncStartedDtoDataSyncsInner>;
-}
-/**
- * 
- * @export
- * @interface SyncStartedDtoDataSyncsInner
- */
-export interface SyncStartedDtoDataSyncsInner {
-    /**
-     * 
-     * @type {string}
-     * @memberof SyncStartedDtoDataSyncsInner
-     */
-    'clientId': string;
-    /**
-     * 
-     * @type {any}
-     * @memberof SyncStartedDtoDataSyncsInner
-     */
-    'completedAt'?: any;
-    /**
-     * 
-     * @type {string}
-     * @memberof SyncStartedDtoDataSyncsInner
+     * @memberof StartScopedSyncDto
      */
     'connectionId': string;
     /**
-     * 
-     * @type {any}
-     * @memberof SyncStartedDtoDataSyncsInner
+     * The accounts to sync.
+     * @type {Array<StartScopedSyncDtoRawAccountsInner>}
+     * @memberof StartScopedSyncDto
      */
-    'createdAt': any;
-    /**
-     * 
-     * @type {SyncStartedDtoDataSyncsInnerError}
-     * @memberof SyncStartedDtoDataSyncsInner
-     */
-    'error'?: SyncStartedDtoDataSyncsInnerError;
-    /**
-     * 
-     * @type {string}
-     * @memberof SyncStartedDtoDataSyncsInner
-     */
-    'status'?: SyncStartedDtoDataSyncsInnerStatusEnum;
-    /**
-     * 
-     * @type {string}
-     * @memberof SyncStartedDtoDataSyncsInner
-     */
-    'syncId': string;
+    'rawAccounts': Array<StartScopedSyncDtoRawAccountsInner>;
 }
-
-export const SyncStartedDtoDataSyncsInnerStatusEnum = {
-    Processing: 'processing',
-    Success: 'success',
-    Failed: 'failed'
-} as const;
-
-export type SyncStartedDtoDataSyncsInnerStatusEnum = typeof SyncStartedDtoDataSyncsInnerStatusEnum[keyof typeof SyncStartedDtoDataSyncsInnerStatusEnum];
-
 /**
  * 
  * @export
- * @interface SyncStartedDtoDataSyncsInnerError
+ * @interface StartScopedSyncDtoRawAccountsInner
  */
-export interface SyncStartedDtoDataSyncsInnerError {
+export interface StartScopedSyncDtoRawAccountsInner {
     /**
      * 
      * @type {string}
-     * @memberof SyncStartedDtoDataSyncsInnerError
+     * @memberof StartScopedSyncDtoRawAccountsInner
      */
-    'name'?: string;
+    'provider': StartScopedSyncDtoRawAccountsInnerProviderEnum;
     /**
      * 
      * @type {string}
-     * @memberof SyncStartedDtoDataSyncsInnerError
+     * @memberof StartScopedSyncDtoRawAccountsInner
      */
-    'message'?: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof SyncStartedDtoDataSyncsInnerError
-     */
-    'traceId'?: string;
+    'externalId': string;
 }
+
+export const StartScopedSyncDtoRawAccountsInnerProviderEnum = {
+    Anchorage: 'anchorage',
+    Fireblocks: 'fireblocks',
+    Bitgo: 'bitgo'
+} as const;
+
+export type StartScopedSyncDtoRawAccountsInnerProviderEnum = typeof StartScopedSyncDtoRawAccountsInnerProviderEnum[keyof typeof StartScopedSyncDtoRawAccountsInnerProviderEnum];
+
 /**
  * 
  * @export
@@ -3045,6 +3451,12 @@ export interface TransferDtoData {
      * @type {string}
      * @memberof TransferDtoData
      */
+    'externalStatus': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof TransferDtoData
+     */
     'grossAmount': string;
     /**
      * 
@@ -3052,6 +3464,12 @@ export interface TransferDtoData {
      * @memberof TransferDtoData
      */
     'idempotenceId': string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof TransferDtoData
+     */
+    'connectionId': string;
     /**
      * 
      * @type {string}
@@ -3104,7 +3522,8 @@ export const TransferDtoDataNetworkFeeAttributionEnum = {
 export type TransferDtoDataNetworkFeeAttributionEnum = typeof TransferDtoDataNetworkFeeAttributionEnum[keyof typeof TransferDtoDataNetworkFeeAttributionEnum];
 export const TransferDtoDataProviderEnum = {
     Anchorage: 'anchorage',
-    Fireblocks: 'fireblocks'
+    Fireblocks: 'fireblocks',
+    Bitgo: 'bitgo'
 } as const;
 
 export type TransferDtoDataProviderEnum = typeof TransferDtoDataProviderEnum[keyof typeof TransferDtoDataProviderEnum];
@@ -4065,11 +4484,12 @@ export const ProviderAccountApiAxiosParamCreator = function (configuration?: Con
          * @summary Get a specific account by ID
          * @param {string} xClientId 
          * @param {string} accountId The ID of the account to retrieve
+         * @param {string} [xConnectionId] The provider connection through which the resource is accessed
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getById: async (xClientId: string, accountId: string, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getById: async (xClientId: string, accountId: string, xConnectionId?: string, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'xClientId' is not null or undefined
             assertParamExists('getById', 'xClientId', xClientId)
             // verify required parameter 'accountId' is not null or undefined
@@ -4096,6 +4516,10 @@ export const ProviderAccountApiAxiosParamCreator = function (configuration?: Con
                 localVarHeaderParameter['x-client-id'] = String(xClientId);
             }
 
+            if (xConnectionId != null) {
+                localVarHeaderParameter['x-connection-id'] = String(xConnectionId);
+            }
+
             if (authorization != null) {
                 localVarHeaderParameter['Authorization'] = String(authorization);
             }
@@ -4119,11 +4543,12 @@ export const ProviderAccountApiAxiosParamCreator = function (configuration?: Con
          * @param {number} [limit] Number of records to return per page
          * @param {string} [orderBy] Field to order results by
          * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {string} [xConnectionId] The provider connection through which the resource is accessed
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        list: async (xClientId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        list: async (xClientId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, xConnectionId?: string, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'xClientId' is not null or undefined
             assertParamExists('list', 'xClientId', xClientId)
             const localVarPath = `/v1/provider/accounts`;
@@ -4163,6 +4588,10 @@ export const ProviderAccountApiAxiosParamCreator = function (configuration?: Con
                 localVarHeaderParameter['x-client-id'] = String(xClientId);
             }
 
+            if (xConnectionId != null) {
+                localVarHeaderParameter['x-connection-id'] = String(xConnectionId);
+            }
+
             if (authorization != null) {
                 localVarHeaderParameter['Authorization'] = String(authorization);
             }
@@ -4187,11 +4616,12 @@ export const ProviderAccountApiAxiosParamCreator = function (configuration?: Con
          * @param {number} [limit] Number of records to return per page
          * @param {string} [orderBy] Field to order results by
          * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {string} [xConnectionId] The provider connection through which the resource is accessed
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listAddresses: async (xClientId: string, accountId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        listAddresses: async (xClientId: string, accountId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, xConnectionId?: string, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'xClientId' is not null or undefined
             assertParamExists('listAddresses', 'xClientId', xClientId)
             // verify required parameter 'accountId' is not null or undefined
@@ -4234,6 +4664,107 @@ export const ProviderAccountApiAxiosParamCreator = function (configuration?: Con
                 localVarHeaderParameter['x-client-id'] = String(xClientId);
             }
 
+            if (xConnectionId != null) {
+                localVarHeaderParameter['x-connection-id'] = String(xConnectionId);
+            }
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @summary List the provider accounts in raw form, used to populate which accounts to connect
+         * @param {string} xClientId 
+         * @param {string} [namePrefix] Filter accounts by name prefix
+         * @param {string} [nameSuffix] Filter accounts by name suffix
+         * @param {string} [networkId] Filter accounts by network ID
+         * @param {string} [assetId] Filter accounts by asset ID
+         * @param {boolean} [includeAddress] Include address information in the response
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {string} [xConnectionId] The provider connection through which the resource is accessed
+         * @param {string} [authorization] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listRaw: async (xClientId: string, namePrefix?: string, nameSuffix?: string, networkId?: string, assetId?: string, includeAddress?: boolean, cursor?: string, limit?: number, orderBy?: string, desc?: string, xConnectionId?: string, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'xClientId' is not null or undefined
+            assertParamExists('listRaw', 'xClientId', xClientId)
+            const localVarPath = `/v1/provider/accounts/raw`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+
+            // authentication Detached-JWS-Signature required
+            await setApiKeyToObject(localVarHeaderParameter, "detached-jws", configuration)
+
+            if (namePrefix !== undefined) {
+                localVarQueryParameter['namePrefix'] = namePrefix;
+            }
+
+            if (nameSuffix !== undefined) {
+                localVarQueryParameter['nameSuffix'] = nameSuffix;
+            }
+
+            if (networkId !== undefined) {
+                localVarQueryParameter['networkId'] = networkId;
+            }
+
+            if (assetId !== undefined) {
+                localVarQueryParameter['assetId'] = assetId;
+            }
+
+            if (includeAddress !== undefined) {
+                localVarQueryParameter['includeAddress'] = includeAddress;
+            }
+
+            if (cursor !== undefined) {
+                localVarQueryParameter['cursor'] = cursor;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (orderBy !== undefined) {
+                localVarQueryParameter['orderBy'] = orderBy;
+            }
+
+            if (desc !== undefined) {
+                localVarQueryParameter['desc'] = desc;
+            }
+
+            if (xClientId != null) {
+                localVarHeaderParameter['x-client-id'] = String(xClientId);
+            }
+
+            if (xConnectionId != null) {
+                localVarHeaderParameter['x-connection-id'] = String(xConnectionId);
+            }
+
             if (authorization != null) {
                 localVarHeaderParameter['Authorization'] = String(authorization);
             }
@@ -4264,12 +4795,13 @@ export const ProviderAccountApiFp = function(configuration?: Configuration) {
          * @summary Get a specific account by ID
          * @param {string} xClientId 
          * @param {string} accountId The ID of the account to retrieve
+         * @param {string} [xConnectionId] The provider connection through which the resource is accessed
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getById(xClientId: string, accountId: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProviderAccountDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getById(xClientId, accountId, authorization, options);
+        async getById(xClientId: string, accountId: string, xConnectionId?: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProviderAccountDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getById(xClientId, accountId, xConnectionId, authorization, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProviderAccountApi.getById']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -4282,12 +4814,13 @@ export const ProviderAccountApiFp = function(configuration?: Configuration) {
          * @param {number} [limit] Number of records to return per page
          * @param {string} [orderBy] Field to order results by
          * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {string} [xConnectionId] The provider connection through which the resource is accessed
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async list(xClientId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedAccountsDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.list(xClientId, cursor, limit, orderBy, desc, authorization, options);
+        async list(xClientId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, xConnectionId?: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedAccountsDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.list(xClientId, cursor, limit, orderBy, desc, xConnectionId, authorization, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProviderAccountApi.list']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -4301,14 +4834,39 @@ export const ProviderAccountApiFp = function(configuration?: Configuration) {
          * @param {number} [limit] Number of records to return per page
          * @param {string} [orderBy] Field to order results by
          * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {string} [xConnectionId] The provider connection through which the resource is accessed
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listAddresses(xClientId: string, accountId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedAddressesDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listAddresses(xClientId, accountId, cursor, limit, orderBy, desc, authorization, options);
+        async listAddresses(xClientId: string, accountId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, xConnectionId?: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedAddressesDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listAddresses(xClientId, accountId, cursor, limit, orderBy, desc, xConnectionId, authorization, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProviderAccountApi.listAddresses']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary List the provider accounts in raw form, used to populate which accounts to connect
+         * @param {string} xClientId 
+         * @param {string} [namePrefix] Filter accounts by name prefix
+         * @param {string} [nameSuffix] Filter accounts by name suffix
+         * @param {string} [networkId] Filter accounts by network ID
+         * @param {string} [assetId] Filter accounts by asset ID
+         * @param {boolean} [includeAddress] Include address information in the response
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {string} [xConnectionId] The provider connection through which the resource is accessed
+         * @param {string} [authorization] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async listRaw(xClientId: string, namePrefix?: string, nameSuffix?: string, networkId?: string, assetId?: string, includeAddress?: boolean, cursor?: string, limit?: number, orderBy?: string, desc?: string, xConnectionId?: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedRawAccountsDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listRaw(xClientId, namePrefix, nameSuffix, networkId, assetId, includeAddress, cursor, limit, orderBy, desc, xConnectionId, authorization, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderAccountApi.listRaw']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -4329,7 +4887,7 @@ export const ProviderAccountApiFactory = function (configuration?: Configuration
          * @throws {RequiredError}
          */
         getById(requestParameters: ProviderAccountApiGetByIdRequest, options?: RawAxiosRequestConfig): AxiosPromise<ProviderAccountDto> {
-            return localVarFp.getById(requestParameters.xClientId, requestParameters.accountId, requestParameters.authorization, options).then((request) => request(axios, basePath));
+            return localVarFp.getById(requestParameters.xClientId, requestParameters.accountId, requestParameters.xConnectionId, requestParameters.authorization, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -4339,7 +4897,7 @@ export const ProviderAccountApiFactory = function (configuration?: Configuration
          * @throws {RequiredError}
          */
         list(requestParameters: ProviderAccountApiListRequest, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedAccountsDto> {
-            return localVarFp.list(requestParameters.xClientId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.authorization, options).then((request) => request(axios, basePath));
+            return localVarFp.list(requestParameters.xClientId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.xConnectionId, requestParameters.authorization, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -4349,7 +4907,17 @@ export const ProviderAccountApiFactory = function (configuration?: Configuration
          * @throws {RequiredError}
          */
         listAddresses(requestParameters: ProviderAccountApiListAddressesRequest, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedAddressesDto> {
-            return localVarFp.listAddresses(requestParameters.xClientId, requestParameters.accountId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.authorization, options).then((request) => request(axios, basePath));
+            return localVarFp.listAddresses(requestParameters.xClientId, requestParameters.accountId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.xConnectionId, requestParameters.authorization, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary List the provider accounts in raw form, used to populate which accounts to connect
+         * @param {ProviderAccountApiListRawRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        listRaw(requestParameters: ProviderAccountApiListRawRequest, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedRawAccountsDto> {
+            return localVarFp.listRaw(requestParameters.xClientId, requestParameters.namePrefix, requestParameters.nameSuffix, requestParameters.networkId, requestParameters.assetId, requestParameters.includeAddress, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.xConnectionId, requestParameters.authorization, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -4373,6 +4941,13 @@ export interface ProviderAccountApiGetByIdRequest {
      * @memberof ProviderAccountApiGetById
      */
     readonly accountId: string
+
+    /**
+     * The provider connection through which the resource is accessed
+     * @type {string}
+     * @memberof ProviderAccountApiGetById
+     */
+    readonly xConnectionId?: string
 
     /**
      * 
@@ -4422,6 +4997,13 @@ export interface ProviderAccountApiListRequest {
      * @memberof ProviderAccountApiList
      */
     readonly desc?: string
+
+    /**
+     * The provider connection through which the resource is accessed
+     * @type {string}
+     * @memberof ProviderAccountApiList
+     */
+    readonly xConnectionId?: string
 
     /**
      * 
@@ -4480,9 +5062,107 @@ export interface ProviderAccountApiListAddressesRequest {
     readonly desc?: string
 
     /**
+     * The provider connection through which the resource is accessed
+     * @type {string}
+     * @memberof ProviderAccountApiListAddresses
+     */
+    readonly xConnectionId?: string
+
+    /**
      * 
      * @type {string}
      * @memberof ProviderAccountApiListAddresses
+     */
+    readonly authorization?: string
+}
+
+/**
+ * Request parameters for listRaw operation in ProviderAccountApi.
+ * @export
+ * @interface ProviderAccountApiListRawRequest
+ */
+export interface ProviderAccountApiListRawRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderAccountApiListRaw
+     */
+    readonly xClientId: string
+
+    /**
+     * Filter accounts by name prefix
+     * @type {string}
+     * @memberof ProviderAccountApiListRaw
+     */
+    readonly namePrefix?: string
+
+    /**
+     * Filter accounts by name suffix
+     * @type {string}
+     * @memberof ProviderAccountApiListRaw
+     */
+    readonly nameSuffix?: string
+
+    /**
+     * Filter accounts by network ID
+     * @type {string}
+     * @memberof ProviderAccountApiListRaw
+     */
+    readonly networkId?: string
+
+    /**
+     * Filter accounts by asset ID
+     * @type {string}
+     * @memberof ProviderAccountApiListRaw
+     */
+    readonly assetId?: string
+
+    /**
+     * Include address information in the response
+     * @type {boolean}
+     * @memberof ProviderAccountApiListRaw
+     */
+    readonly includeAddress?: boolean
+
+    /**
+     * Cursor for pagination. Use the next cursor from previous response to get next page
+     * @type {string}
+     * @memberof ProviderAccountApiListRaw
+     */
+    readonly cursor?: string
+
+    /**
+     * Number of records to return per page
+     * @type {number}
+     * @memberof ProviderAccountApiListRaw
+     */
+    readonly limit?: number
+
+    /**
+     * Field to order results by
+     * @type {string}
+     * @memberof ProviderAccountApiListRaw
+     */
+    readonly orderBy?: string
+
+    /**
+     * Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+     * @type {string}
+     * @memberof ProviderAccountApiListRaw
+     */
+    readonly desc?: string
+
+    /**
+     * The provider connection through which the resource is accessed
+     * @type {string}
+     * @memberof ProviderAccountApiListRaw
+     */
+    readonly xConnectionId?: string
+
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderAccountApiListRaw
      */
     readonly authorization?: string
 }
@@ -4503,7 +5183,7 @@ export class ProviderAccountApi extends BaseAPI {
      * @memberof ProviderAccountApi
      */
     public getById(requestParameters: ProviderAccountApiGetByIdRequest, options?: RawAxiosRequestConfig) {
-        return ProviderAccountApiFp(this.configuration).getById(requestParameters.xClientId, requestParameters.accountId, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
+        return ProviderAccountApiFp(this.configuration).getById(requestParameters.xClientId, requestParameters.accountId, requestParameters.xConnectionId, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4515,7 +5195,7 @@ export class ProviderAccountApi extends BaseAPI {
      * @memberof ProviderAccountApi
      */
     public list(requestParameters: ProviderAccountApiListRequest, options?: RawAxiosRequestConfig) {
-        return ProviderAccountApiFp(this.configuration).list(requestParameters.xClientId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
+        return ProviderAccountApiFp(this.configuration).list(requestParameters.xClientId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.xConnectionId, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -4527,7 +5207,19 @@ export class ProviderAccountApi extends BaseAPI {
      * @memberof ProviderAccountApi
      */
     public listAddresses(requestParameters: ProviderAccountApiListAddressesRequest, options?: RawAxiosRequestConfig) {
-        return ProviderAccountApiFp(this.configuration).listAddresses(requestParameters.xClientId, requestParameters.accountId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
+        return ProviderAccountApiFp(this.configuration).listAddresses(requestParameters.xClientId, requestParameters.accountId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.xConnectionId, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary List the provider accounts in raw form, used to populate which accounts to connect
+     * @param {ProviderAccountApiListRawRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderAccountApi
+     */
+    public listRaw(requestParameters: ProviderAccountApiListRawRequest, options?: RawAxiosRequestConfig) {
+        return ProviderAccountApiFp(this.configuration).listRaw(requestParameters.xClientId, requestParameters.namePrefix, requestParameters.nameSuffix, requestParameters.networkId, requestParameters.assetId, requestParameters.includeAddress, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.xConnectionId, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -4544,11 +5236,12 @@ export const ProviderAddressApiAxiosParamCreator = function (configuration?: Con
          * @summary Get a specific address by ID
          * @param {string} xClientId 
          * @param {string} addressId The ID of the address to retrieve
+         * @param {string} [xConnectionId] The provider connection through which the resource is accessed
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getById: async (xClientId: string, addressId: string, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getById: async (xClientId: string, addressId: string, xConnectionId?: string, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'xClientId' is not null or undefined
             assertParamExists('getById', 'xClientId', xClientId)
             // verify required parameter 'addressId' is not null or undefined
@@ -4575,6 +5268,10 @@ export const ProviderAddressApiAxiosParamCreator = function (configuration?: Con
                 localVarHeaderParameter['x-client-id'] = String(xClientId);
             }
 
+            if (xConnectionId != null) {
+                localVarHeaderParameter['x-connection-id'] = String(xConnectionId);
+            }
+
             if (authorization != null) {
                 localVarHeaderParameter['Authorization'] = String(authorization);
             }
@@ -4598,6 +5295,287 @@ export const ProviderAddressApiAxiosParamCreator = function (configuration?: Con
          * @param {number} [limit] Number of records to return per page
          * @param {string} [orderBy] Field to order results by
          * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {string} [xConnectionId] The provider connection through which the resource is accessed
+         * @param {string} [authorization] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        list: async (xClientId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, xConnectionId?: string, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'xClientId' is not null or undefined
+            assertParamExists('list', 'xClientId', xClientId)
+            const localVarPath = `/v1/provider/addresses`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+
+            // authentication Detached-JWS-Signature required
+            await setApiKeyToObject(localVarHeaderParameter, "detached-jws", configuration)
+
+            if (cursor !== undefined) {
+                localVarQueryParameter['cursor'] = cursor;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (orderBy !== undefined) {
+                localVarQueryParameter['orderBy'] = orderBy;
+            }
+
+            if (desc !== undefined) {
+                localVarQueryParameter['desc'] = desc;
+            }
+
+            if (xClientId != null) {
+                localVarHeaderParameter['x-client-id'] = String(xClientId);
+            }
+
+            if (xConnectionId != null) {
+                localVarHeaderParameter['x-connection-id'] = String(xConnectionId);
+            }
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ProviderAddressApi - functional programming interface
+ * @export
+ */
+export const ProviderAddressApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ProviderAddressApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Get a specific address by ID
+         * @param {string} xClientId 
+         * @param {string} addressId The ID of the address to retrieve
+         * @param {string} [xConnectionId] The provider connection through which the resource is accessed
+         * @param {string} [authorization] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getById(xClientId: string, addressId: string, xConnectionId?: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedAddressesDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getById(xClientId, addressId, xConnectionId, authorization, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderAddressApi.getById']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @summary List the client addresss
+         * @param {string} xClientId 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {string} [xConnectionId] The provider connection through which the resource is accessed
+         * @param {string} [authorization] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async list(xClientId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, xConnectionId?: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedAddressesDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.list(xClientId, cursor, limit, orderBy, desc, xConnectionId, authorization, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderAddressApi.list']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * ProviderAddressApi - factory interface
+ * @export
+ */
+export const ProviderAddressApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ProviderAddressApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Get a specific address by ID
+         * @param {ProviderAddressApiGetByIdRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getById(requestParameters: ProviderAddressApiGetByIdRequest, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedAddressesDto> {
+            return localVarFp.getById(requestParameters.xClientId, requestParameters.addressId, requestParameters.xConnectionId, requestParameters.authorization, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @summary List the client addresss
+         * @param {ProviderAddressApiListRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        list(requestParameters: ProviderAddressApiListRequest, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedAddressesDto> {
+            return localVarFp.list(requestParameters.xClientId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.xConnectionId, requestParameters.authorization, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * Request parameters for getById operation in ProviderAddressApi.
+ * @export
+ * @interface ProviderAddressApiGetByIdRequest
+ */
+export interface ProviderAddressApiGetByIdRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderAddressApiGetById
+     */
+    readonly xClientId: string
+
+    /**
+     * The ID of the address to retrieve
+     * @type {string}
+     * @memberof ProviderAddressApiGetById
+     */
+    readonly addressId: string
+
+    /**
+     * The provider connection through which the resource is accessed
+     * @type {string}
+     * @memberof ProviderAddressApiGetById
+     */
+    readonly xConnectionId?: string
+
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderAddressApiGetById
+     */
+    readonly authorization?: string
+}
+
+/**
+ * Request parameters for list operation in ProviderAddressApi.
+ * @export
+ * @interface ProviderAddressApiListRequest
+ */
+export interface ProviderAddressApiListRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderAddressApiList
+     */
+    readonly xClientId: string
+
+    /**
+     * Cursor for pagination. Use the next cursor from previous response to get next page
+     * @type {string}
+     * @memberof ProviderAddressApiList
+     */
+    readonly cursor?: string
+
+    /**
+     * Number of records to return per page
+     * @type {number}
+     * @memberof ProviderAddressApiList
+     */
+    readonly limit?: number
+
+    /**
+     * Field to order results by
+     * @type {string}
+     * @memberof ProviderAddressApiList
+     */
+    readonly orderBy?: string
+
+    /**
+     * Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+     * @type {string}
+     * @memberof ProviderAddressApiList
+     */
+    readonly desc?: string
+
+    /**
+     * The provider connection through which the resource is accessed
+     * @type {string}
+     * @memberof ProviderAddressApiList
+     */
+    readonly xConnectionId?: string
+
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderAddressApiList
+     */
+    readonly authorization?: string
+}
+
+/**
+ * ProviderAddressApi - object-oriented interface
+ * @export
+ * @class ProviderAddressApi
+ * @extends {BaseAPI}
+ */
+export class ProviderAddressApi extends BaseAPI {
+    /**
+     * 
+     * @summary Get a specific address by ID
+     * @param {ProviderAddressApiGetByIdRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderAddressApi
+     */
+    public getById(requestParameters: ProviderAddressApiGetByIdRequest, options?: RawAxiosRequestConfig) {
+        return ProviderAddressApiFp(this.configuration).getById(requestParameters.xClientId, requestParameters.addressId, requestParameters.xConnectionId, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @summary List the client addresss
+     * @param {ProviderAddressApiListRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderAddressApi
+     */
+    public list(requestParameters: ProviderAddressApiListRequest, options?: RawAxiosRequestConfig) {
+        return ProviderAddressApiFp(this.configuration).list(requestParameters.xClientId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.xConnectionId, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * ProviderAssetApi - axios parameter creator
+ * @export
+ */
+export const ProviderAssetApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * This endpoint retrieves a list of all available assets.
+         * @summary Retrieve all assets
+         * @param {string} xClientId 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -4605,7 +5583,7 @@ export const ProviderAddressApiAxiosParamCreator = function (configuration?: Con
         list: async (xClientId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'xClientId' is not null or undefined
             assertParamExists('list', 'xClientId', xClientId)
-            const localVarPath = `/v1/provider/addresses`;
+            const localVarPath = `/v1/provider/assets`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -4661,30 +5639,15 @@ export const ProviderAddressApiAxiosParamCreator = function (configuration?: Con
 };
 
 /**
- * ProviderAddressApi - functional programming interface
+ * ProviderAssetApi - functional programming interface
  * @export
  */
-export const ProviderAddressApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = ProviderAddressApiAxiosParamCreator(configuration)
+export const ProviderAssetApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ProviderAssetApiAxiosParamCreator(configuration)
     return {
         /**
-         * 
-         * @summary Get a specific address by ID
-         * @param {string} xClientId 
-         * @param {string} addressId The ID of the address to retrieve
-         * @param {string} [authorization] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getById(xClientId: string, addressId: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedAddressesDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getById(xClientId, addressId, authorization, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ProviderAddressApi.getById']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary List the client addresss
+         * This endpoint retrieves a list of all available assets.
+         * @summary Retrieve all assets
          * @param {string} xClientId 
          * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
          * @param {number} [limit] Number of records to return per page
@@ -4694,151 +5657,101 @@ export const ProviderAddressApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async list(xClientId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedAddressesDto>> {
+        async list(xClientId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedAssetsDto>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.list(xClientId, cursor, limit, orderBy, desc, authorization, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ProviderAddressApi.list']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['ProviderAssetApi.list']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
 };
 
 /**
- * ProviderAddressApi - factory interface
+ * ProviderAssetApi - factory interface
  * @export
  */
-export const ProviderAddressApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = ProviderAddressApiFp(configuration)
+export const ProviderAssetApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ProviderAssetApiFp(configuration)
     return {
         /**
-         * 
-         * @summary Get a specific address by ID
-         * @param {ProviderAddressApiGetByIdRequest} requestParameters Request parameters.
+         * This endpoint retrieves a list of all available assets.
+         * @summary Retrieve all assets
+         * @param {ProviderAssetApiListRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getById(requestParameters: ProviderAddressApiGetByIdRequest, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedAddressesDto> {
-            return localVarFp.getById(requestParameters.xClientId, requestParameters.addressId, requestParameters.authorization, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary List the client addresss
-         * @param {ProviderAddressApiListRequest} requestParameters Request parameters.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        list(requestParameters: ProviderAddressApiListRequest, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedAddressesDto> {
+        list(requestParameters: ProviderAssetApiListRequest, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedAssetsDto> {
             return localVarFp.list(requestParameters.xClientId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.authorization, options).then((request) => request(axios, basePath));
         },
     };
 };
 
 /**
- * Request parameters for getById operation in ProviderAddressApi.
+ * Request parameters for list operation in ProviderAssetApi.
  * @export
- * @interface ProviderAddressApiGetByIdRequest
+ * @interface ProviderAssetApiListRequest
  */
-export interface ProviderAddressApiGetByIdRequest {
+export interface ProviderAssetApiListRequest {
     /**
      * 
      * @type {string}
-     * @memberof ProviderAddressApiGetById
-     */
-    readonly xClientId: string
-
-    /**
-     * The ID of the address to retrieve
-     * @type {string}
-     * @memberof ProviderAddressApiGetById
-     */
-    readonly addressId: string
-
-    /**
-     * 
-     * @type {string}
-     * @memberof ProviderAddressApiGetById
-     */
-    readonly authorization?: string
-}
-
-/**
- * Request parameters for list operation in ProviderAddressApi.
- * @export
- * @interface ProviderAddressApiListRequest
- */
-export interface ProviderAddressApiListRequest {
-    /**
-     * 
-     * @type {string}
-     * @memberof ProviderAddressApiList
+     * @memberof ProviderAssetApiList
      */
     readonly xClientId: string
 
     /**
      * Cursor for pagination. Use the next cursor from previous response to get next page
      * @type {string}
-     * @memberof ProviderAddressApiList
+     * @memberof ProviderAssetApiList
      */
     readonly cursor?: string
 
     /**
      * Number of records to return per page
      * @type {number}
-     * @memberof ProviderAddressApiList
+     * @memberof ProviderAssetApiList
      */
     readonly limit?: number
 
     /**
      * Field to order results by
      * @type {string}
-     * @memberof ProviderAddressApiList
+     * @memberof ProviderAssetApiList
      */
     readonly orderBy?: string
 
     /**
      * Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
      * @type {string}
-     * @memberof ProviderAddressApiList
+     * @memberof ProviderAssetApiList
      */
     readonly desc?: string
 
     /**
      * 
      * @type {string}
-     * @memberof ProviderAddressApiList
+     * @memberof ProviderAssetApiList
      */
     readonly authorization?: string
 }
 
 /**
- * ProviderAddressApi - object-oriented interface
+ * ProviderAssetApi - object-oriented interface
  * @export
- * @class ProviderAddressApi
+ * @class ProviderAssetApi
  * @extends {BaseAPI}
  */
-export class ProviderAddressApi extends BaseAPI {
+export class ProviderAssetApi extends BaseAPI {
     /**
-     * 
-     * @summary Get a specific address by ID
-     * @param {ProviderAddressApiGetByIdRequest} requestParameters Request parameters.
+     * This endpoint retrieves a list of all available assets.
+     * @summary Retrieve all assets
+     * @param {ProviderAssetApiListRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ProviderAddressApi
+     * @memberof ProviderAssetApi
      */
-    public getById(requestParameters: ProviderAddressApiGetByIdRequest, options?: RawAxiosRequestConfig) {
-        return ProviderAddressApiFp(this.configuration).getById(requestParameters.xClientId, requestParameters.addressId, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary List the client addresss
-     * @param {ProviderAddressApiListRequest} requestParameters Request parameters.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof ProviderAddressApi
-     */
-    public list(requestParameters: ProviderAddressApiListRequest, options?: RawAxiosRequestConfig) {
-        return ProviderAddressApiFp(this.configuration).list(requestParameters.xClientId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
+    public list(requestParameters: ProviderAssetApiListRequest, options?: RawAxiosRequestConfig) {
+        return ProviderAssetApiFp(this.configuration).list(requestParameters.xClientId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -5075,8 +5988,8 @@ export const ProviderConnectionApiAxiosParamCreator = function (configuration?: 
             };
         },
         /**
-         * This endpoint retrieves a list of accounts associated with a specific connection.
-         * @summary List accounts for a specific connection
+         * Note: use GET /v1/provider/accounts endpoint instead
+         * @summary (DEPRECATED) List accounts for a specific connection
          * @param {string} xClientId 
          * @param {string} connectionId 
          * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
@@ -5085,6 +5998,7 @@ export const ProviderConnectionApiAxiosParamCreator = function (configuration?: 
          * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         listAccounts: async (xClientId: string, connectionId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
@@ -5146,8 +6060,8 @@ export const ProviderConnectionApiAxiosParamCreator = function (configuration?: 
             };
         },
         /**
-         * This endpoint retrieves a list of wallets associated with a specific connection.
-         * @summary List wallets for a specific connection
+         * Note: use GET /v1/provider/wallets endpoint instead
+         * @summary (DEPRECATED) List wallets for a specific connection
          * @param {string} xClientId 
          * @param {string} connectionId 
          * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
@@ -5156,6 +6070,7 @@ export const ProviderConnectionApiAxiosParamCreator = function (configuration?: 
          * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         listWallets: async (xClientId: string, connectionId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
@@ -5398,8 +6313,8 @@ export const ProviderConnectionApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * This endpoint retrieves a list of accounts associated with a specific connection.
-         * @summary List accounts for a specific connection
+         * Note: use GET /v1/provider/accounts endpoint instead
+         * @summary (DEPRECATED) List accounts for a specific connection
          * @param {string} xClientId 
          * @param {string} connectionId 
          * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
@@ -5408,6 +6323,7 @@ export const ProviderConnectionApiFp = function(configuration?: Configuration) {
          * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         async listAccounts(xClientId: string, connectionId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedAccountsDto>> {
@@ -5417,8 +6333,8 @@ export const ProviderConnectionApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * This endpoint retrieves a list of wallets associated with a specific connection.
-         * @summary List wallets for a specific connection
+         * Note: use GET /v1/provider/wallets endpoint instead
+         * @summary (DEPRECATED) List wallets for a specific connection
          * @param {string} xClientId 
          * @param {string} connectionId 
          * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
@@ -5427,6 +6343,7 @@ export const ProviderConnectionApiFp = function(configuration?: Configuration) {
          * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         async listWallets(xClientId: string, connectionId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedWalletsDto>> {
@@ -5517,20 +6434,22 @@ export const ProviderConnectionApiFactory = function (configuration?: Configurat
             return localVarFp.list(requestParameters.xClientId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.authorization, options).then((request) => request(axios, basePath));
         },
         /**
-         * This endpoint retrieves a list of accounts associated with a specific connection.
-         * @summary List accounts for a specific connection
+         * Note: use GET /v1/provider/accounts endpoint instead
+         * @summary (DEPRECATED) List accounts for a specific connection
          * @param {ProviderConnectionApiListAccountsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         listAccounts(requestParameters: ProviderConnectionApiListAccountsRequest, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedAccountsDto> {
             return localVarFp.listAccounts(requestParameters.xClientId, requestParameters.connectionId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.authorization, options).then((request) => request(axios, basePath));
         },
         /**
-         * This endpoint retrieves a list of wallets associated with a specific connection.
-         * @summary List wallets for a specific connection
+         * Note: use GET /v1/provider/wallets endpoint instead
+         * @summary (DEPRECATED) List wallets for a specific connection
          * @param {ProviderConnectionApiListWalletsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
+         * @deprecated
          * @throws {RequiredError}
          */
         listWallets(requestParameters: ProviderConnectionApiListWalletsRequest, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedWalletsDto> {
@@ -5923,10 +6842,11 @@ export class ProviderConnectionApi extends BaseAPI {
     }
 
     /**
-     * This endpoint retrieves a list of accounts associated with a specific connection.
-     * @summary List accounts for a specific connection
+     * Note: use GET /v1/provider/accounts endpoint instead
+     * @summary (DEPRECATED) List accounts for a specific connection
      * @param {ProviderConnectionApiListAccountsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
+     * @deprecated
      * @throws {RequiredError}
      * @memberof ProviderConnectionApi
      */
@@ -5935,10 +6855,11 @@ export class ProviderConnectionApi extends BaseAPI {
     }
 
     /**
-     * This endpoint retrieves a list of wallets associated with a specific connection.
-     * @summary List wallets for a specific connection
+     * Note: use GET /v1/provider/wallets endpoint instead
+     * @summary (DEPRECATED) List wallets for a specific connection
      * @param {ProviderConnectionApiListWalletsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
+     * @deprecated
      * @throws {RequiredError}
      * @memberof ProviderConnectionApi
      */
@@ -5981,73 +6902,20 @@ export const ProviderKnownDestinationApiAxiosParamCreator = function (configurat
     return {
         /**
          * 
-         * @summary Get known destination by ID
-         * @param {string} xClientId 
-         * @param {string} knownDestinationId 
-         * @param {string} [authorization] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getById: async (xClientId: string, knownDestinationId: string, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'xClientId' is not null or undefined
-            assertParamExists('getById', 'xClientId', xClientId)
-            // verify required parameter 'knownDestinationId' is not null or undefined
-            assertParamExists('getById', 'knownDestinationId', knownDestinationId)
-            const localVarPath = `/v1/provider/known-destinations/{knownDestinationId}`
-                .replace(`{${"knownDestinationId"}}`, encodeURIComponent(String(knownDestinationId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication GNAP required
-
-            // authentication Detached-JWS-Signature required
-            await setApiKeyToObject(localVarHeaderParameter, "detached-jws", configuration)
-
-            if (xClientId != null) {
-                localVarHeaderParameter['x-client-id'] = String(xClientId);
-            }
-
-            if (authorization != null) {
-                localVarHeaderParameter['Authorization'] = String(authorization);
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 
          * @summary Get known destinations across providers
          * @param {string} xClientId 
-         * @param {string} connectionId 
-         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
          * @param {number} [limit] Number of records to return per page
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
          * @param {string} [orderBy] Field to order results by
          * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {string} [xConnectionId] The provider connection through which the resource is accessed
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        list: async (xClientId: string, connectionId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        list: async (xClientId: string, limit?: number, cursor?: string, orderBy?: string, desc?: string, xConnectionId?: string, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'xClientId' is not null or undefined
             assertParamExists('list', 'xClientId', xClientId)
-            // verify required parameter 'connectionId' is not null or undefined
-            assertParamExists('list', 'connectionId', connectionId)
             const localVarPath = `/v1/provider/known-destinations`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -6065,9 +6933,212 @@ export const ProviderKnownDestinationApiAxiosParamCreator = function (configurat
             // authentication Detached-JWS-Signature required
             await setApiKeyToObject(localVarHeaderParameter, "detached-jws", configuration)
 
-            if (connectionId !== undefined) {
-                localVarQueryParameter['connectionId'] = connectionId;
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
             }
+
+            if (cursor !== undefined) {
+                localVarQueryParameter['cursor'] = cursor;
+            }
+
+            if (orderBy !== undefined) {
+                localVarQueryParameter['orderBy'] = orderBy;
+            }
+
+            if (desc !== undefined) {
+                localVarQueryParameter['desc'] = desc;
+            }
+
+            if (xClientId != null) {
+                localVarHeaderParameter['x-client-id'] = String(xClientId);
+            }
+
+            if (xConnectionId != null) {
+                localVarHeaderParameter['x-connection-id'] = String(xConnectionId);
+            }
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ProviderKnownDestinationApi - functional programming interface
+ * @export
+ */
+export const ProviderKnownDestinationApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ProviderKnownDestinationApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * 
+         * @summary Get known destinations across providers
+         * @param {string} xClientId 
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {string} [xConnectionId] The provider connection through which the resource is accessed
+         * @param {string} [authorization] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async list(xClientId: string, limit?: number, cursor?: string, orderBy?: string, desc?: string, xConnectionId?: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedKnownDestinationsDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.list(xClientId, limit, cursor, orderBy, desc, xConnectionId, authorization, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderKnownDestinationApi.list']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * ProviderKnownDestinationApi - factory interface
+ * @export
+ */
+export const ProviderKnownDestinationApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ProviderKnownDestinationApiFp(configuration)
+    return {
+        /**
+         * 
+         * @summary Get known destinations across providers
+         * @param {ProviderKnownDestinationApiListRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        list(requestParameters: ProviderKnownDestinationApiListRequest, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedKnownDestinationsDto> {
+            return localVarFp.list(requestParameters.xClientId, requestParameters.limit, requestParameters.cursor, requestParameters.orderBy, requestParameters.desc, requestParameters.xConnectionId, requestParameters.authorization, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * Request parameters for list operation in ProviderKnownDestinationApi.
+ * @export
+ * @interface ProviderKnownDestinationApiListRequest
+ */
+export interface ProviderKnownDestinationApiListRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderKnownDestinationApiList
+     */
+    readonly xClientId: string
+
+    /**
+     * Number of records to return per page
+     * @type {number}
+     * @memberof ProviderKnownDestinationApiList
+     */
+    readonly limit?: number
+
+    /**
+     * Cursor for pagination. Use the next cursor from previous response to get next page
+     * @type {string}
+     * @memberof ProviderKnownDestinationApiList
+     */
+    readonly cursor?: string
+
+    /**
+     * Field to order results by
+     * @type {string}
+     * @memberof ProviderKnownDestinationApiList
+     */
+    readonly orderBy?: string
+
+    /**
+     * Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+     * @type {string}
+     * @memberof ProviderKnownDestinationApiList
+     */
+    readonly desc?: string
+
+    /**
+     * The provider connection through which the resource is accessed
+     * @type {string}
+     * @memberof ProviderKnownDestinationApiList
+     */
+    readonly xConnectionId?: string
+
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderKnownDestinationApiList
+     */
+    readonly authorization?: string
+}
+
+/**
+ * ProviderKnownDestinationApi - object-oriented interface
+ * @export
+ * @class ProviderKnownDestinationApi
+ * @extends {BaseAPI}
+ */
+export class ProviderKnownDestinationApi extends BaseAPI {
+    /**
+     * 
+     * @summary Get known destinations across providers
+     * @param {ProviderKnownDestinationApiListRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderKnownDestinationApi
+     */
+    public list(requestParameters: ProviderKnownDestinationApiListRequest, options?: RawAxiosRequestConfig) {
+        return ProviderKnownDestinationApiFp(this.configuration).list(requestParameters.xClientId, requestParameters.limit, requestParameters.cursor, requestParameters.orderBy, requestParameters.desc, requestParameters.xConnectionId, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * ProviderNetworkApi - axios parameter creator
+ * @export
+ */
+export const ProviderNetworkApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * This endpoint retrieves a list of all available networks.
+         * @summary Retrieve all networks
+         * @param {string} xClientId 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {string} [authorization] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        list: async (xClientId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'xClientId' is not null or undefined
+            assertParamExists('list', 'xClientId', xClientId)
+            const localVarPath = `/v1/provider/networks`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+
+            // authentication Detached-JWS-Signature required
+            await setApiKeyToObject(localVarHeaderParameter, "detached-jws", configuration)
 
             if (cursor !== undefined) {
                 localVarQueryParameter['cursor'] = cursor;
@@ -6108,32 +7179,16 @@ export const ProviderKnownDestinationApiAxiosParamCreator = function (configurat
 };
 
 /**
- * ProviderKnownDestinationApi - functional programming interface
+ * ProviderNetworkApi - functional programming interface
  * @export
  */
-export const ProviderKnownDestinationApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = ProviderKnownDestinationApiAxiosParamCreator(configuration)
+export const ProviderNetworkApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ProviderNetworkApiAxiosParamCreator(configuration)
     return {
         /**
-         * 
-         * @summary Get known destination by ID
+         * This endpoint retrieves a list of all available networks.
+         * @summary Retrieve all networks
          * @param {string} xClientId 
-         * @param {string} knownDestinationId 
-         * @param {string} [authorization] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getById(xClientId: string, knownDestinationId: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<KnownDestinationDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getById(xClientId, knownDestinationId, authorization, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ProviderKnownDestinationApi.getById']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 
-         * @summary Get known destinations across providers
-         * @param {string} xClientId 
-         * @param {string} connectionId 
          * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
          * @param {number} [limit] Number of records to return per page
          * @param {string} [orderBy] Field to order results by
@@ -6142,158 +7197,101 @@ export const ProviderKnownDestinationApiFp = function(configuration?: Configurat
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async list(xClientId: string, connectionId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedKnownDestinationsDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.list(xClientId, connectionId, cursor, limit, orderBy, desc, authorization, options);
+        async list(xClientId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedNetworksDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.list(xClientId, cursor, limit, orderBy, desc, authorization, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ProviderKnownDestinationApi.list']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['ProviderNetworkApi.list']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
 };
 
 /**
- * ProviderKnownDestinationApi - factory interface
+ * ProviderNetworkApi - factory interface
  * @export
  */
-export const ProviderKnownDestinationApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = ProviderKnownDestinationApiFp(configuration)
+export const ProviderNetworkApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ProviderNetworkApiFp(configuration)
     return {
         /**
-         * 
-         * @summary Get known destination by ID
-         * @param {ProviderKnownDestinationApiGetByIdRequest} requestParameters Request parameters.
+         * This endpoint retrieves a list of all available networks.
+         * @summary Retrieve all networks
+         * @param {ProviderNetworkApiListRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getById(requestParameters: ProviderKnownDestinationApiGetByIdRequest, options?: RawAxiosRequestConfig): AxiosPromise<KnownDestinationDto> {
-            return localVarFp.getById(requestParameters.xClientId, requestParameters.knownDestinationId, requestParameters.authorization, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @summary Get known destinations across providers
-         * @param {ProviderKnownDestinationApiListRequest} requestParameters Request parameters.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        list(requestParameters: ProviderKnownDestinationApiListRequest, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedKnownDestinationsDto> {
-            return localVarFp.list(requestParameters.xClientId, requestParameters.connectionId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.authorization, options).then((request) => request(axios, basePath));
+        list(requestParameters: ProviderNetworkApiListRequest, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedNetworksDto> {
+            return localVarFp.list(requestParameters.xClientId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.authorization, options).then((request) => request(axios, basePath));
         },
     };
 };
 
 /**
- * Request parameters for getById operation in ProviderKnownDestinationApi.
+ * Request parameters for list operation in ProviderNetworkApi.
  * @export
- * @interface ProviderKnownDestinationApiGetByIdRequest
+ * @interface ProviderNetworkApiListRequest
  */
-export interface ProviderKnownDestinationApiGetByIdRequest {
+export interface ProviderNetworkApiListRequest {
     /**
      * 
      * @type {string}
-     * @memberof ProviderKnownDestinationApiGetById
+     * @memberof ProviderNetworkApiList
      */
     readonly xClientId: string
-
-    /**
-     * 
-     * @type {string}
-     * @memberof ProviderKnownDestinationApiGetById
-     */
-    readonly knownDestinationId: string
-
-    /**
-     * 
-     * @type {string}
-     * @memberof ProviderKnownDestinationApiGetById
-     */
-    readonly authorization?: string
-}
-
-/**
- * Request parameters for list operation in ProviderKnownDestinationApi.
- * @export
- * @interface ProviderKnownDestinationApiListRequest
- */
-export interface ProviderKnownDestinationApiListRequest {
-    /**
-     * 
-     * @type {string}
-     * @memberof ProviderKnownDestinationApiList
-     */
-    readonly xClientId: string
-
-    /**
-     * 
-     * @type {string}
-     * @memberof ProviderKnownDestinationApiList
-     */
-    readonly connectionId: string
 
     /**
      * Cursor for pagination. Use the next cursor from previous response to get next page
      * @type {string}
-     * @memberof ProviderKnownDestinationApiList
+     * @memberof ProviderNetworkApiList
      */
     readonly cursor?: string
 
     /**
      * Number of records to return per page
      * @type {number}
-     * @memberof ProviderKnownDestinationApiList
+     * @memberof ProviderNetworkApiList
      */
     readonly limit?: number
 
     /**
      * Field to order results by
      * @type {string}
-     * @memberof ProviderKnownDestinationApiList
+     * @memberof ProviderNetworkApiList
      */
     readonly orderBy?: string
 
     /**
      * Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
      * @type {string}
-     * @memberof ProviderKnownDestinationApiList
+     * @memberof ProviderNetworkApiList
      */
     readonly desc?: string
 
     /**
      * 
      * @type {string}
-     * @memberof ProviderKnownDestinationApiList
+     * @memberof ProviderNetworkApiList
      */
     readonly authorization?: string
 }
 
 /**
- * ProviderKnownDestinationApi - object-oriented interface
+ * ProviderNetworkApi - object-oriented interface
  * @export
- * @class ProviderKnownDestinationApi
+ * @class ProviderNetworkApi
  * @extends {BaseAPI}
  */
-export class ProviderKnownDestinationApi extends BaseAPI {
+export class ProviderNetworkApi extends BaseAPI {
     /**
-     * 
-     * @summary Get known destination by ID
-     * @param {ProviderKnownDestinationApiGetByIdRequest} requestParameters Request parameters.
+     * This endpoint retrieves a list of all available networks.
+     * @summary Retrieve all networks
+     * @param {ProviderNetworkApiListRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
-     * @memberof ProviderKnownDestinationApi
+     * @memberof ProviderNetworkApi
      */
-    public getById(requestParameters: ProviderKnownDestinationApiGetByIdRequest, options?: RawAxiosRequestConfig) {
-        return ProviderKnownDestinationApiFp(this.configuration).getById(requestParameters.xClientId, requestParameters.knownDestinationId, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @summary Get known destinations across providers
-     * @param {ProviderKnownDestinationApiListRequest} requestParameters Request parameters.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof ProviderKnownDestinationApi
-     */
-    public list(requestParameters: ProviderKnownDestinationApiListRequest, options?: RawAxiosRequestConfig) {
-        return ProviderKnownDestinationApiFp(this.configuration).list(requestParameters.xClientId, requestParameters.connectionId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
+    public list(requestParameters: ProviderNetworkApiListRequest, options?: RawAxiosRequestConfig) {
+        return ProviderNetworkApiFp(this.configuration).list(requestParameters.xClientId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -7256,27 +8254,28 @@ export class ProviderProxyApi extends BaseAPI {
 
 
 /**
- * ProviderSyncApi - axios parameter creator
+ * ProviderScopedSyncApi - axios parameter creator
  * @export
  */
-export const ProviderSyncApiAxiosParamCreator = function (configuration?: Configuration) {
+export const ProviderScopedSyncApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * This endpoint retrieves the details of a specific synchronization process associated with the client, identified by the sync ID.
-         * @summary Retrieve a specific synchronization process by ID
+         * This endpoint retrieves the details of a specific scoped synchronization process associated with the client, identified by the scoped sync ID.
+         * @summary Retrieve a specific scoped synchronization process by ID
          * @param {string} xClientId 
-         * @param {string} syncId 
+         * @param {string} scopedSyncId 
+         * @param {string} [xConnectionId] The provider connection through which the resource is accessed
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getById: async (xClientId: string, syncId: string, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getById: async (xClientId: string, scopedSyncId: string, xConnectionId?: string, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'xClientId' is not null or undefined
             assertParamExists('getById', 'xClientId', xClientId)
-            // verify required parameter 'syncId' is not null or undefined
-            assertParamExists('getById', 'syncId', syncId)
-            const localVarPath = `/v1/provider/syncs/{syncId}`
-                .replace(`{${"syncId"}}`, encodeURIComponent(String(syncId)));
+            // verify required parameter 'scopedSyncId' is not null or undefined
+            assertParamExists('getById', 'scopedSyncId', scopedSyncId)
+            const localVarPath = `/v1/provider/scoped-syncs/{scopedSyncId}`
+                .replace(`{${"scopedSyncId"}}`, encodeURIComponent(String(scopedSyncId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -7295,6 +8294,10 @@ export const ProviderSyncApiAxiosParamCreator = function (configuration?: Config
 
             if (xClientId != null) {
                 localVarHeaderParameter['x-client-id'] = String(xClientId);
+            }
+
+            if (xConnectionId != null) {
+                localVarHeaderParameter['x-connection-id'] = String(xConnectionId);
             }
 
             if (authorization != null) {
@@ -7316,21 +8319,19 @@ export const ProviderSyncApiAxiosParamCreator = function (configuration?: Config
          * This endpoint retrieves a list of synchronization processes associated with the client. Optionally, it can filter the processes by a specific connection ID.
          * @summary Retrieve a list of synchronization processes
          * @param {string} xClientId 
-         * @param {string} connectionId 
          * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
          * @param {number} [limit] Number of records to return per page
          * @param {string} [orderBy] Field to order results by
          * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {string} [xConnectionId] The provider connection through which the resource is accessed
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        list: async (xClientId: string, connectionId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        list: async (xClientId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, xConnectionId?: string, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'xClientId' is not null or undefined
             assertParamExists('list', 'xClientId', xClientId)
-            // verify required parameter 'connectionId' is not null or undefined
-            assertParamExists('list', 'connectionId', connectionId)
-            const localVarPath = `/v1/provider/syncs`;
+            const localVarPath = `/v1/provider/scoped-syncs`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -7346,10 +8347,6 @@ export const ProviderSyncApiAxiosParamCreator = function (configuration?: Config
 
             // authentication Detached-JWS-Signature required
             await setApiKeyToObject(localVarHeaderParameter, "detached-jws", configuration)
-
-            if (connectionId !== undefined) {
-                localVarQueryParameter['connectionId'] = connectionId;
-            }
 
             if (cursor !== undefined) {
                 localVarQueryParameter['cursor'] = cursor;
@@ -7371,6 +8368,10 @@ export const ProviderSyncApiAxiosParamCreator = function (configuration?: Config
                 localVarHeaderParameter['x-client-id'] = String(xClientId);
             }
 
+            if (xConnectionId != null) {
+                localVarHeaderParameter['x-connection-id'] = String(xConnectionId);
+            }
+
             if (authorization != null) {
                 localVarHeaderParameter['Authorization'] = String(authorization);
             }
@@ -7387,20 +8388,20 @@ export const ProviderSyncApiAxiosParamCreator = function (configuration?: Config
             };
         },
         /**
-         * This endpoint starts synchronization process for the client.
-         * @summary Start a synchronization process
+         * This endpoint starts scoped synchronization process for the client.
+         * @summary Start a scoped synchronization process
          * @param {string} xClientId 
-         * @param {StartSyncDto} startSyncDto 
+         * @param {StartScopedSyncDto} startScopedSyncDto 
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        start: async (xClientId: string, startSyncDto: StartSyncDto, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        start: async (xClientId: string, startScopedSyncDto: StartScopedSyncDto, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'xClientId' is not null or undefined
             assertParamExists('start', 'xClientId', xClientId)
-            // verify required parameter 'startSyncDto' is not null or undefined
-            assertParamExists('start', 'startSyncDto', startSyncDto)
-            const localVarPath = `/v1/provider/syncs`;
+            // verify required parameter 'startScopedSyncDto' is not null or undefined
+            assertParamExists('start', 'startScopedSyncDto', startScopedSyncDto)
+            const localVarPath = `/v1/provider/scoped-syncs`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -7432,7 +8433,353 @@ export const ProviderSyncApiAxiosParamCreator = function (configuration?: Config
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(startSyncDto, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = serializeDataIfNeeded(startScopedSyncDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+    }
+};
+
+/**
+ * ProviderScopedSyncApi - functional programming interface
+ * @export
+ */
+export const ProviderScopedSyncApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = ProviderScopedSyncApiAxiosParamCreator(configuration)
+    return {
+        /**
+         * This endpoint retrieves the details of a specific scoped synchronization process associated with the client, identified by the scoped sync ID.
+         * @summary Retrieve a specific scoped synchronization process by ID
+         * @param {string} xClientId 
+         * @param {string} scopedSyncId 
+         * @param {string} [xConnectionId] The provider connection through which the resource is accessed
+         * @param {string} [authorization] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getById(xClientId: string, scopedSyncId: string, xConnectionId?: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ScopedSyncDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getById(xClientId, scopedSyncId, xConnectionId, authorization, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderScopedSyncApi.getById']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * This endpoint retrieves a list of synchronization processes associated with the client. Optionally, it can filter the processes by a specific connection ID.
+         * @summary Retrieve a list of synchronization processes
+         * @param {string} xClientId 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {string} [xConnectionId] The provider connection through which the resource is accessed
+         * @param {string} [authorization] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async list(xClientId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, xConnectionId?: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedScopedSyncsDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.list(xClientId, cursor, limit, orderBy, desc, xConnectionId, authorization, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderScopedSyncApi.list']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * This endpoint starts scoped synchronization process for the client.
+         * @summary Start a scoped synchronization process
+         * @param {string} xClientId 
+         * @param {StartScopedSyncDto} startScopedSyncDto 
+         * @param {string} [authorization] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async start(xClientId: string, startScopedSyncDto: StartScopedSyncDto, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ScopedSyncStartedDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.start(xClientId, startScopedSyncDto, authorization, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ProviderScopedSyncApi.start']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+    }
+};
+
+/**
+ * ProviderScopedSyncApi - factory interface
+ * @export
+ */
+export const ProviderScopedSyncApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = ProviderScopedSyncApiFp(configuration)
+    return {
+        /**
+         * This endpoint retrieves the details of a specific scoped synchronization process associated with the client, identified by the scoped sync ID.
+         * @summary Retrieve a specific scoped synchronization process by ID
+         * @param {ProviderScopedSyncApiGetByIdRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getById(requestParameters: ProviderScopedSyncApiGetByIdRequest, options?: RawAxiosRequestConfig): AxiosPromise<ScopedSyncDto> {
+            return localVarFp.getById(requestParameters.xClientId, requestParameters.scopedSyncId, requestParameters.xConnectionId, requestParameters.authorization, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * This endpoint retrieves a list of synchronization processes associated with the client. Optionally, it can filter the processes by a specific connection ID.
+         * @summary Retrieve a list of synchronization processes
+         * @param {ProviderScopedSyncApiListRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        list(requestParameters: ProviderScopedSyncApiListRequest, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedScopedSyncsDto> {
+            return localVarFp.list(requestParameters.xClientId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.xConnectionId, requestParameters.authorization, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * This endpoint starts scoped synchronization process for the client.
+         * @summary Start a scoped synchronization process
+         * @param {ProviderScopedSyncApiStartRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        start(requestParameters: ProviderScopedSyncApiStartRequest, options?: RawAxiosRequestConfig): AxiosPromise<ScopedSyncStartedDto> {
+            return localVarFp.start(requestParameters.xClientId, requestParameters.startScopedSyncDto, requestParameters.authorization, options).then((request) => request(axios, basePath));
+        },
+    };
+};
+
+/**
+ * Request parameters for getById operation in ProviderScopedSyncApi.
+ * @export
+ * @interface ProviderScopedSyncApiGetByIdRequest
+ */
+export interface ProviderScopedSyncApiGetByIdRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderScopedSyncApiGetById
+     */
+    readonly xClientId: string
+
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderScopedSyncApiGetById
+     */
+    readonly scopedSyncId: string
+
+    /**
+     * The provider connection through which the resource is accessed
+     * @type {string}
+     * @memberof ProviderScopedSyncApiGetById
+     */
+    readonly xConnectionId?: string
+
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderScopedSyncApiGetById
+     */
+    readonly authorization?: string
+}
+
+/**
+ * Request parameters for list operation in ProviderScopedSyncApi.
+ * @export
+ * @interface ProviderScopedSyncApiListRequest
+ */
+export interface ProviderScopedSyncApiListRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderScopedSyncApiList
+     */
+    readonly xClientId: string
+
+    /**
+     * Cursor for pagination. Use the next cursor from previous response to get next page
+     * @type {string}
+     * @memberof ProviderScopedSyncApiList
+     */
+    readonly cursor?: string
+
+    /**
+     * Number of records to return per page
+     * @type {number}
+     * @memberof ProviderScopedSyncApiList
+     */
+    readonly limit?: number
+
+    /**
+     * Field to order results by
+     * @type {string}
+     * @memberof ProviderScopedSyncApiList
+     */
+    readonly orderBy?: string
+
+    /**
+     * Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+     * @type {string}
+     * @memberof ProviderScopedSyncApiList
+     */
+    readonly desc?: string
+
+    /**
+     * The provider connection through which the resource is accessed
+     * @type {string}
+     * @memberof ProviderScopedSyncApiList
+     */
+    readonly xConnectionId?: string
+
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderScopedSyncApiList
+     */
+    readonly authorization?: string
+}
+
+/**
+ * Request parameters for start operation in ProviderScopedSyncApi.
+ * @export
+ * @interface ProviderScopedSyncApiStartRequest
+ */
+export interface ProviderScopedSyncApiStartRequest {
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderScopedSyncApiStart
+     */
+    readonly xClientId: string
+
+    /**
+     * 
+     * @type {StartScopedSyncDto}
+     * @memberof ProviderScopedSyncApiStart
+     */
+    readonly startScopedSyncDto: StartScopedSyncDto
+
+    /**
+     * 
+     * @type {string}
+     * @memberof ProviderScopedSyncApiStart
+     */
+    readonly authorization?: string
+}
+
+/**
+ * ProviderScopedSyncApi - object-oriented interface
+ * @export
+ * @class ProviderScopedSyncApi
+ * @extends {BaseAPI}
+ */
+export class ProviderScopedSyncApi extends BaseAPI {
+    /**
+     * This endpoint retrieves the details of a specific scoped synchronization process associated with the client, identified by the scoped sync ID.
+     * @summary Retrieve a specific scoped synchronization process by ID
+     * @param {ProviderScopedSyncApiGetByIdRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderScopedSyncApi
+     */
+    public getById(requestParameters: ProviderScopedSyncApiGetByIdRequest, options?: RawAxiosRequestConfig) {
+        return ProviderScopedSyncApiFp(this.configuration).getById(requestParameters.xClientId, requestParameters.scopedSyncId, requestParameters.xConnectionId, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * This endpoint retrieves a list of synchronization processes associated with the client. Optionally, it can filter the processes by a specific connection ID.
+     * @summary Retrieve a list of synchronization processes
+     * @param {ProviderScopedSyncApiListRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderScopedSyncApi
+     */
+    public list(requestParameters: ProviderScopedSyncApiListRequest, options?: RawAxiosRequestConfig) {
+        return ProviderScopedSyncApiFp(this.configuration).list(requestParameters.xClientId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.xConnectionId, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * This endpoint starts scoped synchronization process for the client.
+     * @summary Start a scoped synchronization process
+     * @param {ProviderScopedSyncApiStartRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ProviderScopedSyncApi
+     */
+    public start(requestParameters: ProviderScopedSyncApiStartRequest, options?: RawAxiosRequestConfig) {
+        return ProviderScopedSyncApiFp(this.configuration).start(requestParameters.xClientId, requestParameters.startScopedSyncDto, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
+    }
+}
+
+
+
+/**
+ * ProviderSyncApi - axios parameter creator
+ * @export
+ */
+export const ProviderSyncApiAxiosParamCreator = function (configuration?: Configuration) {
+    return {
+        /**
+         * This endpoint retrieves a list of synchronization processes associated with the client. Optionally, it can filter the processes by a specific connection ID.
+         * @summary Retrieve a list of synchronization processes
+         * @param {string} xClientId 
+         * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
+         * @param {number} [limit] Number of records to return per page
+         * @param {string} [orderBy] Field to order results by
+         * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {string} [xConnectionId] The provider connection through which the resource is accessed
+         * @param {string} [authorization] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        list: async (xClientId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, xConnectionId?: string, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'xClientId' is not null or undefined
+            assertParamExists('list', 'xClientId', xClientId)
+            const localVarPath = `/v1/provider/syncs`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication GNAP required
+
+            // authentication Detached-JWS-Signature required
+            await setApiKeyToObject(localVarHeaderParameter, "detached-jws", configuration)
+
+            if (cursor !== undefined) {
+                localVarQueryParameter['cursor'] = cursor;
+            }
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (orderBy !== undefined) {
+                localVarQueryParameter['orderBy'] = orderBy;
+            }
+
+            if (desc !== undefined) {
+                localVarQueryParameter['desc'] = desc;
+            }
+
+            if (xClientId != null) {
+                localVarHeaderParameter['x-client-id'] = String(xClientId);
+            }
+
+            if (xConnectionId != null) {
+                localVarHeaderParameter['x-connection-id'] = String(xConnectionId);
+            }
+
+            if (authorization != null) {
+                localVarHeaderParameter['Authorization'] = String(authorization);
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -7450,52 +8797,22 @@ export const ProviderSyncApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = ProviderSyncApiAxiosParamCreator(configuration)
     return {
         /**
-         * This endpoint retrieves the details of a specific synchronization process associated with the client, identified by the sync ID.
-         * @summary Retrieve a specific synchronization process by ID
-         * @param {string} xClientId 
-         * @param {string} syncId 
-         * @param {string} [authorization] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getById(xClientId: string, syncId: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SyncDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getById(xClientId, syncId, authorization, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ProviderSyncApi.getById']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
          * This endpoint retrieves a list of synchronization processes associated with the client. Optionally, it can filter the processes by a specific connection ID.
          * @summary Retrieve a list of synchronization processes
          * @param {string} xClientId 
-         * @param {string} connectionId 
          * @param {string} [cursor] Cursor for pagination. Use the next cursor from previous response to get next page
          * @param {number} [limit] Number of records to return per page
          * @param {string} [orderBy] Field to order results by
          * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {string} [xConnectionId] The provider connection through which the resource is accessed
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async list(xClientId: string, connectionId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedSyncsDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.list(xClientId, connectionId, cursor, limit, orderBy, desc, authorization, options);
+        async list(xClientId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, xConnectionId?: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedSyncsDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.list(xClientId, cursor, limit, orderBy, desc, xConnectionId, authorization, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProviderSyncApi.list']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * This endpoint starts synchronization process for the client.
-         * @summary Start a synchronization process
-         * @param {string} xClientId 
-         * @param {StartSyncDto} startSyncDto 
-         * @param {string} [authorization] 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async start(xClientId: string, startSyncDto: StartSyncDto, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SyncStartedDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.start(xClientId, startSyncDto, authorization, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['ProviderSyncApi.start']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -7509,16 +8826,6 @@ export const ProviderSyncApiFactory = function (configuration?: Configuration, b
     const localVarFp = ProviderSyncApiFp(configuration)
     return {
         /**
-         * This endpoint retrieves the details of a specific synchronization process associated with the client, identified by the sync ID.
-         * @summary Retrieve a specific synchronization process by ID
-         * @param {ProviderSyncApiGetByIdRequest} requestParameters Request parameters.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getById(requestParameters: ProviderSyncApiGetByIdRequest, options?: RawAxiosRequestConfig): AxiosPromise<SyncDto> {
-            return localVarFp.getById(requestParameters.xClientId, requestParameters.syncId, requestParameters.authorization, options).then((request) => request(axios, basePath));
-        },
-        /**
          * This endpoint retrieves a list of synchronization processes associated with the client. Optionally, it can filter the processes by a specific connection ID.
          * @summary Retrieve a list of synchronization processes
          * @param {ProviderSyncApiListRequest} requestParameters Request parameters.
@@ -7526,48 +8833,10 @@ export const ProviderSyncApiFactory = function (configuration?: Configuration, b
          * @throws {RequiredError}
          */
         list(requestParameters: ProviderSyncApiListRequest, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedSyncsDto> {
-            return localVarFp.list(requestParameters.xClientId, requestParameters.connectionId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.authorization, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * This endpoint starts synchronization process for the client.
-         * @summary Start a synchronization process
-         * @param {ProviderSyncApiStartRequest} requestParameters Request parameters.
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        start(requestParameters: ProviderSyncApiStartRequest, options?: RawAxiosRequestConfig): AxiosPromise<SyncStartedDto> {
-            return localVarFp.start(requestParameters.xClientId, requestParameters.startSyncDto, requestParameters.authorization, options).then((request) => request(axios, basePath));
+            return localVarFp.list(requestParameters.xClientId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.xConnectionId, requestParameters.authorization, options).then((request) => request(axios, basePath));
         },
     };
 };
-
-/**
- * Request parameters for getById operation in ProviderSyncApi.
- * @export
- * @interface ProviderSyncApiGetByIdRequest
- */
-export interface ProviderSyncApiGetByIdRequest {
-    /**
-     * 
-     * @type {string}
-     * @memberof ProviderSyncApiGetById
-     */
-    readonly xClientId: string
-
-    /**
-     * 
-     * @type {string}
-     * @memberof ProviderSyncApiGetById
-     */
-    readonly syncId: string
-
-    /**
-     * 
-     * @type {string}
-     * @memberof ProviderSyncApiGetById
-     */
-    readonly authorization?: string
-}
 
 /**
  * Request parameters for list operation in ProviderSyncApi.
@@ -7581,13 +8850,6 @@ export interface ProviderSyncApiListRequest {
      * @memberof ProviderSyncApiList
      */
     readonly xClientId: string
-
-    /**
-     * 
-     * @type {string}
-     * @memberof ProviderSyncApiList
-     */
-    readonly connectionId: string
 
     /**
      * Cursor for pagination. Use the next cursor from previous response to get next page
@@ -7618,37 +8880,16 @@ export interface ProviderSyncApiListRequest {
     readonly desc?: string
 
     /**
-     * 
+     * The provider connection through which the resource is accessed
      * @type {string}
      * @memberof ProviderSyncApiList
      */
-    readonly authorization?: string
-}
-
-/**
- * Request parameters for start operation in ProviderSyncApi.
- * @export
- * @interface ProviderSyncApiStartRequest
- */
-export interface ProviderSyncApiStartRequest {
-    /**
-     * 
-     * @type {string}
-     * @memberof ProviderSyncApiStart
-     */
-    readonly xClientId: string
-
-    /**
-     * 
-     * @type {StartSyncDto}
-     * @memberof ProviderSyncApiStart
-     */
-    readonly startSyncDto: StartSyncDto
+    readonly xConnectionId?: string
 
     /**
      * 
      * @type {string}
-     * @memberof ProviderSyncApiStart
+     * @memberof ProviderSyncApiList
      */
     readonly authorization?: string
 }
@@ -7661,18 +8902,6 @@ export interface ProviderSyncApiStartRequest {
  */
 export class ProviderSyncApi extends BaseAPI {
     /**
-     * This endpoint retrieves the details of a specific synchronization process associated with the client, identified by the sync ID.
-     * @summary Retrieve a specific synchronization process by ID
-     * @param {ProviderSyncApiGetByIdRequest} requestParameters Request parameters.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof ProviderSyncApi
-     */
-    public getById(requestParameters: ProviderSyncApiGetByIdRequest, options?: RawAxiosRequestConfig) {
-        return ProviderSyncApiFp(this.configuration).getById(requestParameters.xClientId, requestParameters.syncId, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
      * This endpoint retrieves a list of synchronization processes associated with the client. Optionally, it can filter the processes by a specific connection ID.
      * @summary Retrieve a list of synchronization processes
      * @param {ProviderSyncApiListRequest} requestParameters Request parameters.
@@ -7681,19 +8910,7 @@ export class ProviderSyncApi extends BaseAPI {
      * @memberof ProviderSyncApi
      */
     public list(requestParameters: ProviderSyncApiListRequest, options?: RawAxiosRequestConfig) {
-        return ProviderSyncApiFp(this.configuration).list(requestParameters.xClientId, requestParameters.connectionId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * This endpoint starts synchronization process for the client.
-     * @summary Start a synchronization process
-     * @param {ProviderSyncApiStartRequest} requestParameters Request parameters.
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof ProviderSyncApi
-     */
-    public start(requestParameters: ProviderSyncApiStartRequest, options?: RawAxiosRequestConfig) {
-        return ProviderSyncApiFp(this.configuration).start(requestParameters.xClientId, requestParameters.startSyncDto, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
+        return ProviderSyncApiFp(this.configuration).list(requestParameters.xClientId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.xConnectionId, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -7710,7 +8927,7 @@ export const ProviderTransferApiAxiosParamCreator = function (configuration?: Co
          * @summary Retrieve transfer details
          * @param {string} xClientId 
          * @param {string} transferId 
-         * @param {string} xConnectionId 
+         * @param {string} xConnectionId The provider connection through which the resource is accessed
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -7767,7 +8984,7 @@ export const ProviderTransferApiAxiosParamCreator = function (configuration?: Co
          * This endpoint sends a transfer to the source\'s provider.
          * @summary Send a transfer
          * @param {string} xClientId 
-         * @param {string} xConnectionId 
+         * @param {string} xConnectionId The provider connection through which the resource is accessed
          * @param {SendTransferDto} sendTransferDto 
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
@@ -7838,7 +9055,7 @@ export const ProviderTransferApiFp = function(configuration?: Configuration) {
          * @summary Retrieve transfer details
          * @param {string} xClientId 
          * @param {string} transferId 
-         * @param {string} xConnectionId 
+         * @param {string} xConnectionId The provider connection through which the resource is accessed
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -7853,7 +9070,7 @@ export const ProviderTransferApiFp = function(configuration?: Configuration) {
          * This endpoint sends a transfer to the source\'s provider.
          * @summary Send a transfer
          * @param {string} xClientId 
-         * @param {string} xConnectionId 
+         * @param {string} xConnectionId The provider connection through which the resource is accessed
          * @param {SendTransferDto} sendTransferDto 
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
@@ -7919,7 +9136,7 @@ export interface ProviderTransferApiGetByIdRequest {
     readonly transferId: string
 
     /**
-     * 
+     * The provider connection through which the resource is accessed
      * @type {string}
      * @memberof ProviderTransferApiGetById
      */
@@ -7947,7 +9164,7 @@ export interface ProviderTransferApiSendRequest {
     readonly xClientId: string
 
     /**
-     * 
+     * The provider connection through which the resource is accessed
      * @type {string}
      * @memberof ProviderTransferApiSend
      */
@@ -8013,11 +9230,12 @@ export const ProviderWalletApiAxiosParamCreator = function (configuration?: Conf
          * @summary Get a specific wallet by ID
          * @param {string} xClientId 
          * @param {string} walletId The ID of the wallet to retrieve
+         * @param {string} [xConnectionId] The provider connection through which the resource is accessed
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getById: async (xClientId: string, walletId: string, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getById: async (xClientId: string, walletId: string, xConnectionId?: string, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'xClientId' is not null or undefined
             assertParamExists('getById', 'xClientId', xClientId)
             // verify required parameter 'walletId' is not null or undefined
@@ -8044,6 +9262,10 @@ export const ProviderWalletApiAxiosParamCreator = function (configuration?: Conf
                 localVarHeaderParameter['x-client-id'] = String(xClientId);
             }
 
+            if (xConnectionId != null) {
+                localVarHeaderParameter['x-connection-id'] = String(xConnectionId);
+            }
+
             if (authorization != null) {
                 localVarHeaderParameter['Authorization'] = String(authorization);
             }
@@ -8067,11 +9289,12 @@ export const ProviderWalletApiAxiosParamCreator = function (configuration?: Conf
          * @param {number} [limit] Number of records to return per page
          * @param {string} [orderBy] Field to order results by
          * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {string} [xConnectionId] The provider connection through which the resource is accessed
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        list: async (xClientId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        list: async (xClientId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, xConnectionId?: string, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'xClientId' is not null or undefined
             assertParamExists('list', 'xClientId', xClientId)
             const localVarPath = `/v1/provider/wallets`;
@@ -8111,6 +9334,10 @@ export const ProviderWalletApiAxiosParamCreator = function (configuration?: Conf
                 localVarHeaderParameter['x-client-id'] = String(xClientId);
             }
 
+            if (xConnectionId != null) {
+                localVarHeaderParameter['x-connection-id'] = String(xConnectionId);
+            }
+
             if (authorization != null) {
                 localVarHeaderParameter['Authorization'] = String(authorization);
             }
@@ -8135,11 +9362,12 @@ export const ProviderWalletApiAxiosParamCreator = function (configuration?: Conf
          * @param {number} [limit] Number of records to return per page
          * @param {string} [orderBy] Field to order results by
          * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {string} [xConnectionId] The provider connection through which the resource is accessed
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listAccounts: async (xClientId: string, walletId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        listAccounts: async (xClientId: string, walletId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, xConnectionId?: string, authorization?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'xClientId' is not null or undefined
             assertParamExists('listAccounts', 'xClientId', xClientId)
             // verify required parameter 'walletId' is not null or undefined
@@ -8182,6 +9410,10 @@ export const ProviderWalletApiAxiosParamCreator = function (configuration?: Conf
                 localVarHeaderParameter['x-client-id'] = String(xClientId);
             }
 
+            if (xConnectionId != null) {
+                localVarHeaderParameter['x-connection-id'] = String(xConnectionId);
+            }
+
             if (authorization != null) {
                 localVarHeaderParameter['Authorization'] = String(authorization);
             }
@@ -8212,12 +9444,13 @@ export const ProviderWalletApiFp = function(configuration?: Configuration) {
          * @summary Get a specific wallet by ID
          * @param {string} xClientId 
          * @param {string} walletId The ID of the wallet to retrieve
+         * @param {string} [xConnectionId] The provider connection through which the resource is accessed
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getById(xClientId: string, walletId: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProviderWalletDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getById(xClientId, walletId, authorization, options);
+        async getById(xClientId: string, walletId: string, xConnectionId?: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ProviderWalletDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getById(xClientId, walletId, xConnectionId, authorization, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProviderWalletApi.getById']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -8230,12 +9463,13 @@ export const ProviderWalletApiFp = function(configuration?: Configuration) {
          * @param {number} [limit] Number of records to return per page
          * @param {string} [orderBy] Field to order results by
          * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {string} [xConnectionId] The provider connection through which the resource is accessed
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async list(xClientId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedWalletsDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.list(xClientId, cursor, limit, orderBy, desc, authorization, options);
+        async list(xClientId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, xConnectionId?: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedWalletsDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.list(xClientId, cursor, limit, orderBy, desc, xConnectionId, authorization, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProviderWalletApi.list']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -8249,12 +9483,13 @@ export const ProviderWalletApiFp = function(configuration?: Configuration) {
          * @param {number} [limit] Number of records to return per page
          * @param {string} [orderBy] Field to order results by
          * @param {string} [desc] Set to \&quot;true\&quot; or \&quot;1\&quot; for descending order
+         * @param {string} [xConnectionId] The provider connection through which the resource is accessed
          * @param {string} [authorization] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listAccounts(xClientId: string, walletId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedAccountsDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listAccounts(xClientId, walletId, cursor, limit, orderBy, desc, authorization, options);
+        async listAccounts(xClientId: string, walletId: string, cursor?: string, limit?: number, orderBy?: string, desc?: string, xConnectionId?: string, authorization?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PaginatedAccountsDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listAccounts(xClientId, walletId, cursor, limit, orderBy, desc, xConnectionId, authorization, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['ProviderWalletApi.listAccounts']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -8277,7 +9512,7 @@ export const ProviderWalletApiFactory = function (configuration?: Configuration,
          * @throws {RequiredError}
          */
         getById(requestParameters: ProviderWalletApiGetByIdRequest, options?: RawAxiosRequestConfig): AxiosPromise<ProviderWalletDto> {
-            return localVarFp.getById(requestParameters.xClientId, requestParameters.walletId, requestParameters.authorization, options).then((request) => request(axios, basePath));
+            return localVarFp.getById(requestParameters.xClientId, requestParameters.walletId, requestParameters.xConnectionId, requestParameters.authorization, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -8287,7 +9522,7 @@ export const ProviderWalletApiFactory = function (configuration?: Configuration,
          * @throws {RequiredError}
          */
         list(requestParameters: ProviderWalletApiListRequest, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedWalletsDto> {
-            return localVarFp.list(requestParameters.xClientId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.authorization, options).then((request) => request(axios, basePath));
+            return localVarFp.list(requestParameters.xClientId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.xConnectionId, requestParameters.authorization, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -8297,7 +9532,7 @@ export const ProviderWalletApiFactory = function (configuration?: Configuration,
          * @throws {RequiredError}
          */
         listAccounts(requestParameters: ProviderWalletApiListAccountsRequest, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedAccountsDto> {
-            return localVarFp.listAccounts(requestParameters.xClientId, requestParameters.walletId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.authorization, options).then((request) => request(axios, basePath));
+            return localVarFp.listAccounts(requestParameters.xClientId, requestParameters.walletId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.xConnectionId, requestParameters.authorization, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -8321,6 +9556,13 @@ export interface ProviderWalletApiGetByIdRequest {
      * @memberof ProviderWalletApiGetById
      */
     readonly walletId: string
+
+    /**
+     * The provider connection through which the resource is accessed
+     * @type {string}
+     * @memberof ProviderWalletApiGetById
+     */
+    readonly xConnectionId?: string
 
     /**
      * 
@@ -8370,6 +9612,13 @@ export interface ProviderWalletApiListRequest {
      * @memberof ProviderWalletApiList
      */
     readonly desc?: string
+
+    /**
+     * The provider connection through which the resource is accessed
+     * @type {string}
+     * @memberof ProviderWalletApiList
+     */
+    readonly xConnectionId?: string
 
     /**
      * 
@@ -8428,6 +9677,13 @@ export interface ProviderWalletApiListAccountsRequest {
     readonly desc?: string
 
     /**
+     * The provider connection through which the resource is accessed
+     * @type {string}
+     * @memberof ProviderWalletApiListAccounts
+     */
+    readonly xConnectionId?: string
+
+    /**
      * 
      * @type {string}
      * @memberof ProviderWalletApiListAccounts
@@ -8451,7 +9707,7 @@ export class ProviderWalletApi extends BaseAPI {
      * @memberof ProviderWalletApi
      */
     public getById(requestParameters: ProviderWalletApiGetByIdRequest, options?: RawAxiosRequestConfig) {
-        return ProviderWalletApiFp(this.configuration).getById(requestParameters.xClientId, requestParameters.walletId, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
+        return ProviderWalletApiFp(this.configuration).getById(requestParameters.xClientId, requestParameters.walletId, requestParameters.xConnectionId, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -8463,7 +9719,7 @@ export class ProviderWalletApi extends BaseAPI {
      * @memberof ProviderWalletApi
      */
     public list(requestParameters: ProviderWalletApiListRequest, options?: RawAxiosRequestConfig) {
-        return ProviderWalletApiFp(this.configuration).list(requestParameters.xClientId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
+        return ProviderWalletApiFp(this.configuration).list(requestParameters.xClientId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.xConnectionId, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -8475,7 +9731,7 @@ export class ProviderWalletApi extends BaseAPI {
      * @memberof ProviderWalletApi
      */
     public listAccounts(requestParameters: ProviderWalletApiListAccountsRequest, options?: RawAxiosRequestConfig) {
-        return ProviderWalletApiFp(this.configuration).listAccounts(requestParameters.xClientId, requestParameters.walletId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
+        return ProviderWalletApiFp(this.configuration).listAccounts(requestParameters.xClientId, requestParameters.walletId, requestParameters.cursor, requestParameters.limit, requestParameters.orderBy, requestParameters.desc, requestParameters.xConnectionId, requestParameters.authorization, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

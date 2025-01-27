@@ -4,11 +4,11 @@ import { ProviderSync } from '@prisma/client/vault'
 import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
 import { ModelInvalidException } from '../../core/exception/model-invalid.exception'
 import { NotFoundException } from '../../core/exception/not-found.exception'
+import { ConnectionScope } from '../../core/type/scope.type'
 import { Sync, SyncStatus } from '../../core/type/sync.type'
 
 export type FindAllOptions = PaginationOptions & {
   filters?: {
-    connectionId?: string
     status?: SyncStatus
   }
   pagination?: PaginationOptions
@@ -101,10 +101,11 @@ export class SyncRepository {
     return true
   }
 
-  async findById(clientId: string, syncId: string): Promise<Sync> {
+  async findById({ clientId, connectionId }: ConnectionScope, syncId: string): Promise<Sync> {
     const model = await this.prismaService.providerSync.findUnique({
       where: {
         clientId,
+        connectionId,
         id: syncId
       }
     })
@@ -116,14 +117,14 @@ export class SyncRepository {
     throw new NotFoundException({ context: { clientId, syncId } })
   }
 
-  async findAll(clientId: string, options?: FindAllOptions): Promise<PaginatedResult<Sync>> {
+  async findAll({ clientId, connectionId }: ConnectionScope, options?: FindAllOptions): Promise<PaginatedResult<Sync>> {
     const pagination = applyPagination(options?.pagination)
 
     const models = await this.prismaService.providerSync.findMany({
       where: {
         clientId,
-        status: options?.filters?.status,
-        connectionId: options?.filters?.connectionId
+        connectionId,
+        status: options?.filters?.status
       },
       ...pagination
     })

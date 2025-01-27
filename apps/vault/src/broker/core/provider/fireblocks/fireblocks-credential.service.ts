@@ -1,5 +1,14 @@
-import { Alg, DEFAULT_RSA_MODULUS_LENGTH, generateJwk, getPublicKey, privateRsaPemToJwk } from '@narval/signature'
+import {
+  Alg,
+  DEFAULT_RSA_MODULUS_LENGTH,
+  RsaPrivateKey,
+  generateJwk,
+  getPublicKey,
+  privateKeyToPem,
+  privateRsaPemToJwk
+} from '@narval/signature'
 import { Injectable } from '@nestjs/common'
+import * as forge from 'node-forge'
 import { ParseException } from '../../../../shared/module/persistence/exception/parse.exception'
 import { ConnectionInvalidPrivateKeyException } from '../../exception/connection-invalid-private-key.exception'
 import { ProviderCredentialService } from '../../type/provider.type'
@@ -62,5 +71,23 @@ export class FireblocksCredentialService
       privateKey,
       publicKey: getPublicKey(privateKey)
     }
+  }
+
+  static async signCertificateRequest(privateKey: RsaPrivateKey, organizationName: string): Promise<string> {
+    const pem = await privateKeyToPem(privateKey, Alg.RS256)
+    const forgePrivateKey = forge.pki.privateKeyFromPem(pem)
+    const forgePublicKey = forge.pki.rsa.setPublicKey(forgePrivateKey.n, forgePrivateKey.e)
+    const csr = forge.pki.createCertificationRequest()
+
+    csr.publicKey = forgePublicKey
+    csr.setSubject([
+      {
+        name: 'organizationName',
+        value: organizationName
+      }
+    ])
+    csr.sign(forgePrivateKey)
+
+    return Buffer.from(forge.pki.certificationRequestToPem(csr)).toString('base64')
   }
 }

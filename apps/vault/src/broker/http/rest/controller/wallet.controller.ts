@@ -1,11 +1,13 @@
 import { ApiClientIdHeader, Paginated, PaginationOptions, PaginationParam } from '@narval/nestjs-shared'
 import { Controller, Get, HttpStatus, Param } from '@nestjs/common'
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ApiHeader, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
 import { VaultPermission } from '../../../../shared/type/domain.type'
 import { AccountService } from '../../../core/service/account.service'
 import { WalletService } from '../../../core/service/wallet.service'
+import { REQUEST_HEADER_CONNECTION_ID } from '../../../shared/constant'
+import { ConnectionId } from '../../../shared/decorator/connection-id.decorator'
 import { PaginatedAccountsDto } from '../dto/response/paginated-accounts.dto'
 import { PaginatedWalletsDto } from '../dto/response/paginated-wallets.dto'
 import { ProviderWalletDto } from '../dto/response/provider-wallet.dto'
@@ -24,6 +26,10 @@ export class ProviderWalletController {
 
   @Get()
   @PermissionGuard(VaultPermission.CONNECTION_READ)
+  @ApiHeader({
+    name: REQUEST_HEADER_CONNECTION_ID,
+    description: 'The provider connection through which the resource is accessed'
+  })
   @ApiOperation({
     summary: 'List the client wallets'
   })
@@ -33,15 +39,28 @@ export class ProviderWalletController {
   })
   async list(
     @ClientId() clientId: string,
+    @ConnectionId() connectionId: string,
     @PaginationParam() pagination: PaginationOptions
   ): Promise<PaginatedWalletsDto> {
-    return PaginatedWalletsDto.create(await this.walletService.findAll(clientId, { pagination }))
+    return PaginatedWalletsDto.create(
+      await this.walletService.findAll(
+        {
+          clientId,
+          connectionId
+        },
+        { pagination }
+      )
+    )
   }
 
   @Get(':walletId')
   @PermissionGuard(VaultPermission.CONNECTION_READ)
   @ApiOperation({
     summary: 'Get a specific wallet by ID'
+  })
+  @ApiHeader({
+    name: REQUEST_HEADER_CONNECTION_ID,
+    description: 'The provider connection through which the resource is accessed'
   })
   @ApiParam({
     name: 'walletId',
@@ -55,8 +74,12 @@ export class ProviderWalletController {
     status: HttpStatus.NOT_FOUND,
     description: 'Wallet not found'
   })
-  async getById(@ClientId() clientId: string, @Param('walletId') walletId: string): Promise<ProviderWalletDto> {
-    const data = await this.walletService.findById(clientId, walletId)
+  async getById(
+    @ClientId() clientId: string,
+    @ConnectionId() connectionId: string,
+    @Param('walletId') walletId: string
+  ): Promise<ProviderWalletDto> {
+    const data = await this.walletService.findById({ clientId, connectionId }, walletId)
 
     return ProviderWalletDto.create({ data })
   }
@@ -65,6 +88,10 @@ export class ProviderWalletController {
   @PermissionGuard(VaultPermission.CONNECTION_READ)
   @ApiOperation({
     summary: 'List accounts for a specific wallet'
+  })
+  @ApiHeader({
+    name: REQUEST_HEADER_CONNECTION_ID,
+    description: 'The provider connection through which the resource is accessed'
   })
   @ApiParam({
     name: 'walletId',
@@ -80,14 +107,21 @@ export class ProviderWalletController {
   })
   async listAccounts(
     @ClientId() clientId: string,
+    @ConnectionId() connectionId: string,
     @Param('walletId') walletId: string,
     @PaginationParam() options: PaginationOptions
   ): Promise<PaginatedAccountsDto> {
     return PaginatedAccountsDto.create(
-      await this.accountService.findAllPaginated(clientId, {
-        ...options,
-        filters: { walletId }
-      })
+      await this.accountService.findAll(
+        {
+          clientId,
+          connectionId
+        },
+        {
+          ...options,
+          filters: { walletId }
+        }
+      )
     )
   }
 }

@@ -2,14 +2,17 @@ import { LoggerService } from '@narval/nestjs-shared'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { v4 as uuid } from 'uuid'
 import { AnchorageClient } from '../../../http/client/anchorage.client'
-import { NetworkRepository } from '../../../persistence/repository/network.repository'
 import { TransferRepository } from '../../../persistence/repository/transfer.repository'
+import { AssetException } from '../../exception/asset.exception'
 import { BrokerException } from '../../exception/broker.exception'
 import { AccountService } from '../../service/account.service'
-import { AssetService } from '../../service/asset.service'
+import { NetworkService } from '../../service/network.service'
+import { ResolvedTransferAsset, TransferAssetService } from '../../service/transfer-asset.service'
 import { WalletService } from '../../service/wallet.service'
 import { ConnectionWithCredentials } from '../../type/connection.type'
+import { Network } from '../../type/network.type'
 import { Provider, ProviderTransferService } from '../../type/provider.type'
+import { ConnectionScope } from '../../type/scope.type'
 import {
   Destination,
   InternalTransfer,
@@ -17,23 +20,24 @@ import {
   SendTransfer,
   Source,
   Transfer,
+  TransferAsset,
   TransferPartyType,
   TransferStatus,
   isAddressDestination,
   isProviderSpecific
 } from '../../type/transfer.type'
-import { getExternalAsset } from '../../util/asset.util'
-import { transferPartyTypeToAnchorageResourceType, validateConnection } from './anchorage.util'
+import { getExternalNetwork } from '../../util/network.util'
+import { ValidConnection, transferPartyTypeToAnchorageResourceType, validateConnection } from './anchorage.util'
 
 @Injectable()
 export class AnchorageTransferService implements ProviderTransferService {
   constructor(
     private readonly anchorageClient: AnchorageClient,
-    private readonly assetService: AssetService,
-    private readonly networkRepository: NetworkRepository,
+    private readonly networkService: NetworkService,
     private readonly accountService: AccountService,
     private readonly walletService: WalletService,
     private readonly transferRepository: TransferRepository,
+    private readonly transferAssetService: TransferAssetService,
     private readonly logger: LoggerService
   ) {}
 
@@ -60,6 +64,8 @@ export class AnchorageTransferService implements ProviderTransferService {
     this.logger.log('Found remote transfer by external ID', { ...context, anchorageTransfer })
 
     const transfer = {
+      connectionId,
+      assetExternalId: internalTransfer.assetExternalId,
       assetId: internalTransfer.assetId,
       clientId: internalTransfer.clientId,
       createdAt: new Date(anchorageTransfer.createdAt),
@@ -121,8 +127,8 @@ export class AnchorageTransferService implements ProviderTransferService {
 
     validateConnection(connection)
 
-    const asset = await this.assetService.findTransferAsset(Provider.ANCHORAGE, sendTransfer.asset)
-    if (!asset) {
+    const transferAsset = await this.findTransferAsset(connection, sendTransfer.asset)
+    if (!transferAsset) {
       throw new BrokerException({
         message: 'Transfer asset not found',
         suggestedHttpStatusCode: HttpStatus.NOT_FOUND,
@@ -130,27 +136,9 @@ export class AnchorageTransferService implements ProviderTransferService {
       })
     }
 
-    const externalAsset = getExternalAsset(asset, Provider.ANCHORAGE)
-    if (!externalAsset) {
-      throw new BrokerException({
-        message: 'Unsupported asset by Anchorage',
-        suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-        context: { asset }
-      })
-    }
+    const source = await this.getSource(connection, sendTransfer.source)
 
-    const network = await this.networkRepository.findById(asset.networkId)
-    if (!network) {
-      throw new BrokerException({
-        message: 'Cannot find asset network',
-        suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        context: { asset }
-      })
-    }
-
-    const source = await this.getSource(clientId, sendTransfer.source)
-
-    const destination = await this.getDestination(clientId, sendTransfer.destination)
+    const destination = await this.getDestination(connection, sendTransfer.destination)
 
     this.logger.log('Resolved Anchorage transfer source and destination', { ...context, source, destination })
 
@@ -162,7 +150,7 @@ export class AnchorageTransferService implements ProviderTransferService {
     const data = {
       source,
       destination,
-      assetType: externalAsset.externalId,
+      assetType: transferAsset.assetExternalId,
       amount: sendTransfer.amount,
       transferMemo: sendTransfer.memo || null,
       idempotentId: sendTransfer.idempotenceId,
@@ -182,7 +170,8 @@ export class AnchorageTransferService implements ProviderTransferService {
     this.logger.log('Anchorage transfer created', context)
 
     const internalTransfer: InternalTransfer = {
-      assetId: asset.assetId,
+      assetId: transferAsset.assetId,
+      assetExternalId: transferAsset.assetExternalId,
       clientId: clientId,
       createdAt: new Date(),
       customerRefId: null,
@@ -191,6 +180,7 @@ export class AnchorageTransferService implements ProviderTransferService {
       externalStatus: anchorageTransfer.status,
       grossAmount: sendTransfer.amount,
       idempotenceId: sendTransfer.idempotenceId,
+      connectionId,
       memo: sendTransfer.memo || null,
       networkFeeAttribution,
       provider: Provider.ANCHORAGE,
@@ -231,9 +221,9 @@ export class AnchorageTransferService implements ProviderTransferService {
     return false
   }
 
-  private async getSource(clientId: string, source: Source) {
+  private async getSource(scope: ConnectionScope, source: Source) {
     if (source.type === TransferPartyType.WALLET) {
-      const wallet = await this.walletService.findById(clientId, source.id)
+      const wallet = await this.walletService.findById(scope, source.id)
 
       return {
         type: transferPartyTypeToAnchorageResourceType(source.type),
@@ -242,7 +232,7 @@ export class AnchorageTransferService implements ProviderTransferService {
     }
 
     if (source.type === TransferPartyType.ACCOUNT) {
-      const wallet = await this.accountService.findById(clientId, source.id)
+      const wallet = await this.accountService.findById(scope, source.id)
 
       return {
         type: transferPartyTypeToAnchorageResourceType(source.type),
@@ -253,11 +243,11 @@ export class AnchorageTransferService implements ProviderTransferService {
     throw new BrokerException({
       message: 'Cannot resolve Anchorage transfer source',
       suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-      context: { clientId, source }
+      context: { scope, source }
     })
   }
 
-  private async getDestination(clientId: string, destination: Destination) {
+  private async getDestination(scope: ConnectionScope, destination: Destination) {
     if (isAddressDestination(destination)) {
       // IMPORTANT: For both known and unknown addresses, we pass them directly
       // to Anchorage without validating their existence on our side. If the
@@ -270,7 +260,7 @@ export class AnchorageTransferService implements ProviderTransferService {
     }
 
     if (destination.type === TransferPartyType.WALLET) {
-      const wallet = await this.walletService.findById(clientId, destination.id)
+      const wallet = await this.walletService.findById(scope, destination.id)
 
       return {
         type: transferPartyTypeToAnchorageResourceType(destination.type),
@@ -279,7 +269,7 @@ export class AnchorageTransferService implements ProviderTransferService {
     }
 
     if (destination.type === TransferPartyType.ACCOUNT) {
-      const account = await this.accountService.findById(clientId, destination.id)
+      const account = await this.accountService.findById(scope, destination.id)
 
       return {
         type: transferPartyTypeToAnchorageResourceType(destination.type),
@@ -290,7 +280,89 @@ export class AnchorageTransferService implements ProviderTransferService {
     throw new BrokerException({
       message: 'Cannot resolve Anchorage transfer destination',
       suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-      context: { clientId, destination }
+      context: { scope, destination }
+    })
+  }
+
+  private async findTransferAsset(
+    connection: ValidConnection,
+    transferAsset: TransferAsset
+  ): Promise<ResolvedTransferAsset> {
+    const findByExternalIdFallback = async (externalAssetId: string): Promise<ResolvedTransferAsset> => {
+      const anchorageAssetTypes = await this.anchorageClient.getAssetTypes({
+        url: connection.url,
+        apiKey: connection.credentials.apiKey,
+        signKey: connection.credentials.privateKey
+      })
+
+      const anchorageAssetType = anchorageAssetTypes.find(
+        ({ assetType }) => assetType.toLowerCase() === externalAssetId.toLowerCase()
+      )
+      if (!anchorageAssetType) {
+        throw new AssetException({
+          message: 'Anchorage asset type not found',
+          suggestedHttpStatusCode: HttpStatus.NOT_FOUND,
+          context: { transferAsset }
+        })
+      }
+
+      const network = await this.networkService.findByExternalId(Provider.ANCHORAGE, anchorageAssetType.networkId)
+      if (!network) {
+        throw new AssetException({
+          message: 'Anchorage asset type network not found',
+          suggestedHttpStatusCode: HttpStatus.NOT_FOUND,
+          context: { transferAsset, anchorageAssetType }
+        })
+      }
+
+      return {
+        network,
+        assetExternalId: externalAssetId,
+        assetId: null
+      }
+    }
+
+    const findByOnchainIdFallback = async (network: Network, onchainId: string): Promise<ResolvedTransferAsset> => {
+      const externalNetwork = getExternalNetwork(network, Provider.ANCHORAGE)
+      if (!externalNetwork) {
+        throw new AssetException({
+          message: 'Network does not support Anchorage',
+          suggestedHttpStatusCode: HttpStatus.NOT_IMPLEMENTED,
+          context: { transferAsset, network }
+        })
+      }
+
+      const anchorageAssetTypes = await this.anchorageClient.getAssetTypes({
+        url: connection.url,
+        apiKey: connection.credentials.apiKey,
+        signKey: connection.credentials.privateKey
+      })
+
+      const anchorageAssetType = anchorageAssetTypes.find(
+        ({ onchainIdentifier, networkId }) =>
+          onchainIdentifier?.toLowerCase() === onchainId.toLowerCase() &&
+          networkId.toLowerCase() === externalNetwork.externalId.toLowerCase()
+      )
+      if (!anchorageAssetType) {
+        throw new AssetException({
+          message: 'Anchorage asset type not found',
+          suggestedHttpStatusCode: HttpStatus.NOT_FOUND,
+          context: { transferAsset }
+        })
+      }
+
+      return {
+        network,
+        assetId: null,
+        assetExternalId: anchorageAssetType.assetType
+      }
+    }
+
+    return this.transferAssetService.resolve({
+      findByExternalIdFallback,
+      findByOnchainIdFallback,
+      transferAsset,
+      provider: Provider.ANCHORAGE
     })
   }
 }

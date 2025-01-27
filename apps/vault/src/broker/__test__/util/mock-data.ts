@@ -146,21 +146,38 @@ export const TEST_CONNECTIONS = [
     createdAt: now,
     updatedAt: now,
     revokedAt: null
-  }
-]
-
-export const TEST_WALLET_CONNECTIONS = [
-  {
-    clientId: TEST_CLIENT_ID,
-    connectionId: 'connection-1',
-    walletId: 'wallet-1',
-    createdAt: now
   },
   {
+    id: 'connection-3',
     clientId: TEST_CLIENT_ID,
-    connectionId: 'connection-2',
-    walletId: 'wallet-2',
-    createdAt: now
+    provider: 'anchorage',
+    url: 'https://api.anchorage.com',
+    label: 'Test Connection 3',
+    credentials: {
+      apiKey: 'test-api-key-1',
+      privateKey,
+      publicKey
+    },
+    status: 'active',
+    createdAt: now,
+    updatedAt: now,
+    revokedAt: null
+  },
+  {
+    id: 'connection-4',
+    clientId: TEST_CLIENT_ID,
+    provider: 'anchorage',
+    url: 'https://api.anchorage.com',
+    label: 'Test Connection 4',
+    credentials: {
+      apiKey: 'test-api-key-1',
+      privateKey,
+      publicKey
+    },
+    status: 'active',
+    createdAt: now,
+    updatedAt: now,
+    revokedAt: null
   }
 ]
 
@@ -171,6 +188,7 @@ export const TEST_WALLETS_WITH_SAME_TIMESTAMP = [
     provider: 'anchorage',
     label: 'Test Wallet 1',
     externalId: 'ext-wallet-1',
+    connectionId: 'connection-3',
     createdAt: now,
     updatedAt: now
   },
@@ -179,6 +197,7 @@ export const TEST_WALLETS_WITH_SAME_TIMESTAMP = [
     clientId: TEST_DIFFERENT_CLIENT_ID,
     provider: 'anchorage',
     label: 'Test Wallet 2',
+    connectionId: 'connection-3',
     externalId: 'ext-wallet-2',
     createdAt: now,
     updatedAt: now
@@ -187,6 +206,7 @@ export const TEST_WALLETS_WITH_SAME_TIMESTAMP = [
     id: 'wallet-8',
     clientId: TEST_DIFFERENT_CLIENT_ID,
     provider: 'anchorage',
+    connectionId: 'connection-3',
     label: 'Test Wallet 3',
     externalId: 'ext-wallet-3',
     createdAt: now,
@@ -201,6 +221,7 @@ export const TEST_WALLETS = [
     provider: 'anchorage',
     label: 'Test Wallet 1',
     externalId: 'ext-wallet-1',
+    connectionId: 'connection-1',
     createdAt: now,
     updatedAt: now
   },
@@ -210,6 +231,7 @@ export const TEST_WALLETS = [
     provider: 'anchorage',
     label: 'Test Wallet 2',
     externalId: 'ext-wallet-2',
+    connectionId: 'connection-2',
     createdAt: new Date(now.getTime() + 1000),
     updatedAt: new Date(now.getTime() + 1000)
   },
@@ -219,6 +241,7 @@ export const TEST_WALLETS = [
     provider: 'anchorage',
     label: 'Test Wallet 3',
     externalId: 'ext-wallet-3',
+    connectionId: 'connection-4',
     createdAt: new Date(now.getTime() + 2000),
     updatedAt: new Date(now.getTime() + 2000)
   },
@@ -227,6 +250,7 @@ export const TEST_WALLETS = [
     clientId: TEST_CLIENT_ID,
     provider: 'anchorage',
     label: 'Test Wallet 4',
+    connectionId: 'connection-4',
     externalId: 'ext-wallet-4',
     createdAt: new Date(now.getTime() + 3000),
     updatedAt: new Date(now.getTime() + 3000)
@@ -235,6 +259,7 @@ export const TEST_WALLETS = [
     id: 'wallet-5',
     clientId: TEST_CLIENT_ID,
     provider: 'anchorage',
+    connectionId: 'connection-4',
     label: 'Test Wallet 5',
     externalId: 'ext-wallet-5',
     createdAt: new Date(now.getTime() + 4000),
@@ -250,6 +275,7 @@ export const TEST_ACCOUNTS = [
     label: 'Test Account 1',
     externalId: 'ext-account-1',
     walletId: 'wallet-1', // Linking to wallet-1
+    connectionId: 'connection-1',
     networkId: '1',
     createdAt: now,
     updatedAt: now
@@ -261,6 +287,7 @@ export const TEST_ACCOUNTS = [
     label: 'Test Account 2',
     externalId: 'ext-account-2',
     walletId: 'wallet-1', // Linking to wallet-1
+    connectionId: 'connection-1',
     networkId: '60',
     createdAt: now,
     updatedAt: now
@@ -274,6 +301,7 @@ export const TEST_ADDRESSES = [
     provider: 'anchorage',
     externalId: 'ext-address-1',
     accountId: 'account-1', // Linking to account-1
+    connectionId: 'connection-1',
     address: '0x1234567890123456789012345678901234567890', // Example ETH address
     createdAt: now,
     updatedAt: now
@@ -284,6 +312,7 @@ export const TEST_ADDRESSES = [
     provider: 'anchorage',
     externalId: 'ext-address-2',
     accountId: 'account-1', // Another address for account-1
+    connectionId: 'connection-1',
     address: '0x0987654321098765432109876543210987654321', // Example ETH address
     createdAt: now,
     updatedAt: now
@@ -294,6 +323,7 @@ export const TEST_ADDRESSES = [
     provider: 'anchorage',
     externalId: 'ext-address-3',
     accountId: 'account-2', // Linking to account-2
+    connectionId: 'connection-2',
     address: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh', // Example BTC address
     createdAt: now,
     updatedAt: now

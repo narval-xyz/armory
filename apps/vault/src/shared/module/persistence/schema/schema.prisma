@@ -98,85 +98,69 @@ model ClientLocalAuthAllowedUser {
 }
 
 model ProviderWallet {
-  id         String   @id
-  label      String?
-  clientId   String   @map("client_id")
-  provider   String
-  externalId String   @map("external_id")
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
+  id           String   @id
+  label        String?
+  clientId     String   @map("client_id")
+  provider     String
+  externalId   String   @map("external_id")
+  connectionId String   @map("connection_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
-  accounts    ProviderAccount[]
-  connections ProviderWalletConnection[]
+  connection           ProviderConnection? @relation(fields: [connectionId], references: [id])
+  accounts             ProviderAccount[]
+  sourceTransfers      ProviderTransfer[]  @relation("SourceWallet")
+  destinationTransfers ProviderTransfer[]  @relation("DestinationWallet")
 
-  sourceTransfers      ProviderTransfer[] @relation("SourceWallet")
-  destinationTransfers ProviderTransfer[] @relation("DestinationWallet")
-
-  @@unique([clientId, externalId])
+  @@unique([clientId, connectionId, externalId])
   @@index([createdAt, clientId])
   @@map("provider_wallet")
 }
 
 model ProviderAccount {
-  id         String   @id
-  label      String?
-  clientId   String   @map("client_id")
-  provider   String
-  externalId String   @map("external_id")
-  walletId   String   @map("wallet_id")
-  networkId  String   @map("network_id")
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
+  id           String   @id
+  label        String?
+  clientId     String   @map("client_id")
+  connectionId String   @map("connection_id")
+  externalId   String   @map("external_id")
+  provider     String
+  walletId     String   @map("wallet_id")
+  networkId    String   @map("network_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
-  wallet    ProviderWallet    @relation(fields: [walletId], references: [id])
-  addresses ProviderAddress[]
+  connection ProviderConnection @relation(fields: [connectionId], references: [id])
+  wallet     ProviderWallet     @relation(fields: [walletId], references: [id])
+  addresses  ProviderAddress[]
 
   sourceTransfers      ProviderTransfer[] @relation("SourceAccount")
   destinationTransfers ProviderTransfer[] @relation("DestinationAccount")
 
-  @@unique([clientId, externalId])
+  @@unique([clientId, connectionId, externalId])
   @@index([createdAt, clientId])
   @@map("provider_account")
 }
 
 model ProviderAddress {
-  id         String   @id
-  clientId   String   @map("client_id")
-  provider   String
-  externalId String   @map("external_id")
-  accountId  String   @map("account_id")
-  address    String
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
+  id           String   @id
+  clientId     String   @map("client_id")
+  connectionId String   @map("connection_id")
+  provider     String
+  externalId   String   @map("external_id")
+  accountId    String   @map("account_id")
+  address      String
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
-  account ProviderAccount @relation(fields: [accountId], references: [id])
+  connection ProviderConnection @relation(fields: [connectionId], references: [id])
+  account    ProviderAccount    @relation(fields: [accountId], references: [id])
 
   sourceTransfers      ProviderTransfer[] @relation("SourceAddress")
   destinationTransfers ProviderTransfer[] @relation("DestinationAddress")
 
-  @@unique([clientId, externalId])
+  @@unique([clientId, connectionId, externalId])
   @@index([createdAt, clientId])
   @@map("provider_address")
-}
-
-model ProviderKnownDestination {
-  id                     String   @id
-  clientId               String   @map("client_id")
-  provider               String
-  externalId             String   @map("external_id")
-  externalClassification String?  @map("external_classification")
-  address                String
-  label                  String?
-  assetId                String?  @map("asset_id")
-  networkId              String   @map("network_id")
-  createdAt              DateTime @default(now()) @map("created_at")
-  updatedAt              DateTime @updatedAt @map("updated_at")
-
-  connections ProviderKnownDestinationConnection[]
-
-  @@unique([clientId, externalId])
-  @@index([createdAt, clientId])
-  @@map("provider_known_destination")
 }
 
 model ProviderConnection {
@@ -194,38 +178,15 @@ model ProviderConnection {
   updatedAt   DateTime  @map("updated_at")
   revokedAt   DateTime? @map("revoked_at")
 
-  knownDestinationConnections ProviderKnownDestinationConnection[]
-  connections                 ProviderWalletConnection[]
-  syncs                       ProviderSync[]
+  wallets     ProviderWallet[]
+  scopedSyncs ProviderScopedSync[]
+  accounts    ProviderAccount[]
+  addresses   ProviderAddress[]
+  transfers   ProviderTransfer[]
+  syncs       ProviderSync[]
 
   @@index([createdAt, clientId])
   @@map("provider_connection")
-}
-
-model ProviderKnownDestinationConnection {
-  clientId           String   @map("client_id")
-  connectionId       String   @map("connection_id")
-  knownDestinationId String   @map("known_destination_id")
-  createdAt          DateTime @default(now()) @map("created_at")
-
-  connection       ProviderConnection       @relation(fields: [connectionId], references: [id], onDelete: Cascade)
-  knownDestination ProviderKnownDestination @relation(fields: [knownDestinationId], references: [id], onDelete: Cascade)
-
-  @@id([clientId, connectionId, knownDestinationId])
-  @@map("provider_known_destination_connection")
-}
-
-model ProviderWalletConnection {
-  clientId     String   @map("client_id")
-  connectionId String   @map("connection_id")
-  walletId     String   @map("wallet_id")
-  createdAt    DateTime @default(now()) @map("created_at")
-
-  connection ProviderConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
-  wallet     ProviderWallet     @relation(fields: [walletId], references: [id], onDelete: Cascade)
-
-  @@id([clientId, connectionId, walletId])
-  @@map("provider_wallet_connection")
 }
 
 model ProviderSync {
@@ -244,9 +205,27 @@ model ProviderSync {
   @@map("provider_sync")
 }
 
+model ProviderScopedSync {
+  id           String    @id
+  clientId     String    @map("client_id")
+  connectionId String    @map("connection_id")
+  status       String
+  errorName    String?   @map("error_name")
+  errorMessage String?   @map("error_message")
+  errorTraceId String?   @map("error_trace_id")
+  rawAccounts  String    @map("raw_accounts")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  completedAt  DateTime? @map("completed_at")
+
+  connection ProviderConnection @relation(fields: [connectionId], references: [id])
+
+  @@map("provider_scoped_sync")
+}
+
 model ProviderTransfer {
   id                    String   @id
-  assetId               String   @map("asset_id")
+  assetId               String?  @map("asset_id")
+  assetExternalId       String?  @map("asset_external_id")
   clientId              String   @map("client_id")
   createdAt             DateTime @default(now()) @map("created_at")
   customerRefId         String?  @map("customer_ref_id")
@@ -264,14 +243,15 @@ model ProviderTransfer {
   sourceAccountId       String?  @map("source_account_id")
   sourceAddressId       String?  @map("source_address_id")
   sourceWalletId        String?  @map("source_wallet_id")
+  connectionId          String   @map("connection_id")
 
-  sourceWallet  ProviderWallet?  @relation("SourceWallet", fields: [sourceWalletId], references: [id])
-  sourceAccount ProviderAccount? @relation("SourceAccount", fields: [sourceAccountId], references: [id])
-  sourceAddress ProviderAddress? @relation("SourceAddress", fields: [sourceAddressId], references: [id])
-
-  destinationWallet  ProviderWallet?  @relation("DestinationWallet", fields: [destinationWalletId], references: [id])
-  destinationAccount ProviderAccount? @relation("DestinationAccount", fields: [destinationAccountId], references: [id])
-  destinationAddress ProviderAddress? @relation("DestinationAddress", fields: [destinationAddressId], references: [id])
+  connection         ProviderConnection @relation(fields: [connectionId], references: [id])
+  sourceWallet       ProviderWallet?    @relation("SourceWallet", fields: [sourceWalletId], references: [id])
+  sourceAccount      ProviderAccount?   @relation("SourceAccount", fields: [sourceAccountId], references: [id])
+  sourceAddress      ProviderAddress?   @relation("SourceAddress", fields: [sourceAddressId], references: [id])
+  destinationWallet  ProviderWallet?    @relation("DestinationWallet", fields: [destinationWalletId], references: [id])
+  destinationAccount ProviderAccount?   @relation("DestinationAccount", fields: [destinationAccountId], references: [id])
+  destinationAddress ProviderAddress?   @relation("DestinationAddress", fields: [destinationAddressId], references: [id])
 
   @@unique([clientId, externalId])
   @@unique([clientId, idempotenceId])

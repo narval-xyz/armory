@@ -95,8 +95,10 @@ export const TransferStatus = {
 export type TransferStatus = (typeof TransferStatus)[keyof typeof TransferStatus]
 
 export const InternalTransfer = z.object({
-  assetId: z.string(),
+  assetExternalId: z.string().nullable(),
+  assetId: z.string().nullable(),
   clientId: z.string(),
+  connectionId: z.string(),
   createdAt: z.date(),
   customerRefId: z.string().nullable(),
   destination: Destination,

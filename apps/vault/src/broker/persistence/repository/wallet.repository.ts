@@ -1,20 +1,13 @@
 import { PaginatedResult, PaginationOptions, applyPagination, getPaginatedResult } from '@narval/nestjs-shared'
 import { Injectable } from '@nestjs/common'
-import {
-  ProviderAccount,
-  ProviderAddress,
-  ProviderConnection,
-  ProviderWallet,
-  ProviderWalletConnection
-} from '@prisma/client/vault'
+import { ProviderAccount, ProviderAddress, ProviderWallet } from '@prisma/client/vault'
 import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
 import { NotFoundException } from '../../core/exception/not-found.exception'
 import { Account, UpdateWallet, Wallet } from '../../core/type/indexed-resources.type'
+import { ConnectionScope } from '../../core/type/scope.type'
 import { AccountRepository } from './account.repository'
-import { ConnectionRepository, SELECT_WITHOUT_CREDENTIALS } from './connection.repository'
 
 type ProviderWalletsAndRelations = ProviderWallet & {
-  connections: { connection: Partial<ProviderConnection> }[]
   accounts: Array<
     ProviderAccount & {
       addresses: ProviderAddress[]
@@ -24,7 +17,6 @@ type ProviderWalletsAndRelations = ProviderWallet & {
 
 type FindAllFilters = {
   filters?: {
-    connectionId?: string
     walletIds?: string[]
     externalIds?: string[]
   }
@@ -39,11 +31,7 @@ export class WalletRepository {
   constructor(private prismaService: PrismaService) {}
 
   static parseModel(wallet: ProviderWalletsAndRelations): Wallet {
-    const { connections, accounts, id, ...walletData } = wallet
-
-    const validConnections = connections.map((join) => {
-      return ConnectionRepository.parseModel(join.connection)
-    })
+    const { accounts, id, ...walletData } = wallet
 
     const mappedAccounts = accounts.map((account) => {
       return AccountRepository.parseModel(account)
@@ -52,8 +40,7 @@ export class WalletRepository {
     const parsedWallet = Wallet.parse({
       ...walletData,
       walletId: id,
-      accounts: mappedAccounts,
-      connections: validConnections
+      accounts: mappedAccounts
     })
 
     return parsedWallet
@@ -66,6 +53,7 @@ export class WalletRepository {
       externalId: entity.externalId,
       label: entity.label || null,
       createdAt: entity.createdAt,
+      connectionId: entity.connectionId,
       updatedAt: entity.updatedAt,
       provider: entity.provider
     }
@@ -81,13 +69,6 @@ export class WalletRepository {
           include: {
             addresses: true
           }
-        },
-        connections: {
-          include: {
-            connection: {
-              select: SELECT_WITHOUT_CREDENTIALS
-            }
-          }
         }
       },
       ...pagination
@@ -101,53 +82,45 @@ export class WalletRepository {
     }
   }
 
-  async findById(clientId: string, id: string): Promise<Wallet> {
-    const wallet = await this.prismaService.providerWallet.findUnique({
-      where: { clientId, id },
+  async findById({ clientId, connectionId }: ConnectionScope, id: string): Promise<Wallet> {
+    const model = await this.prismaService.providerWallet.findUnique({
+      where: {
+        clientId,
+        connectionId,
+        id
+      },
       include: {
         accounts: {
           include: {
             addresses: true
           }
-        },
-        connections: {
-          include: {
-            connection: {
-              select: SELECT_WITHOUT_CREDENTIALS
-            }
-          }
         }
       }
     })
 
-    if (!wallet) {
+    if (!model) {
       throw new NotFoundException({
         message: 'Wallet not found',
         context: { walletId: id }
       })
     }
 
-    return WalletRepository.parseModel(wallet)
+    return WalletRepository.parseModel(model)
   }
 
-  async findAll(clientId: string, options?: FindAllOptions): Promise<PaginatedResult<Wallet>> {
+  async findAll(
+    { clientId, connectionId }: ConnectionScope,
+    options?: FindAllOptions
+  ): Promise<PaginatedResult<Wallet>> {
     const pagination = applyPagination(options?.pagination)
     const result = await this.prismaService.providerWallet.findMany({
       where: {
         clientId,
+        connectionId,
         ...(options?.filters?.walletIds
           ? {
               id: {
                 in: options?.filters.walletIds
-              }
-            }
-          : {}),
-        ...(options?.filters?.connectionId
-          ? {
-              connections: {
-                some: {
-                  connectionId: options?.filters.connectionId
-                }
               }
             }
           : {})
@@ -156,13 +129,6 @@ export class WalletRepository {
         accounts: {
           include: {
             addresses: true
-          }
-        },
-        connections: {
-          include: {
-            connection: {
-              select: SELECT_WITHOUT_CREDENTIALS
-            }
           }
         }
       },
@@ -189,13 +155,6 @@ export class WalletRepository {
             addresses: true
           },
           ...pagination
-        },
-        connections: {
-          include: {
-            connection: {
-              select: SELECT_WITHOUT_CREDENTIALS
-            }
-          }
         }
       }
     })
@@ -215,16 +174,10 @@ export class WalletRepository {
 
   async bulkCreate(wallets: Wallet[]): Promise<Wallet[]> {
     const providerWallets: ProviderWallet[] = wallets.map(WalletRepository.parseEntity)
-    const providerWalletConnections: ProviderWalletConnection[] = wallets.flatMap(this.getWalletConnectionModel)
 
     await this.prismaService.$transaction(async (tx) => {
       await tx.providerWallet.createMany({
         data: providerWallets,
-        skipDuplicates: true
-      })
-
-      await tx.providerWalletConnection.createMany({
-        data: providerWalletConnections,
         skipDuplicates: true
       })
     })
@@ -233,34 +186,13 @@ export class WalletRepository {
   }
 
   async update(wallet: UpdateWallet) {
-    const providerWalletConnections = wallet.connections.map((connection) => {
-      return {
-        clientId: wallet.clientId,
-        walletId: wallet.walletId,
-        connectionId: connection.connectionId,
-        createdAt: wallet.updatedAt
-      }
-    })
-
-    await this.prismaService.providerWalletConnection.createMany({
-      data: providerWalletConnections,
-      skipDuplicates: true
-    })
-
-    const updatedWallet = await this.prismaService.providerWallet.update({
+    const model = await this.prismaService.providerWallet.update({
       where: { id: wallet.walletId },
       data: {
         updatedAt: wallet.updatedAt,
         label: wallet.label
       },
       include: {
-        connections: {
-          include: {
-            connection: {
-              select: SELECT_WITHOUT_CREDENTIALS
-            }
-          }
-        },
         accounts: {
           include: {
             addresses: true
@@ -269,17 +201,6 @@ export class WalletRepository {
       }
     })
 
-    return WalletRepository.parseModel(updatedWallet)
-  }
-
-  private getWalletConnectionModel(wallet: Wallet): ProviderWalletConnection[] {
-    return wallet.connections.map((connection) => {
-      return {
-        clientId: wallet.clientId,
-        walletId: wallet.walletId,
-        connectionId: connection.connectionId,
-        createdAt: wallet.createdAt
-      }
-    })
+    return WalletRepository.parseModel(model)
   }
 }

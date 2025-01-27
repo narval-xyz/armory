@@ -2,7 +2,7 @@
 
 import { ProviderAccount, ProviderAddress, ProviderConnection, ProviderWallet } from '@prisma/client/vault'
 import { ConnectionRepository } from '../../persistence/repository/connection.repository'
-import { TEST_ACCOUNTS, TEST_ADDRESSES, TEST_CONNECTIONS, TEST_WALLET_CONNECTIONS } from './mock-data'
+import { TEST_ACCOUNTS, TEST_ADDRESSES, TEST_CONNECTIONS } from './mock-data'
 
 // Helper function to get expected connection format for API response
 export const getExpectedConnection = (model: ProviderConnection) => {
@@ -27,7 +27,8 @@ export const getExpectedAddress = (address: ProviderAddress) => {
     ...addressWithoutId,
     addressId: address.id,
     createdAt: new Date(address.createdAt).toISOString(),
-    updatedAt: new Date(address.updatedAt).toISOString()
+    updatedAt: new Date(address.updatedAt).toISOString(),
+    connectionId: address.connectionId
   }
 }
 
@@ -48,22 +49,21 @@ export const getExpectedAccount = (account: ProviderAccount) => {
 // Helper function to get expected wallet format with accounts and connections
 export const getExpectedWallet = (wallet: ProviderWallet) => {
   const accounts = TEST_ACCOUNTS.filter((acc) => acc.walletId === wallet.id)
-  const walletConnections = TEST_WALLET_CONNECTIONS.filter((conn) => conn.walletId === wallet.id)
-  const connections = TEST_CONNECTIONS.filter((conn) =>
-    walletConnections.some((wc) => wc.connectionId === conn.id)
-  ).map((c) => ({
+  const connections = TEST_CONNECTIONS.filter((conn) => conn.id === wallet.connectionId).map((c) => ({
     ...c,
     credentials: c.credentials ? JSON.stringify(c.credentials) : null,
     integrity: null
   }))
-  const { id, ...walletWithoutId } = wallet
+  const { id, connectionId, ...walletWithoutId } = wallet
 
-  return {
+  const exp = {
     ...walletWithoutId,
     walletId: wallet.id,
-    accounts: accounts.map(getExpectedAccount),
     connections: connections.map(getExpectedConnection),
     createdAt: wallet.createdAt.toISOString(),
-    updatedAt: wallet.updatedAt.toISOString()
+    updatedAt: wallet.updatedAt.toISOString(),
+    accounts: accounts.map(getExpectedAccount)
   }
+
+  return exp
 }

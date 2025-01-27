@@ -1,24 +1,28 @@
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import { LoggerModule, REQUEST_HEADER_CLIENT_ID } from '@narval/nestjs-shared'
 import { HttpStatus, INestApplication } from '@nestjs/common'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 import { Test, TestingModule } from '@nestjs/testing'
-import request from 'supertest'
-import { ClientService } from '../../../client/core/service/client.service'
+import { mock } from 'jest-mock-extended'
+import { map } from 'lodash'
 import { MainModule } from '../../../main.module'
 import { ProvisionService } from '../../../provision.service'
 import { KeyValueRepository } from '../../../shared/module/key-value/core/repository/key-value.repository'
 import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
-import { getExpectedAddress } from '../util/map-db-to-returned'
-import { TEST_ADDRESSES, TEST_CLIENT_ID, getJwsd, testClient, testUserPrivateJwk } from '../util/mock-data'
+import { PaginatedAddressesDto } from '../../http/rest/dto/response/paginated-addresses.dto'
+import { anchorageAddressOne, anchorageConnectionOne, seed, userPrivateKey } from '../../shared/__test__/fixture'
+import { signedRequest } from '../../shared/__test__/request'
+import { REQUEST_HEADER_CONNECTION_ID } from '../../shared/constant'
+
+import '../../shared/__test__/matcher'
 
 describe('Address', () => {
   let app: INestApplication
   let module: TestingModule
   let testPrismaService: TestPrismaService
   let provisionService: ProvisionService
-  let clientService: ClientService
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -32,12 +36,16 @@ describe('Address', () => {
       .useValue({
         keyring: getTestRawAesKeyring()
       })
+      // Mock the event emitter because we don't want to send a
+      // connection.activated event after the creation.
+      .overrideProvider(EventEmitter2)
+      .useValue(mock<EventEmitter2>())
       .compile()
 
     app = module.createNestApplication()
     testPrismaService = module.get(TestPrismaService)
     provisionService = module.get<ProvisionService>(ProvisionService)
-    clientService = module.get<ClientService>(ClientService)
+
     await testPrismaService.truncateAll()
   })
 
@@ -51,34 +59,21 @@ describe('Address', () => {
     await testPrismaService.truncateAll()
     await provisionService.provision()
 
-    await clientService.save(testClient)
-    await testPrismaService.seedBrokerTestData()
+    await seed(module)
 
     await app.init()
   })
 
   describe('GET /addresses', () => {
     it('returns the list of addresses for the client', async () => {
-      const { status, body } = await request(app.getHttpServer())
+      const { status, body } = await signedRequest(app, userPrivateKey)
         .get(`/provider/addresses`)
-        .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
-        .set(
-          'detached-jws',
-          await getJwsd({
-            userPrivateJwk: testUserPrivateJwk,
-            requestUrl: '/provider/addresses',
-            payload: {},
-            htm: 'GET'
-          })
-        )
+        .set(REQUEST_HEADER_CLIENT_ID, anchorageConnectionOne.clientId)
+        .set(REQUEST_HEADER_CONNECTION_ID, anchorageConnectionOne.connectionId)
+        .send()
 
-      expect(body).toEqual({
-        data: TEST_ADDRESSES.map(getExpectedAddress).reverse(),
-        page: {
-          next: null
-        }
-      })
-
+      expect(body).toMatchZodSchema(PaginatedAddressesDto.schema)
+      expect(body.data).toHaveLength(2)
       expect(status).toEqual(HttpStatus.OK)
     })
   })
@@ -86,142 +81,82 @@ describe('Address', () => {
   describe('GET /addresses with pagination', () => {
     it('returns limited number of addresses when limit parameter is provided', async () => {
       const limit = 1
-      const { body } = await request(app.getHttpServer())
-        .get(`/provider/addresses?limit=${limit}`)
-        .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
-        .set(
-          'detached-jws',
-          await getJwsd({
-            userPrivateJwk: testUserPrivateJwk,
-            requestUrl: `/provider/addresses?limit=${limit}`,
-            payload: {},
-            htm: 'GET'
-          })
-        )
+      const { body } = await signedRequest(app, userPrivateKey)
+        .get('/provider/addresses')
+        .query({ limit })
+        .set(REQUEST_HEADER_CLIENT_ID, anchorageConnectionOne.clientId)
+        .set(REQUEST_HEADER_CONNECTION_ID, anchorageConnectionOne.connectionId)
+        .send()
 
       expect(body.data).toHaveLength(limit)
       expect(body.page).toHaveProperty('next')
     })
 
     it('returns next page of results using cursor', async () => {
-      // First request
-      const firstResponse = await request(app.getHttpServer())
-        .get('/provider/addresses?limit=1')
-        .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
-        .set(
-          'detached-jws',
-          await getJwsd({
-            userPrivateJwk: testUserPrivateJwk,
-            requestUrl: '/provider/addresses?limit=1',
-            payload: {},
-            htm: 'GET'
-          })
-        )
-        .expect(HttpStatus.OK)
+      const firstResponse = await signedRequest(app, userPrivateKey)
+        .get('/provider/addresses')
+        .query({ limit: 1 })
+        .set(REQUEST_HEADER_CLIENT_ID, anchorageConnectionOne.clientId)
+        .set(REQUEST_HEADER_CONNECTION_ID, anchorageConnectionOne.connectionId)
+        .send()
 
       const cursor = firstResponse.body.page?.next
 
       expect(cursor).toBeDefined()
 
-      // Second request using the cursor
-      const secondResponse = await request(app.getHttpServer())
-        .get(`/provider/addresses?cursor=${cursor}&limit=1`)
-        .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
-        .set(
-          'detached-jws',
-          await getJwsd({
-            userPrivateJwk: testUserPrivateJwk,
-            requestUrl: `/provider/addresses?cursor=${cursor}&limit=1`,
-            payload: {},
-            htm: 'GET'
-          })
-        )
-        .expect(HttpStatus.OK)
+      const secondResponse = await signedRequest(app, userPrivateKey)
+        .get('/provider/addresses')
+        .query({ cursor, limit: 1 })
+        .set(REQUEST_HEADER_CLIENT_ID, anchorageConnectionOne.clientId)
+        .set(REQUEST_HEADER_CONNECTION_ID, anchorageConnectionOne.connectionId)
+        .send()
 
       expect(secondResponse.body.data).toHaveLength(1)
       expect(secondResponse.body.data[0].addressId).not.toBe(firstResponse.body.data[0].addressId)
     })
 
     it('handles descending orderBy createdAt parameter correctly', async () => {
-      const { status, body } = await request(app.getHttpServer())
-        .get('/provider/addresses?orderBy=createdAt&desc=true')
-        .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
-        .set(
-          'detached-jws',
-          await getJwsd({
-            userPrivateJwk: testUserPrivateJwk,
-            requestUrl: '/provider/addresses?orderBy=createdAt&desc=true',
-            payload: {},
-            htm: 'GET'
-          })
-        )
+      const { status, body } = await signedRequest(app, userPrivateKey)
+        .get('/provider/addresses')
+        .query({ orderBy: 'createdAt', desc: true })
+        .set(REQUEST_HEADER_CLIENT_ID, anchorageConnectionOne.clientId)
+        .set(REQUEST_HEADER_CONNECTION_ID, anchorageConnectionOne.connectionId)
+        .send()
 
       const addresses = body.data
 
-      expect(addresses).toHaveLength(TEST_ADDRESSES.length)
-      expect(new Date(addresses[1].createdAt).getTime()).toBeGreaterThanOrEqual(
-        new Date(addresses[0].createdAt).getTime()
-      )
-
+      expect(addresses).toHaveLength(2)
+      expect(map(addresses, 'externalId')).toEqual(['address-external-id-two', 'address-external-id-one'])
       expect(status).toEqual(HttpStatus.OK)
     })
   })
 
   describe('GET /addresses/:addressId', () => {
     it('returns the address details', async () => {
-      const address = TEST_ADDRESSES[0]
-      const { status, body } = await request(app.getHttpServer())
-        .get(`/provider/addresses/${address.id}`)
-        .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
-        .set(
-          'detached-jws',
-          await getJwsd({
-            userPrivateJwk: testUserPrivateJwk,
-            requestUrl: `/provider/addresses/${address.id}`,
-            payload: {},
-            htm: 'GET'
-          })
-        )
+      const { status, body } = await signedRequest(app, userPrivateKey)
+        .get(`/provider/addresses/${anchorageAddressOne.addressId}`)
+        .set(REQUEST_HEADER_CLIENT_ID, anchorageConnectionOne.clientId)
+        .set(REQUEST_HEADER_CONNECTION_ID, anchorageConnectionOne.connectionId)
+        .send()
 
       expect(body).toEqual({
-        data: getExpectedAddress(address)
+        data: {
+          ...anchorageAddressOne,
+          createdAt: anchorageAddressOne.createdAt.toISOString(),
+          updatedAt: anchorageAddressOne.updatedAt.toISOString()
+        }
       })
-
-      expect(status).toBe(HttpStatus.OK)
+      expect(status).toEqual(HttpStatus.OK)
     })
 
     it('returns 404 with proper error message for non-existent address', async () => {
-      const { status } = await request(app.getHttpServer())
+      const { status } = await signedRequest(app, userPrivateKey)
         .get('/provider/addresses/non-existent')
-        .set(REQUEST_HEADER_CLIENT_ID, TEST_CLIENT_ID)
-        .set(
-          'detached-jws',
-          await getJwsd({
-            userPrivateJwk: testUserPrivateJwk,
-            requestUrl: '/provider/addresses/non-existent',
-            payload: {},
-            htm: 'GET'
-          })
-        )
+        .set(REQUEST_HEADER_CLIENT_ID, anchorageConnectionOne.clientId)
+        .set(REQUEST_HEADER_CONNECTION_ID, anchorageConnectionOne.connectionId)
+        .send()
 
-      expect(status).toBe(HttpStatus.NOT_FOUND)
-    })
-
-    it('returns 404 when accessing address from different client', async () => {
-      const { status } = await request(app.getHttpServer())
-        .get(`/provider/addresses/${TEST_ADDRESSES[0].id}`)
-        .set(REQUEST_HEADER_CLIENT_ID, 'different-client')
-        .set(
-          'detached-jws',
-          await getJwsd({
-            userPrivateJwk: testUserPrivateJwk,
-            requestUrl: `/provider/addresses/${TEST_ADDRESSES[0].id}`,
-            payload: {},
-            htm: 'GET'
-          })
-        )
-
-      expect(status).toBe(HttpStatus.NOT_FOUND)
+      expect(status).toEqual(HttpStatus.NOT_FOUND)
     })
   })
 })

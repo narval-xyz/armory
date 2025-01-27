@@ -21,7 +21,7 @@ import { WalletRepository } from '../../../../../persistence/repository/wallet.r
 import { AssetSeed } from '../../../../../persistence/seed/asset.seed'
 import { NetworkSeed } from '../../../../../persistence/seed/network.seed'
 import { setupMockServer, useRequestSpy } from '../../../../../shared/__test__/mock-server'
-import { Connection, ConnectionStatus, ConnectionWithCredentials } from '../../../../type/connection.type'
+import { ConnectionStatus, ConnectionWithCredentials } from '../../../../type/connection.type'
 import { Account, Address, Wallet } from '../../../../type/indexed-resources.type'
 import { Provider } from '../../../../type/provider.type'
 import {
@@ -94,6 +94,7 @@ describe(FireblocksTransferService.name, () => {
     clientId,
     createdAt: new Date(),
     externalId: randomUUID(),
+    connectionId: connection.connectionId,
     label: 'Account 1',
     networkId: 'POLYGON',
     provider: Provider.FIREBLOCKS,
@@ -105,6 +106,7 @@ describe(FireblocksTransferService.name, () => {
     accountId: randomUUID(),
     addresses: [],
     clientId,
+    connectionId: connection.connectionId,
     createdAt: new Date(),
     externalId: randomUUID(),
     label: 'Account 2',
@@ -116,7 +118,7 @@ describe(FireblocksTransferService.name, () => {
 
   const walletOne: Wallet = {
     clientId,
-    connections: [Connection.parse(connection)],
+    connectionId: connection.connectionId,
     createdAt: new Date(),
     externalId: randomUUID(),
     label: null,
@@ -127,7 +129,7 @@ describe(FireblocksTransferService.name, () => {
 
   const walletTwo: Wallet = {
     clientId,
-    connections: [Connection.parse(connection)],
+    connectionId: connection.connectionId,
     createdAt: new Date(),
     externalId: randomUUID(),
     label: null,
@@ -141,6 +143,7 @@ describe(FireblocksTransferService.name, () => {
     address: '0x2c4895215973cbbd778c32c456c074b99daf8bf1',
     addressId: randomUUID(),
     clientId,
+    connectionId: connection.connectionId,
     createdAt: new Date(),
     externalId: randomUUID(),
     provider: Provider.FIREBLOCKS,
@@ -160,8 +163,10 @@ describe(FireblocksTransferService.name, () => {
     customerRefId: null,
     idempotenceId: null,
     externalId: randomUUID(),
+    connectionId: connection.connectionId,
     externalStatus: null,
     assetId: 'MATIC',
+    assetExternalId: null,
     memo: 'Test transfer',
     grossAmount: '0.00001',
     networkFeeAttribution: NetworkFeeAttribution.DEDUCT,

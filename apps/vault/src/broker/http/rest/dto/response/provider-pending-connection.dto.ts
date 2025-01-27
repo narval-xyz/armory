@@ -17,7 +17,11 @@ export class ProviderPendingConnectionDto extends createZodDto(
         .object({
           keyId: z.string().optional(),
           jwk: publicKeySchema.optional(),
-          hex: hexSchema.optional()
+          hex: hexSchema.optional(),
+          csr: z
+            .string()
+            .optional()
+            .describe('Certificate Signing Request PEM format of RSA public key encoded as base64')
         })
         .optional(),
       encryptionPublicKey: z.object({

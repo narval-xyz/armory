@@ -4,6 +4,7 @@ import { ProviderAccount, ProviderAddress } from '@prisma/client/vault'
 import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
 import { NotFoundException } from '../../core/exception/not-found.exception'
 import { Account, Address } from '../../core/type/indexed-resources.type'
+import { ConnectionScope } from '../../core/type/scope.type'
 import { AddressRepository } from './address.repository'
 
 type ProviderAccountAndRelations = ProviderAccount & {
@@ -12,7 +13,6 @@ type ProviderAccountAndRelations = ProviderAccount & {
 
 type FindAllFilters = {
   filters?: {
-    connectionId?: string
     walletId?: string
     externalIds?: string[]
   }
@@ -47,6 +47,7 @@ export class AccountRepository {
       clientId: account.clientId,
       createdAt: account.createdAt,
       externalId: account.externalId,
+      connectionId: account.connectionId,
       id: account.accountId,
       label: account.label || null,
       networkId: account.networkId,
@@ -74,9 +75,13 @@ export class AccountRepository {
     }
   }
 
-  async findById(clientId: string, accountId: string): Promise<Account> {
+  async findById({ clientId, connectionId }: ConnectionScope, accountId: string): Promise<Account> {
     const account = await this.prismaService.providerAccount.findUnique({
-      where: { clientId, id: accountId },
+      where: {
+        clientId,
+        connectionId,
+        id: accountId
+      },
       include: {
         addresses: true
       }
@@ -145,26 +150,19 @@ export class AccountRepository {
     return true
   }
 
-  async findAll(clientId: string, options?: FindAllOptions): Promise<PaginatedResult<Account>> {
+  async findAll(
+    { clientId, connectionId }: ConnectionScope,
+    options?: FindAllOptions
+  ): Promise<PaginatedResult<Account>> {
     const pagination = applyPagination(options?.pagination)
 
     const models = await this.prismaService.providerAccount.findMany({
       where: {
         clientId,
+        connectionId,
         ...(options?.filters?.walletId
           ? {
               walletId: options.filters.walletId
-            }
-          : {}),
-        ...(options?.filters?.connectionId
-          ? {
-              wallet: {
-                connections: {
-                  some: {
-                    connectionId: options?.filters?.connectionId
-                  }
-                }
-              }
             }
           : {}),
         ...(options?.filters?.externalIds

@@ -28,6 +28,16 @@ import { Provider } from '../../core/type/provider.type'
 // Response Schema
 //
 
+const AssetType = z.object({
+  assetType: z.string(),
+  decimals: z.number(),
+  featureSupport: z.array(z.string()),
+  name: z.string(),
+  networkId: z.string(),
+  onchainIdentifier: z.string().optional()
+})
+type AssetType = z.infer<typeof AssetType>
+
 const Amount = z.object({
   quantity: z.string(),
   assetType: z.string(),
@@ -83,7 +93,12 @@ const Wallet = z.object({
   networkId: z.string(),
   type: z.literal('WALLET')
 })
-type Wallet = z.infer<typeof Wallet>
+export type Wallet = z.infer<typeof Wallet>
+
+const GetWalletResponse = z.object({
+  data: Wallet
+})
+type GetWalletResponse = z.infer<typeof GetWalletResponse>
 
 const Address = z.object({
   address: z.string(),
@@ -203,6 +218,11 @@ const GetTrustedDestinationsResponse = z.object({
   })
 })
 type GetTrustedDestinationsResponse = z.infer<typeof GetTrustedDestinationsResponse>
+
+const GetAssetTypeResponse = z.object({
+  data: z.array(AssetType)
+})
+type GetAssetTypeResponse = z.infer<typeof GetAssetTypeResponse>
 
 //
 // Request Type
@@ -479,10 +499,35 @@ export class AnchorageClient {
     )
   }
 
-  async getTrustedDestinations(opts: RequestOptions): Promise<TrustedDestination[]> {
-    this.logger.log('Requesting Anchorage known addresses page', {
+  async getWallet(opts: RequestOptions & { walletId: string }): Promise<Wallet> {
+    const { apiKey, signKey, url, walletId } = opts
+
+    this.logger.log('Requesting Anchorage wallet', { url })
+
+    return lastValueFrom(
+      this.sendSignedRequest({
+        schema: GetWalletResponse,
+        request: {
+          url: `${url}/v2/wallets/${walletId}`,
+          method: 'GET'
+        },
+        apiKey,
+        signKey
+      }).pipe(
+        map(({ data }) => data),
+        tap((wallet) => {
+          this.logger.log('Successfully fetched Anchorage wallet', { url, walletId: wallet.walletId })
+        }),
+        this.handleError('Failed to get Anchorage wallet')
+      )
+    )
+  }
+
+  async getTrustedDestinations(opts: RequestOptions & { afterId?: string }): Promise<GetTrustedDestinationsResponse> {
+    this.logger.log('Requesting Anchorage trusted destinations', {
       url: opts.url,
-      limit: opts.limit
+      limit: opts.limit,
+      afterId: opts.afterId
     })
     const { apiKey, signKey, url } = opts
 
@@ -491,44 +536,22 @@ export class AnchorageClient {
         schema: GetTrustedDestinationsResponse,
         request: {
           url: `${url}/v2/trusted_destinations`,
-          method: 'GET'
+          method: 'GET',
+          params: {
+            ...(opts.limit ? { limit: opts.limit } : {}),
+            ...(opts.afterId ? { afterId: opts.afterId } : {})
+          }
         },
         apiKey,
         signKey
       }).pipe(
-        expand((response) => {
-          if (response.page.next) {
-            return this.sendSignedRequest({
-              schema: GetTrustedDestinationsResponse,
-              request: {
-                url: `${url}${response.page.next}`,
-                method: 'GET'
-              },
-              apiKey,
-              signKey
-            })
-          }
-
-          return EMPTY
-        }),
         tap((response) => {
-          if (response.page.next) {
-            this.logger.log('Requesting Anchorage trusted-destinations next page', {
-              url: response.page.next,
-              limit: opts.limit
-            })
-          } else {
-            this.logger.log('Reached Anchorage trusted-destinations last page')
-          }
-        }),
-        reduce((trustedDestinations: TrustedDestination[], response) => [...trustedDestinations, ...response.data], []),
-        tap((trustedDestinations) => {
-          this.logger.log('Completed fetching all Anchorage trusted-destinations', {
-            trustedDestinationsCount: trustedDestinations.length,
-            url: opts.url
+          this.logger.log('Requesting Anchorage trusted destinations', {
+            url: response.page.next,
+            limit: opts.limit
           })
         }),
-        this.handleError('Failed to get Anchorage trusted-destinations')
+        this.handleError('Failed to get Anchorage trusted destinations')
       )
     )
   }
@@ -650,6 +673,33 @@ export class AnchorageClient {
           })
         }),
         this.handleError('Failed to create Anchorage transfer')
+      )
+    )
+  }
+
+  async getAssetTypes(opts: RequestOptions): Promise<AssetType[]> {
+    const { apiKey, signKey, url } = opts
+
+    this.logger.log('Request Anchorage asset types', { url })
+
+    return lastValueFrom(
+      this.sendSignedRequest({
+        schema: GetAssetTypeResponse,
+        request: {
+          url: `${url}/v2/asset-types`,
+          method: 'GET'
+        },
+        apiKey,
+        signKey
+      }).pipe(
+        map((response) => response.data),
+        tap((assetTypes) => {
+          this.logger.log('Successfully fetched Anchorage asset types', {
+            url,
+            assetTypesCount: assetTypes.length
+          })
+        }),
+        this.handleError('Failed to fetch Anchorage asset types')
       )
     )
   }

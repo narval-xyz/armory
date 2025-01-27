@@ -4,7 +4,6 @@ import {
   TEST_ACCOUNTS,
   TEST_ADDRESSES,
   TEST_CONNECTIONS,
-  TEST_WALLET_CONNECTIONS,
   TEST_WALLETS,
   TEST_WALLETS_WITH_SAME_TIMESTAMP
 } from '../../../../broker/__test__/util/mock-data'
@@ -54,10 +53,6 @@ export class TestPrismaService {
 
     await client.providerWallet.createMany({
       data: TEST_WALLETS_WITH_SAME_TIMESTAMP
-    })
-
-    await client.providerWalletConnection.createMany({
-      data: TEST_WALLET_CONNECTIONS
     })
 
     await client.providerAccount.createMany({

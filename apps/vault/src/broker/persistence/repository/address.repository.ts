@@ -6,12 +6,14 @@ import { PrismaService } from '../../../shared/module/persistence/service/prisma
 import { NotFoundException } from '../../core/exception/not-found.exception'
 import { Address } from '../../core/type/indexed-resources.type'
 import { Provider } from '../../core/type/provider.type'
+import { ConnectionScope } from '../../core/type/scope.type'
 
 type FindAllFilters = {
   filters?: {
     externalIds?: string[]
     addresses?: string[]
     provider?: Provider
+    connectionId?: string
   }
 }
 
@@ -36,6 +38,7 @@ export class AddressRepository {
       accountId: entity.accountId,
       address: entity.address,
       clientId: entity.clientId,
+      connectionId: entity.connectionId,
       createdAt: entity.createdAt,
       externalId: entity.externalId,
       id: entity.addressId,
@@ -59,9 +62,13 @@ export class AddressRepository {
     }
   }
 
-  async findById(clientId: string, addressId: string): Promise<Address> {
+  async findById({ clientId, connectionId }: ConnectionScope, addressId: string): Promise<Address> {
     const address = await this.prismaService.providerAddress.findUnique({
-      where: { clientId, id: addressId }
+      where: {
+        clientId,
+        connectionId,
+        id: addressId
+      }
     })
 
     if (!address) {
@@ -88,12 +95,13 @@ export class AddressRepository {
     return models.map(AddressRepository.parseModel)
   }
 
-  async findAll(clientId: string, opts?: FindAllOptions): Promise<PaginatedResult<Address>> {
+  async findAll({ clientId, connectionId }: ConnectionScope, opts?: FindAllOptions): Promise<PaginatedResult<Address>> {
     const pagination = applyPagination(opts?.pagination)
 
     const models = await this.prismaService.providerAddress.findMany({
       where: {
         clientId,
+        connectionId,
         ...(opts?.filters?.provider
           ? {
               provider: opts.filters.provider
@@ -111,6 +119,11 @@ export class AddressRepository {
               externalId: {
                 in: opts.filters.externalIds
               }
+            }
+          : {}),
+        ...(opts?.filters?.connectionId
+          ? {
+              connectionId: opts.filters.connectionId
             }
           : {})
       },

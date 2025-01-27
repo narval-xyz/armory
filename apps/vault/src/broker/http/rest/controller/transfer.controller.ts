@@ -27,6 +27,7 @@ export class TransferController {
   })
   @ApiHeader({
     name: REQUEST_HEADER_CONNECTION_ID,
+    description: 'The provider connection through which the resource is accessed',
     required: true
   })
   @ApiResponse({
@@ -39,7 +40,7 @@ export class TransferController {
     @ConnectionId() connectionId: string,
     @Body() body: SendTransferDto
   ): Promise<TransferDto> {
-    const internalTransfer = await this.transferService.send(clientId, connectionId, body)
+    const internalTransfer = await this.transferService.send({ clientId, connectionId }, body)
 
     return TransferDto.create({ data: internalTransfer })
   }
@@ -50,21 +51,22 @@ export class TransferController {
     summary: 'Retrieve transfer details',
     description: 'This endpoint retrieves the details of a specific transfer using its ID.'
   })
+  @ApiHeader({
+    name: REQUEST_HEADER_CONNECTION_ID,
+    description: 'The provider connection through which the resource is accessed',
+    required: true
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'The transfer details were successfully retrieved.',
     type: TransferDto
-  })
-  @ApiHeader({
-    name: REQUEST_HEADER_CONNECTION_ID,
-    required: true
   })
   async getById(
     @ClientId() clientId: string,
     @ConnectionId() connectionId: string,
     @Param('transferId') transferId: string
   ) {
-    const internalTransfer = await this.transferService.findById(clientId, connectionId, transferId)
+    const internalTransfer = await this.transferService.findById({ clientId, connectionId }, transferId)
 
     return TransferDto.create({ data: internalTransfer })
   }

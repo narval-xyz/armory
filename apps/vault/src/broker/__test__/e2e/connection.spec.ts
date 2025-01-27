@@ -35,17 +35,7 @@ import { ConnectionService } from '../../core/service/connection.service'
 import { SyncService } from '../../core/service/sync.service'
 import { ConnectionStatus } from '../../core/type/connection.type'
 import { Provider } from '../../core/type/provider.type'
-import { ConnectionActivatedEvent } from '../../shared/event/connection-activated.event'
-import { getExpectedAccount, getExpectedWallet } from '../util/map-db-to-returned'
-import {
-  TEST_ACCOUNTS,
-  TEST_CONNECTIONS,
-  TEST_WALLETS,
-  TEST_WALLET_CONNECTIONS,
-  getJwsd,
-  testClient,
-  testUserPrivateJwk
-} from '../util/mock-data'
+import { getJwsd, testClient, testUserPrivateJwk } from '../util/mock-data'
 
 import '../../shared/__test__/matcher'
 
@@ -67,12 +57,6 @@ describe('Connection', () => {
   const clientId = testClient.clientId
 
   beforeAll(async () => {
-    // We mock the sync service here to prevent race conditions
-    // during the tests. This is because the ConnectionService sends a promise
-    // to start the sync but does not wait for it to complete.
-    const syncServiceMock = mock<SyncService>()
-    syncServiceMock.start.mockResolvedValue({ started: true, syncs: [] })
-
     eventEmitterMock = mock<EventEmitter2>()
     eventEmitterMock.emit.mockReturnValue(true)
 
@@ -82,8 +66,6 @@ describe('Connection', () => {
       .overrideModule(LoggerModule)
       .useModule(LoggerModule.forTest())
       .overrideProvider(SyncService)
-      .useValue(syncServiceMock)
-      .overrideProvider(EventEmitter2)
       .useValue(eventEmitterMock)
       .overrideProvider(KeyValueRepository)
       .useValue(new InMemoryKeyValueRepository())
@@ -171,99 +153,6 @@ describe('Connection', () => {
   })
 
   describe('POST /provider/connections', () => {
-    it('emits connection.activated event on connection create', async () => {
-      const privateKey = await generateJwk(Alg.EDDSA)
-      const privateKeyHex = await privateKeyToHex(privateKey)
-      const connectionId = uuid()
-      const connection = {
-        provider: Provider.ANCHORAGE,
-        connectionId,
-        label: 'Test Anchorage Connection',
-        url,
-        credentials: {
-          apiKey: 'test-api-key',
-          privateKey: privateKeyHex
-        }
-      }
-
-      await request(app.getHttpServer())
-        .post('/provider/connections')
-        .set(REQUEST_HEADER_CLIENT_ID, clientId)
-        .set(
-          'detached-jws',
-          await getJwsd({
-            userPrivateJwk,
-            requestUrl: '/provider/connections',
-            payload: connection
-          })
-        )
-        .send(connection)
-
-      const createdConnectionWithCredentials = await connectionService.findWithCredentialsById(
-        clientId,
-        connection.connectionId
-      )
-
-      expect(eventEmitterMock.emit).toHaveBeenCalledWith(
-        ConnectionActivatedEvent.EVENT_NAME,
-        new ConnectionActivatedEvent(createdConnectionWithCredentials)
-      )
-    })
-
-    it('emits connection.activated on connection activation', async () => {
-      const connectionId = uuid()
-      const provider = Provider.ANCHORAGE
-      const label = 'Test Anchorage Connection'
-      const credentials = { apiKey: 'test-api-key' }
-
-      await request(app.getHttpServer())
-        .post('/provider/connections/initiate')
-        .set(REQUEST_HEADER_CLIENT_ID, clientId)
-        .set(
-          'detached-jws',
-          await getJwsd({
-            userPrivateJwk,
-            requestUrl: '/provider/connections/initiate',
-            payload: { connectionId, provider }
-          })
-        )
-        .send({ connectionId, provider })
-        .expect(HttpStatus.CREATED)
-
-      await request(app.getHttpServer())
-        .post('/provider/connections')
-        .set(REQUEST_HEADER_CLIENT_ID, clientId)
-        .set(
-          'detached-jws',
-          await getJwsd({
-            userPrivateJwk,
-            requestUrl: '/provider/connections',
-            payload: {
-              connectionId,
-              credentials,
-              label,
-              provider,
-              url
-            }
-          })
-        )
-        .send({
-          connectionId,
-          credentials,
-          label,
-          provider,
-          url
-        })
-        .expect(HttpStatus.CREATED)
-
-      const createdConnectionWithCredentials = await connectionService.findWithCredentialsById(clientId, connectionId)
-
-      expect(eventEmitterMock.emit).toHaveBeenCalledWith(
-        ConnectionActivatedEvent.EVENT_NAME,
-        new ConnectionActivatedEvent(createdConnectionWithCredentials)
-      )
-    })
-
     it('overrides the existing connection private key when providing a new one on pending connection activation', async () => {
       const connectionId = uuid()
       const provider = Provider.ANCHORAGE
@@ -336,7 +225,7 @@ describe('Connection', () => {
       expect(status).toEqual(HttpStatus.CREATED)
 
       const createdConnection = await connectionService.findById(clientId, connectionId)
-      const createdCredential = await connectionService.findCredentials(createdConnection)
+      const createdCredential = await connectionService.findCredentials({ ...createdConnection, provider })
 
       expect(createdConnection).toMatchObject({
         clientId,
@@ -654,6 +543,68 @@ describe('Connection', () => {
         })
       })
     })
+    describe('bitgo', () => {
+      it('creates a new connection to bitgo with plain credentials', async () => {
+        const connectionId = uuid()
+        const connection = {
+          provider: Provider.BITGO,
+          connectionId,
+          label: 'Test Bitgo Connection',
+          url,
+          credentials: {
+            apiKey: 'test-api-key',
+            walletPassphrase: 'test-wallet-passphrase'
+          }
+        }
+
+        const { status, body } = await request(app.getHttpServer())
+          .post('/provider/connections')
+          .set(REQUEST_HEADER_CLIENT_ID, clientId)
+          .set(
+            'detached-jws',
+            await getJwsd({
+              userPrivateJwk,
+              requestUrl: '/provider/connections',
+              payload: connection
+            })
+          )
+          .send(connection)
+
+        const createdConnection = await connectionService.findById(clientId, connection.connectionId)
+        const createdCredentials = await connectionService.findCredentials(createdConnection)
+
+        expect(body).toEqual({
+          data: {
+            clientId,
+            connectionId,
+            url,
+            createdAt: expect.any(String),
+            label: connection.label,
+            provider: connection.provider,
+            status: ConnectionStatus.ACTIVE,
+            updatedAt: expect.any(String)
+          }
+        })
+
+        expect(status).toEqual(HttpStatus.CREATED)
+
+        expect(createdConnection).toMatchObject({
+          clientId,
+          createdAt: expect.any(Date),
+          connectionId,
+          label: connection.label,
+          provider: connection.provider,
+          status: ConnectionStatus.ACTIVE,
+          updatedAt: expect.any(Date),
+          url: connection.url
+        })
+
+        expect(createdCredentials).toEqual({
+          apiKey: connection.credentials.apiKey,
+          walletPassphrase: connection.credentials.walletPassphrase
+        })
+      })
+    })
   })
 
   describe('DELETE /provider/connections/:id', () => {
@@ -902,143 +853,14 @@ describe('Connection', () => {
       expect(status).toEqual(HttpStatus.OK)
 
       const updatedConnection = await connectionService.findById(clientId, connection.connectionId)
-      const updatedCredentials = await connectionService.findCredentials(updatedConnection)
+      const updatedCredentials = await connectionService.findCredentials({
+        ...updatedConnection,
+        provider: Provider.ANCHORAGE
+      })
 
       expect(updatedCredentials?.apiKey).toEqual(newCredentials.apiKey)
       expect(updatedCredentials?.privateKey).toEqual(newPrivateKey)
       expect(updatedCredentials?.publicKey).toEqual(getPublicKey(newPrivateKey as Ed25519PrivateKey))
-    })
-  })
-
-  describe('GET /provider/connections/:connectionId/wallets', () => {
-    it('responds with wallets for the specific connection', async () => {
-      await testPrismaService.seedBrokerTestData()
-
-      const { status, body } = await request(app.getHttpServer())
-        .get(`/provider/connections/${TEST_CONNECTIONS[0].id}/wallets`)
-        .set(REQUEST_HEADER_CLIENT_ID, clientId)
-        .set(
-          'detached-jws',
-          await getJwsd({
-            userPrivateJwk,
-            requestUrl: `/provider/connections/${TEST_CONNECTIONS[0].id}/wallets`,
-            payload: {},
-            htm: 'GET'
-          })
-        )
-        .send()
-
-      expect(body).toMatchObject({
-        data: [getExpectedWallet(TEST_WALLETS[0])],
-        page: {}
-      })
-      expect(status).toEqual(HttpStatus.OK)
-    })
-
-    it('returns empty array when connection has no wallets', async () => {
-      await testPrismaService.seedBrokerTestData()
-
-      const connection = await connectionService.create(clientId, {
-        connectionId: uuid(),
-        label: 'test connection',
-        provider: Provider.ANCHORAGE,
-        url,
-        credentials: {
-          apiKey: 'test-api-key',
-          privateKey: await privateKeyToHex(await generateJwk(Alg.EDDSA))
-        }
-      })
-
-      const { status, body } = await request(app.getHttpServer())
-        .get(`/provider/connections/${connection.connectionId}/wallets`)
-        .set(REQUEST_HEADER_CLIENT_ID, clientId)
-        .set(
-          'detached-jws',
-          await getJwsd({
-            userPrivateJwk,
-            requestUrl: `/provider/connections/${connection.connectionId}/wallets`,
-            payload: {},
-            htm: 'GET'
-          })
-        )
-        .send()
-
-      expect(body).toMatchObject({
-        data: [],
-        page: {}
-      })
-      expect(status).toEqual(HttpStatus.OK)
-    })
-  })
-
-  describe('GET /provider/connections/:connectionId/accounts', () => {
-    it('responds with accounts for the specific connection', async () => {
-      expect.assertions(2)
-      await testPrismaService.seedBrokerTestData()
-
-      // Assume connection[0] has some wallets which in turn have accounts.
-      const connectionId = TEST_CONNECTIONS[0].id
-      const walletsForConnection = TEST_WALLET_CONNECTIONS.filter((wc) => wc.connectionId === connectionId).map(
-        (wc) => wc.walletId
-      )
-
-      const accountsForConnection = TEST_ACCOUNTS.filter((account) => walletsForConnection.includes(account.walletId))
-
-      const { status, body } = await request(app.getHttpServer())
-        .get(`/provider/connections/${connectionId}/accounts`)
-        .set(REQUEST_HEADER_CLIENT_ID, clientId)
-        .set(
-          'detached-jws',
-          await getJwsd({
-            userPrivateJwk,
-            requestUrl: `/provider/connections/${connectionId}/accounts`,
-            payload: {},
-            htm: 'GET'
-          })
-        )
-        .send()
-
-      expect(body).toMatchObject({
-        data: accountsForConnection.map(getExpectedAccount).reverse(),
-        page: {}
-      })
-      expect(status).toEqual(HttpStatus.OK)
-    })
-
-    it('returns empty array when connection has no accounts', async () => {
-      await testPrismaService.seedBrokerTestData()
-
-      // Create a new connection that doesn't have any associated wallets or accounts
-      const connection = await connectionService.create(clientId, {
-        connectionId: uuid(),
-        label: 'test connection',
-        provider: Provider.ANCHORAGE,
-        url,
-        credentials: {
-          apiKey: 'test-api-key',
-          privateKey: await privateKeyToHex(await generateJwk(Alg.EDDSA))
-        }
-      })
-
-      const { status, body } = await request(app.getHttpServer())
-        .get(`/provider/connections/${connection.connectionId}/accounts`)
-        .set(REQUEST_HEADER_CLIENT_ID, clientId)
-        .set(
-          'detached-jws',
-          await getJwsd({
-            userPrivateJwk,
-            requestUrl: `/provider/connections/${connection.connectionId}/accounts`,
-            payload: {},
-            htm: 'GET'
-          })
-        )
-        .send()
-
-      expect(body).toMatchObject({
-        data: [],
-        page: {}
-      })
-      expect(status).toEqual(HttpStatus.OK)
     })
   })
 })

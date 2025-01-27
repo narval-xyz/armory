@@ -8,6 +8,7 @@ import { AnchorageTransferService } from '../provider/anchorage/anchorage-transf
 import { FireblocksTransferService } from '../provider/fireblocks/fireblocks-transfer.service'
 import { isActiveConnection } from '../type/connection.type'
 import { Provider, ProviderTransferService } from '../type/provider.type'
+import { ConnectionScope } from '../type/scope.type'
 import { InternalTransfer, SendTransfer } from '../type/transfer.type'
 import { ConnectionService } from './connection.service'
 
@@ -22,7 +23,7 @@ export class TransferService {
     @Inject(TraceService) private readonly traceService: TraceService
   ) {}
 
-  async findById(clientId: string, connectionId: string, transferId: string): Promise<InternalTransfer> {
+  async findById({ clientId, connectionId }: ConnectionScope, transferId: string): Promise<InternalTransfer> {
     const span = this.traceService.startSpan(`${TransferService.name}.findById`)
 
     const connection = await this.connectionService.findWithCredentialsById(clientId, connectionId)
@@ -37,7 +38,7 @@ export class TransferService {
     return this.transferRepository.bulkCreate(transfers)
   }
 
-  async send(clientId: string, connectionId: string, sendTransfer: SendTransfer): Promise<InternalTransfer> {
+  async send({ clientId, connectionId }: ConnectionScope, sendTransfer: SendTransfer): Promise<InternalTransfer> {
     this.logger.log('Send transfer', { clientId, sendTransfer })
 
     const span = this.traceService.startSpan(`${TransferService.name}.send`)
@@ -71,7 +72,7 @@ export class TransferService {
     throw new BrokerException({
       message: 'Cannot find an active connection for the source',
       suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-      context: { connection, connectionId, clientId }
+      context: { connectionId, clientId }
     })
   }
 

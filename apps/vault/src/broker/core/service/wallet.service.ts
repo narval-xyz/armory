@@ -2,6 +2,7 @@ import { PaginatedResult } from '@narval/nestjs-shared'
 import { Injectable } from '@nestjs/common'
 import { FindAllOptions, WalletRepository } from '../../persistence/repository/wallet.repository'
 import { UpdateWallet, Wallet } from '../type/indexed-resources.type'
+import { ConnectionScope } from '../type/scope.type'
 
 @Injectable()
 export class WalletService {
@@ -11,7 +12,7 @@ export class WalletService {
     return this.walletRepository.bulkCreate(wallets)
   }
 
-  async bulkUpdate(wallets: Wallet[]): Promise<Wallet[]> {
+  async bulkUpdate(wallets: UpdateWallet[]): Promise<Wallet[]> {
     return Promise.all(wallets.map((wallet) => this.update(wallet)))
   }
 
@@ -19,11 +20,11 @@ export class WalletService {
     return this.walletRepository.update(wallet)
   }
 
-  async findAll(clientId: string, options?: FindAllOptions): Promise<PaginatedResult<Wallet>> {
-    return this.walletRepository.findAll(clientId, options)
+  async findAll(scope: ConnectionScope, options?: FindAllOptions): Promise<PaginatedResult<Wallet>> {
+    return this.walletRepository.findAll(scope, options)
   }
 
-  async findById(clientId: string, walletId: string): Promise<Wallet> {
-    return this.walletRepository.findById(clientId, walletId)
+  async findById(scope: ConnectionScope, walletId: string): Promise<Wallet> {
+    return this.walletRepository.findById(scope, walletId)
   }
 }

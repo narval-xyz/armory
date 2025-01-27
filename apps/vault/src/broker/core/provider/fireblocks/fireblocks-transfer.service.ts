@@ -2,28 +2,32 @@ import { LoggerService } from '@narval/nestjs-shared'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { randomUUID } from 'crypto'
 import { CreateTransaction, FireblocksClient } from '../../../http/client/fireblocks.client'
-import { NetworkRepository } from '../../../persistence/repository/network.repository'
 import { TransferRepository } from '../../../persistence/repository/transfer.repository'
+import { AssetException } from '../../exception/asset.exception'
 import { BrokerException } from '../../exception/broker.exception'
 import { AccountService } from '../../service/account.service'
 import { AddressService } from '../../service/address.service'
 import { AssetService } from '../../service/asset.service'
+import { NetworkService } from '../../service/network.service'
+import { ResolvedTransferAsset, TransferAssetService } from '../../service/transfer-asset.service'
 import { WalletService } from '../../service/wallet.service'
 import { ConnectionWithCredentials } from '../../type/connection.type'
 import { Network } from '../../type/network.type'
 import { Provider, ProviderTransferService } from '../../type/provider.type'
+import { ConnectionScope } from '../../type/scope.type'
 import {
   Destination,
   InternalTransfer,
   NetworkFeeAttribution,
   SendTransfer,
   Transfer,
+  TransferAsset,
   TransferPartyType,
   TransferStatus,
   isAddressDestination,
   isProviderSpecific
 } from '../../type/transfer.type'
-import { getExternalAsset } from '../../util/asset.util'
+import { getExternalNetwork } from '../../util/network.util'
 import { validateConnection } from './fireblocks.util'
 
 @Injectable()
@@ -31,11 +35,12 @@ export class FireblocksTransferService implements ProviderTransferService {
   constructor(
     private readonly assetService: AssetService,
     private readonly fireblocksClient: FireblocksClient,
-    private readonly networkRepository: NetworkRepository,
+    private readonly networkService: NetworkService,
     private readonly walletService: WalletService,
     private readonly accountService: AccountService,
     private readonly addressService: AddressService,
     private readonly transferRepository: TransferRepository,
+    private readonly transferAssetService: TransferAssetService,
     private readonly logger: LoggerService
   ) {}
 
@@ -63,7 +68,9 @@ export class FireblocksTransferService implements ProviderTransferService {
 
     this.logger.log('Found Fireblocks transaction by ID', context)
 
-    const transfer = {
+    const transfer: Transfer = {
+      connectionId,
+      assetExternalId: internalTransfer.assetExternalId,
       assetId: internalTransfer.assetId,
       clientId: internalTransfer.clientId,
       createdAt: new Date(fireblocksTransaction.createdAt),
@@ -120,8 +127,8 @@ export class FireblocksTransferService implements ProviderTransferService {
 
     validateConnection(connection)
 
-    const asset = await this.assetService.findTransferAsset(Provider.FIREBLOCKS, sendTransfer.asset)
-    if (!asset) {
+    const transferAsset = await this.findTransferAsset(connection, sendTransfer.asset)
+    if (!transferAsset) {
       throw new BrokerException({
         message: 'Transfer asset not found',
         suggestedHttpStatusCode: HttpStatus.NOT_FOUND,
@@ -129,33 +136,15 @@ export class FireblocksTransferService implements ProviderTransferService {
       })
     }
 
-    const externalAsset = getExternalAsset(asset, Provider.FIREBLOCKS)
-    if (!externalAsset) {
-      throw new BrokerException({
-        message: 'Unsupported asset by Fireblocks',
-        suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-        context: { asset }
-      })
-    }
+    const source = await this.getSource(connection, sendTransfer)
 
-    const network = await this.networkRepository.findById(asset.networkId)
-    if (!network) {
-      throw new BrokerException({
-        message: 'Cannot find asset network',
-        suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        context: { asset }
-      })
-    }
-
-    const source = await this.getSource(connection.clientId, sendTransfer)
-
-    const destination = await this.getDestination(connection.clientId, network, sendTransfer.destination)
+    const destination = await this.getDestination(connection, transferAsset.network, sendTransfer.destination)
 
     this.logger.log('Resolved Fireblocks transfer source and destination', {
       ...context,
       destination,
       source,
-      networkId: network.networkId
+      networkId: transferAsset.network.networkId
     })
 
     // NOTE: Defaults the `networkFeeAttribution` to deduct to match most
@@ -176,7 +165,7 @@ export class FireblocksTransferService implements ProviderTransferService {
       source,
       destination,
       amount: sendTransfer.amount,
-      assetId: externalAsset.externalId,
+      assetId: transferAsset.assetExternalId,
       customerRefId: sendTransfer.customerRefId,
       externalTxId: transferId,
       note: sendTransfer.memo,
@@ -197,11 +186,14 @@ export class FireblocksTransferService implements ProviderTransferService {
     this.logger.log('Fireblocks transaction created', context)
 
     const internalTransfer: InternalTransfer = {
-      assetId: asset.assetId,
+      connectionId,
+      transferId,
+      assetId: transferAsset.assetId,
       clientId: connection.clientId,
       createdAt: new Date(),
       customerRefId: sendTransfer.customerRefId || null,
       destination: sendTransfer.destination,
+      assetExternalId: transferAsset.assetExternalId,
       externalId: createTransactionResponse.id,
       externalStatus: createTransactionResponse.status,
       grossAmount: sendTransfer.amount,
@@ -211,8 +203,7 @@ export class FireblocksTransferService implements ProviderTransferService {
       provider: Provider.FIREBLOCKS,
       providerSpecific: sendTransfer.providerSpecific || null,
       source: sendTransfer.source,
-      status: this.mapStatus(createTransactionResponse.status),
-      transferId
+      status: this.mapStatus(createTransactionResponse.status)
     }
 
     this.logger.log('Create internal transfer', internalTransfer)
@@ -249,12 +240,12 @@ export class FireblocksTransferService implements ProviderTransferService {
     return false
   }
 
-  private async getSource(clientId: string, sendTransfer: SendTransfer) {
+  private async getSource(scope: ConnectionScope, sendTransfer: SendTransfer) {
     if (sendTransfer.source.type === TransferPartyType.ACCOUNT) {
-      const account = await this.accountService.findById(clientId, sendTransfer.source.id)
+      const account = await this.accountService.findById(scope, sendTransfer.source.id)
 
       if (account) {
-        const wallet = await this.walletService.findById(clientId, account.walletId)
+        const wallet = await this.walletService.findById(scope, account.walletId)
 
         if (wallet) {
           return {
@@ -272,25 +263,25 @@ export class FireblocksTransferService implements ProviderTransferService {
     })
   }
 
-  private async getDestination(clientId: string, network: Network, destination: Destination) {
+  private async getDestination(scope: ConnectionScope, network: Network, destination: Destination) {
     this.logger.log('Resolved Fireblocks destination', {
-      clientId,
+      scope,
       destination,
       network: network.networkId
     })
 
     if (isAddressDestination(destination)) {
       const address = await this.addressService.findByAddressAndNetwork(
-        clientId,
+        scope.clientId,
         destination.address,
         network.networkId
       )
 
       if (address) {
-        const account = await this.accountService.findById(clientId, address.accountId)
+        const account = await this.accountService.findById(scope, address.accountId)
 
         if (account) {
-          const wallet = await this.walletService.findById(clientId, account.walletId)
+          const wallet = await this.walletService.findById(scope, account.walletId)
 
           if (wallet) {
             return {
@@ -310,10 +301,10 @@ export class FireblocksTransferService implements ProviderTransferService {
     }
 
     if (destination.type === TransferPartyType.ACCOUNT) {
-      const account = await this.accountService.findById(clientId, destination.id)
+      const account = await this.accountService.findById(scope, destination.id)
 
       if (account) {
-        const wallet = await this.walletService.findById(clientId, account.walletId)
+        const wallet = await this.walletService.findById(scope, account.walletId)
 
         if (wallet) {
           return {
@@ -328,6 +319,88 @@ export class FireblocksTransferService implements ProviderTransferService {
       message: 'Cannot resolve Fireblocks transfer destination',
       suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
       context: { destination }
+    })
+  }
+
+  private async findTransferAsset(
+    connection: ConnectionWithCredentials,
+    transferAsset: TransferAsset
+  ): Promise<ResolvedTransferAsset> {
+    validateConnection(connection)
+
+    const findByExternalIdFallback = async (externalAssetId: string): Promise<ResolvedTransferAsset> => {
+      const fbSupportedAssets = await this.fireblocksClient.getSupportedAssets({
+        url: connection.url,
+        apiKey: connection.credentials.apiKey,
+        signKey: connection.credentials.privateKey
+      })
+
+      const fbSupportedAsset = fbSupportedAssets.find(({ id }) => id.toLowerCase() === externalAssetId.toLowerCase())
+      if (!fbSupportedAsset) {
+        throw new AssetException({
+          message: 'Fireblocks supported asset not found',
+          suggestedHttpStatusCode: HttpStatus.NOT_FOUND,
+          context: { transferAsset }
+        })
+      }
+
+      const network = await this.networkService.findByExternalId(Provider.FIREBLOCKS, fbSupportedAsset.nativeAsset)
+      if (!network) {
+        throw new AssetException({
+          message: 'Fireblocks supported asset network not found',
+          suggestedHttpStatusCode: HttpStatus.NOT_FOUND,
+          context: { transferAsset, fbSupportedAsset }
+        })
+      }
+
+      return {
+        network,
+        assetExternalId: externalAssetId,
+        assetId: null
+      }
+    }
+
+    const findByOnchainIdFallback = async (network: Network, onchainId: string): Promise<ResolvedTransferAsset> => {
+      const externalNetwork = getExternalNetwork(network, Provider.FIREBLOCKS)
+      if (!externalNetwork) {
+        throw new AssetException({
+          message: 'Network does not support Fireblocks',
+          suggestedHttpStatusCode: HttpStatus.NOT_IMPLEMENTED,
+          context: { transferAsset, network }
+        })
+      }
+
+      const fbSupportedAssets = await this.fireblocksClient.getSupportedAssets({
+        url: connection.url,
+        apiKey: connection.credentials.apiKey,
+        signKey: connection.credentials.privateKey
+      })
+
+      const fbSupportedAsset = fbSupportedAssets.find(
+        ({ contractAddress, nativeAsset }) =>
+          contractAddress.toLowerCase() === onchainId.toLowerCase() &&
+          nativeAsset.toLowerCase() === externalNetwork.externalId.toLowerCase()
+      )
+      if (!fbSupportedAsset) {
+        throw new AssetException({
+          message: 'Fireblocks supported asset not found',
+          suggestedHttpStatusCode: HttpStatus.NOT_FOUND,
+          context: { transferAsset }
+        })
+      }
+
+      return {
+        network,
+        assetId: null,
+        assetExternalId: fbSupportedAsset.id
+      }
+    }
+
+    return this.transferAssetService.resolve({
+      findByExternalIdFallback,
+      findByOnchainIdFallback,
+      transferAsset,
+      provider: Provider.FIREBLOCKS
     })
   }
 

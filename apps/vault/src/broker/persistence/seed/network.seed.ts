@@ -1,25 +1,16 @@
-import { ConfigService } from '@narval/config-module'
 import { LoggerService } from '@narval/nestjs-shared'
 import { Injectable } from '@nestjs/common'
-import { Config, Env } from '../../../main.config'
+import { NetworkService } from '../../core/service/network.service'
 import { Provider } from '../../core/type/provider.type'
-import { NetworkRepository } from '../repository/network.repository'
 
 @Injectable()
 export class NetworkSeed {
   constructor(
-    private readonly networkRepository: NetworkRepository,
-    private readonly configService: ConfigService<Config>,
+    private readonly networkService: NetworkService,
     private readonly logger: LoggerService
   ) {}
 
-  // IMPORTANT: There's already a data migration for base networks.
-  // See 20250115095035_add_network_table_and_data/migration.sql
   async seed(): Promise<void> {
-    if (this.configService.get('env') === Env.PRODUCTION) {
-      throw new Error('You CANNOT seed the production database')
-    }
-
     const networks = this.getNetworks().map((network) => ({
       networkId: network.networkId,
       coinType: network.coinType,
@@ -40,605 +31,800 @@ export class NetworkSeed {
                 externalId: network.fireblocksId
               }
             ]
+          : []),
+        ...(network.bitgoId
+          ? [
+              {
+                provider: Provider.BITGO,
+                externalId: network.bitgoId
+              }
+            ]
           : [])
       ]
     }))
 
-    this.logger.log(`🌐 Seeding ${networks.length} networks`)
+    this.logger.log(`Seeding ${networks.length} networks`)
 
-    await this.networkRepository.bulkCreate(networks)
+    await this.networkService.bulkCreate(networks)
   }
 
   getNetworks() {
     return [
       {
-        networkId: 'ARBITRUM',
-        coinType: 9001,
-        name: 'Arbitrum',
-        fireblocksId: 'ETH-AETH'
-      },
-      {
         networkId: 'AETH',
+        name: 'Aetherius',
         coinType: 514,
-        name: 'Aetherius'
+        anchorageId: null,
+        fireblocksId: null,
+        bitgoId: null
       },
       {
         networkId: 'AEVO',
-        coinType: null,
         name: 'Aevo',
-        fireblocksId: 'AEVO'
+        coinType: null,
+        anchorageId: null,
+        fireblocksId: 'AEVO',
+        bitgoId: null
       },
       {
         networkId: 'AGORIC',
-        coinType: 564,
         name: 'Agoric',
-        anchorageId: 'BLD'
+        coinType: 564,
+        anchorageId: 'BLD',
+        fireblocksId: null,
+        bitgoId: 'BLD'
       },
       {
         networkId: 'ALEPH_ZERO',
-        coinType: 643,
         name: 'Aleph Zero',
-        fireblocksId: 'ALEPH_ZERO_EVM'
+        coinType: 643,
+        anchorageId: null,
+        fireblocksId: 'ALEPH_ZERO_EVM',
+        bitgoId: null
       },
       {
         networkId: 'ALGORAND',
-        coinType: 283,
         name: 'Algorand',
-        fireblocksId: 'ALGO'
+        coinType: 283,
+        anchorageId: null,
+        fireblocksId: 'ALGO',
+        bitgoId: 'ALGO'
       },
       {
         networkId: 'ALGORAND_TESTNET',
-        coinType: 1,
         name: 'Algorand Testnet',
-        fireblocksId: 'ALGO_TEST'
+        coinType: 1,
+        anchorageId: null,
+        fireblocksId: 'ALGO_TEST',
+        bitgoId: 'TALGO'
       },
       {
         networkId: 'ALLORA',
-        coinType: null,
         name: 'Allora',
-        anchorageId: 'ALLO'
+        coinType: null,
+        anchorageId: 'ALLO',
+        fireblocksId: null,
+        bitgoId: null
       },
       {
         networkId: 'ALLORA_TESTNET',
-        coinType: 1,
         name: 'Allora Testnet',
-        anchorageId: 'ALLO_T'
+        coinType: 1,
+        anchorageId: 'ALLO_T',
+        fireblocksId: null,
+        bitgoId: null
       },
       {
         networkId: 'APTOS',
-        coinType: 637,
         name: 'Aptos',
-        anchorageId: 'APT'
+        coinType: 637,
+        anchorageId: 'APT',
+        fireblocksId: null,
+        bitgoId: null
       },
       {
         networkId: 'APTOS_TESTNET',
-        coinType: 1,
         name: 'Aptos Testnet',
-        anchorageId: 'APT_T'
+        coinType: 1,
+        anchorageId: 'APT_T',
+        fireblocksId: null,
+        bitgoId: null
+      },
+      {
+        networkId: 'ARBITRUM',
+        name: 'Arbitrum',
+        coinType: 9001,
+        anchorageId: null,
+        fireblocksId: 'ETH-AETH',
+        bitgoId: 'ARBETH'
       },
       {
         networkId: 'ARBITRUM_SEPOLIA',
-        coinType: 1,
         name: 'Arbitrum Sepolia Testnet',
-        anchorageId: 'ARBITRUM_SEPOLIA'
+        coinType: 1,
+        anchorageId: 'ETH_ARBITRUM_T',
+        fireblocksId: null,
+        bitgoId: 'TARBETH'
       },
       {
         networkId: 'ASTAR',
-        coinType: 810,
         name: 'Astar',
-        fireblocksId: 'ASTR_ASTR'
+        coinType: 810,
+        anchorageId: null,
+        fireblocksId: 'ASTR_ASTR',
+        bitgoId: null
       },
       {
         networkId: 'ASTAR_TESTNET',
-        coinType: 1,
         name: 'Astar Testnet',
-        fireblocksId: 'ASTR_TEST'
+        coinType: 1,
+        anchorageId: null,
+        fireblocksId: 'ASTR_TEST',
+        bitgoId: null
       },
       {
         networkId: 'ATOM',
+        name: 'Cosmos',
         coinType: 118,
-        name: 'Atom',
-        anchorageId: 'COSMOS',
-        fireblocksId: 'ATOM_COS'
+        anchorageId: 'ATOM',
+        fireblocksId: 'ATOM_COS',
+        bitgoId: 'ATOM'
       },
       {
         networkId: 'ATOM_TESTNET',
-        coinType: 1,
         name: 'Atom Testnet',
-        fireblocksId: 'ATOM_COS_TEST'
+        coinType: 1,
+        anchorageId: null,
+        fireblocksId: 'ATOM_COS_TEST',
+        bitgoId: 'TATOM'
       },
       {
         networkId: 'AURORA',
-        coinType: 2570,
         name: 'Aurora',
-        fireblocksId: 'AURORA_DEV'
+        coinType: 2570,
+        anchorageId: null,
+        fireblocksId: 'AURORA_DEV',
+        bitgoId: null
       },
       {
         networkId: 'AVAX',
-        coinType: 9000,
         name: 'Avalanche',
-        fireblocksId: 'AVAX'
+        coinType: 9000,
+        anchorageId: null,
+        fireblocksId: 'AVAX',
+        bitgoId: 'AVAXC'
       },
       {
         networkId: 'AVAX_TESTNET',
-        coinType: 1,
         name: 'Avalanche Testnet',
-        fireblocksId: 'AVAXTEST'
+        coinType: 1,
+        anchorageId: null,
+        fireblocksId: 'AVAXTEST',
+        bitgoId: 'TAVAXC'
       },
       {
         networkId: 'AXELAR',
-        coinType: null,
         name: 'Axelar',
-        anchorageId: 'AXL'
+        coinType: null,
+        anchorageId: 'AXL',
+        fireblocksId: null,
+        bitgoId: null
       },
       {
         networkId: 'AXELAR_TESTNET',
-        coinType: 1,
         name: 'Axelar Testnet',
-        anchorageId: 'AXL_T'
+        coinType: 1,
+        anchorageId: 'AXL_T',
+        fireblocksId: null,
+        bitgoId: null
       },
       {
         networkId: 'BABYLON',
-        coinType: null,
         name: 'Babylon',
-        anchorageId: 'BBN'
+        coinType: null,
+        anchorageId: 'BBN',
+        fireblocksId: null,
+        bitgoId: null
       },
       {
         networkId: 'BASE',
-        coinType: 8453,
         name: 'Base',
-        fireblocksId: 'BASECHAIN_ETH'
+        coinType: 8453,
+        anchorageId: null,
+        fireblocksId: 'BASECHAIN_ETH',
+        bitgoId: null
       },
       {
         networkId: 'BASE_TESTNET',
-        coinType: 1,
         name: 'Base Testnet',
-        fireblocksId: 'BASECHAIN_ETH_TEST5'
+        coinType: 1,
+        anchorageId: null,
+        fireblocksId: 'BASECHAIN_ETH_TEST5',
+        bitgoId: null
       },
       {
         networkId: 'BINANCE_SMART_CHAIN',
-        coinType: 9006,
         name: 'Binance Smart Chain',
-        fireblocksId: 'BNB_BSC'
+        coinType: 9006,
+        anchorageId: null,
+        fireblocksId: 'BNB_BSC',
+        bitgoId: 'BSC'
       },
       {
         networkId: 'BINANCE_SMART_CHAIN_TESTNET',
-        coinType: 1,
         name: 'Binance Smart Chain Testnet',
-        fireblocksId: 'BNB_TEST'
+        coinType: 1,
+        anchorageId: null,
+        fireblocksId: 'BNB_TEST',
+        bitgoId: 'TBSC'
       },
       {
         networkId: 'BITCOIN',
-        coinType: 0,
         name: 'Bitcoin',
+        coinType: 0,
         anchorageId: 'BTC',
-        fireblocksId: 'BTC'
+        fireblocksId: 'BTC',
+        bitgoId: 'BTC'
       },
       {
         networkId: 'BITCOIN_CASH',
-        coinType: 145,
         name: 'Bitcoin Cash',
+        coinType: 145,
         anchorageId: 'BCH',
-        fireblocksId: 'BCH'
+        fireblocksId: 'BCH',
+        bitgoId: 'BCH'
       },
       {
         networkId: 'BITCOIN_CASH_TESTNET',
-        coinType: 1,
         name: 'Bitcoin Cash Testnet',
-        fireblocksId: 'BCH_TEST'
+        coinType: 1,
+        anchorageId: null,
+        fireblocksId: 'BCH_TEST',
+        bitgoId: null
       },
       {
         networkId: 'BITCOIN_SIGNET',
-        coinType: 1,
         name: 'Bitcoin Signet',
-        anchorageId: 'BTC_S'
+        coinType: 1,
+        anchorageId: 'BTC_S',
+        fireblocksId: null,
+        bitgoId: 'TBTCSIG'
       },
       {
         networkId: 'BITCOIN_SV',
-        coinType: 236,
         name: 'BitcoinSV',
-        fireblocksId: 'BSV'
+        coinType: 236,
+        anchorageId: null,
+        fireblocksId: 'BSV',
+        bitgoId: null
       },
       {
         networkId: 'BITCOIN_SV_TESTNET',
-        coinType: 1,
         name: 'BitcoinSV Testnet',
-        fireblocksId: 'BSV_TEST'
+        coinType: 1,
+        anchorageId: null,
+        fireblocksId: 'BSV_TEST',
+        bitgoId: null
       },
       {
         networkId: 'BITCOIN_TESTNET',
-        coinType: 1,
         name: 'Bitcoin Testnet',
-        fireblocksId: 'BTC_TEST'
+        coinType: 1,
+        anchorageId: null,
+        fireblocksId: 'BTC_TEST',
+        bitgoId: null
       },
       {
         networkId: 'CARDANO',
-        coinType: 1815,
         name: 'Cardano',
-        fireblocksId: 'ADA'
+        coinType: 1815,
+        anchorageId: null,
+        fireblocksId: 'ADA',
+        bitgoId: 'ADA'
       },
       {
         networkId: 'CARDANO_TESTNET',
-        coinType: 1,
         name: 'Cardano Testnet',
-        fireblocksId: 'ADA_TEST'
+        coinType: 1,
+        anchorageId: null,
+        fireblocksId: 'ADA_TEST',
+        bitgoId: null
       },
       {
         networkId: 'CELESTIA',
-        coinType: null,
         name: 'Celestia',
-        anchorageId: 'TIA'
+        coinType: null,
+        anchorageId: 'TIA',
+        fireblocksId: null,
+        bitgoId: 'TIA'
       },
       {
         networkId: 'CELO',
-        coinType: 52752,
         name: 'Celo',
-        fireblocksId: 'CELO'
+        coinType: 52752,
+        anchorageId: null,
+        fireblocksId: 'CELO',
+        bitgoId: 'CELO'
       },
       {
         networkId: 'CELO_ALFAJORES',
-        coinType: null,
         name: 'Celo Alfajores',
-        fireblocksId: 'CELO_ALF'
+        coinType: null,
+        anchorageId: null,
+        fireblocksId: 'CELO_ALF',
+        bitgoId: null
       },
       {
         networkId: 'CELO_BAKLAVA',
-        coinType: 1,
         name: 'Celo Baklava',
+        coinType: 1,
         anchorageId: 'CGLD_TB',
-        fireblocksId: 'CELO_BAK'
+        fireblocksId: 'CELO_BAK',
+        bitgoId: null
       },
       {
         networkId: 'CHILIZ',
-        coinType: null,
         name: 'Chiliz',
-        fireblocksId: 'CHZ_$CHZ'
+        coinType: null,
+        anchorageId: null,
+        fireblocksId: 'CHZ_$CHZ',
+        bitgoId: null
       },
       {
         networkId: 'DABACUS',
-        coinType: 521,
         name: 'Dabacus',
-        fireblocksId: 'ABA'
-      },
-      {
-        networkId: 'DOGECOIN',
-        coinType: 3,
-        name: 'Dogecoin',
-        anchorageId: 'DOGE',
-        fireblocksId: 'DOGE'
-      },
-      {
-        networkId: 'DOGECOIN_TESTNET',
-        coinType: 1,
-        name: 'Dogecoin Testnet',
-        fireblocksId: 'DOGE_TEST'
-      },
-      {
-        networkId: 'DYDX_CHAIN',
-        coinType: null,
-        name: 'Dydx Chain',
-        anchorageId: 'DYDX_CHAIN'
-      },
-      {
-        networkId: 'DYDX_CHAIN_TESTNET',
-        coinType: 1,
-        name: 'Dydx Testnet',
-        anchorageId: 'DYDX_CHAIN_T'
-      },
-      {
-        networkId: 'ETHEREUM',
-        coinType: 60,
-        name: 'Ethereum',
-        anchorageId: 'ETH',
-        fireblocksId: 'ETH'
-      },
-      {
-        networkId: 'ETHEREUM_HOLESKY',
-        coinType: 1,
-        name: 'Ethereum Holešky',
-        anchorageId: 'ETHHOL'
-      },
-      {
-        networkId: 'ETHEREUM_SEPOLIA',
-        coinType: 1,
-        name: 'Ethereum Sepolia',
-        anchorageId: 'ETHSEP'
-      },
-      {
-        networkId: 'EVMOS',
-        coinType: null,
-        name: 'Evmos',
-        anchorageId: 'EVMOS'
-      },
-      {
-        networkId: 'EVMOS_TESTNET',
-        coinType: 1,
-        name: 'Evmos Testnet',
-        anchorageId: 'EVMOS_T'
-      },
-      {
-        networkId: 'FILECOIN',
-        coinType: 461,
-        name: 'Filecoin',
-        anchorageId: 'FIL'
-      },
-      {
-        networkId: 'FLOW_TESTNET',
-        coinType: 1,
-        name: 'Flow Testnet',
-        anchorageId: 'FLOW_T'
-      },
-      {
-        networkId: 'LITECOIN',
-        coinType: 2,
-        name: 'Litecoin',
-        anchorageId: 'LTC',
-        fireblocksId: 'LTC'
-      },
-      {
-        networkId: 'LITECOIN_TESTNET',
-        coinType: 1,
-        name: 'Litecoin Testnet',
-        fireblocksId: 'LTC_TEST'
-      },
-      {
-        networkId: 'NEUTRON',
-        coinType: null,
-        name: 'Neutron',
-        anchorageId: 'NTRN'
-      },
-      {
-        networkId: 'OASIS',
-        coinType: 474,
-        name: 'Oasis',
-        anchorageId: 'OAC'
-      },
-      {
-        networkId: 'OM_MANTRA',
-        coinType: null,
-        name: 'OM Mantra',
-        anchorageId: 'OM_MANTRA'
-      },
-      {
-        networkId: 'OM_MANTRA_TESTNET',
-        coinType: 1,
-        name: 'OM Mantra Testnet',
-        anchorageId: 'OM_MANTRA_T'
-      },
-      {
-        networkId: 'OSMOSIS',
-        coinType: 10000118,
-        name: 'Osmosis',
-        anchorageId: 'OSMO',
-        fireblocksId: 'OSMO'
-      },
-      {
-        networkId: 'PLUME_SEPOLIA',
-        coinType: 1,
-        name: 'Plume Sepolia Testnet',
-        anchorageId: 'PLUME_SEPOLIA'
-      },
-      {
-        networkId: 'POLYGON',
-        coinType: 966,
-        name: 'Polygon',
-        anchorageId: 'POLYGON',
-        fireblocksId: 'MATIC_POLYGON'
-      },
-      {
-        networkId: 'PROVENANCE',
-        coinType: 505,
-        name: 'Provenance',
-        anchorageId: 'HASH'
-      },
-      {
-        networkId: 'RARIMO',
-        coinType: null,
-        name: 'Rarimo',
-        anchorageId: 'RMO'
-      },
-      {
-        networkId: 'RIPPLE',
-        coinType: 144,
-        name: 'Ripple',
-        anchorageId: 'XRP',
-        fireblocksId: 'XRP'
-      },
-      {
-        networkId: 'RIPPLE_TESTNET',
-        coinType: 1,
-        name: 'Ripple Testnet',
-        fireblocksId: 'XRP_TEST'
-      },
-      {
-        networkId: 'SEI',
-        coinType: 19000118,
-        name: 'Sei',
-        anchorageId: 'SEI',
-        fireblocksId: 'SEI'
-      },
-      {
-        networkId: 'SEI_TESTNET',
-        coinType: 1,
-        name: 'Sei Testnet',
-        anchorageId: 'SEI_T',
-        fireblocksId: 'SEI_TEST'
-      },
-      {
-        networkId: 'SOLANA',
-        coinType: 501,
-        name: 'Solana',
-        fireblocksId: 'SOL'
-      },
-      {
-        networkId: 'SOLANA_TESTNET',
-        coinType: 1,
-        name: 'Solana Testnet',
+        coinType: 521,
         anchorageId: null,
-        fireblocksId: 'SOL_TEST'
-      },
-      {
-        networkId: 'SOLANA_DEVNET',
-        coinType: 1,
-        name: 'Solana Devnet',
-        anchorageId: 'SOL_TD',
-        fireblocksId: null
-      },
-      {
-        networkId: 'STARKNET',
-        coinType: 9004,
-        name: 'Starknet',
-        anchorageId: 'STARK_STARKNET'
-      },
-      {
-        networkId: 'STARKNET_TESTNET',
-        coinType: 1,
-        name: 'Starknet Testnet',
-        anchorageId: 'STRK_STARKNET_T'
-      },
-      {
-        networkId: 'STELLAR_LUMENS',
-        coinType: 148,
-        name: 'Stellar Lumens',
-        fireblocksId: 'XLM'
-      },
-      {
-        networkId: 'STELLAR_LUMENS_TESTNET',
-        coinType: 1,
-        name: 'Stellar Lumens Testnet',
-        fireblocksId: 'XLM_TEST'
-      },
-      {
-        networkId: 'STRIDE',
-        coinType: null,
-        name: 'Stride',
-        anchorageId: 'STRD'
-      },
-      {
-        networkId: 'SUI_TESTNET',
-        coinType: 1,
-        name: 'Sui Testnet',
-        anchorageId: 'SUI_T'
-      },
-      {
-        networkId: 'TRON',
-        coinType: 195,
-        name: 'Tron',
-        fireblocksId: 'TRX'
-      },
-      {
-        networkId: 'TRON_TESTNET',
-        coinType: 1,
-        name: 'Tron Testnet',
-        fireblocksId: 'TRX_TEST'
-      },
-      {
-        networkId: 'VANA',
-        coinType: null,
-        name: 'Vana',
-        anchorageId: 'VANA'
-      },
-      {
-        networkId: 'VANA_MOKSHA_TESTNET',
-        coinType: 1,
-        name: 'Vana Moksha Testnet',
-        anchorageId: 'VANA_MOKSHA_TESTNET'
-      },
-      {
-        networkId: 'ZKSYNC_SEPOLIA',
-        coinType: 1,
-        name: 'ZKsync Sepolia Testnet',
-        anchorageId: 'ZKSYNC_SEPOLIA'
-      },
-      {
-        networkId: 'POLKADOT',
-        coinType: 354,
-        name: 'Polkadot',
-        fireblocksId: 'DOT'
-      },
-      {
-        networkId: 'EOS',
-        coinType: 194,
-        name: 'EOS',
-        fireblocksId: 'EOS'
-      },
-      {
-        networkId: 'EOS_TESTNET',
-        coinType: 1,
-        name: 'EOS Testnet',
-        fireblocksId: 'EOS_TEST'
-      },
-      {
-        networkId: 'OASYS',
-        coinType: 685,
-        name: 'Oasys',
-        fireblocksId: 'OAS'
-      },
-      {
-        networkId: 'OASYS_TESTNET',
-        coinType: 1,
-        name: 'Oasys Testnet',
-        fireblocksId: 'OAS_TEST'
-      },
-      {
-        networkId: 'OSMOSIS_TESTNET',
-        coinType: 1,
-        name: 'Osmosis Testnet',
-        fireblocksId: 'OSMO_TEST'
-      },
-      {
-        networkId: 'TELOS',
-        coinType: 424,
-        name: 'Telos',
-        fireblocksId: 'TELOS'
-      },
-      {
-        networkId: 'TELOS_TESTNET',
-        coinType: 1,
-        name: 'Telos Testnet',
-        fireblocksId: 'TELOS_TEST'
-      },
-      {
-        networkId: 'TEZOS',
-        coinType: 1729,
-        name: 'Tezos',
-        fireblocksId: 'XTZ'
-      },
-      {
-        networkId: 'TEZOS_TESTNET',
-        coinType: 1,
-        name: 'Tezos Testnet',
-        fireblocksId: 'XTZ_TEST'
+        fireblocksId: 'ABA',
+        bitgoId: null
       },
       {
         networkId: 'DASH',
-        coinType: 5,
         name: 'Dash',
-        fireblocksId: 'DASH'
+        coinType: 5,
+        anchorageId: null,
+        fireblocksId: 'DASH',
+        bitgoId: 'DASH'
       },
       {
         networkId: 'DASH_TESTNET',
-        coinType: 1,
         name: 'Dash Testnet',
-        fireblocksId: 'DASH_TEST'
+        coinType: 1,
+        anchorageId: null,
+        fireblocksId: 'DASH_TEST',
+        bitgoId: null
+      },
+      {
+        networkId: 'DOGECOIN',
+        name: 'Dogecoin',
+        coinType: 3,
+        anchorageId: 'DOGE',
+        fireblocksId: 'DOGE',
+        bitgoId: 'DOGE'
+      },
+      {
+        networkId: 'DOGECOIN_TESTNET',
+        name: 'Dogecoin Testnet',
+        coinType: 1,
+        anchorageId: null,
+        fireblocksId: 'DOGE_TEST',
+        bitgoId: null
+      },
+      {
+        networkId: 'DYDX_CHAIN',
+        name: 'Dydx Chain',
+        coinType: null,
+        anchorageId: 'DYDX_CHAIN',
+        fireblocksId: null,
+        bitgoId: null
+      },
+      {
+        networkId: 'DYDX_CHAIN_TESTNET',
+        name: 'Dydx Testnet',
+        coinType: 1,
+        anchorageId: 'DYDX_CHAIN_T',
+        fireblocksId: null,
+        bitgoId: null
+      },
+      {
+        networkId: 'EOS',
+        name: 'EOS',
+        coinType: 194,
+        anchorageId: null,
+        fireblocksId: 'EOS',
+        bitgoId: 'EOS'
+      },
+      {
+        networkId: 'EOS_TESTNET',
+        name: 'EOS Testnet',
+        coinType: 1,
+        anchorageId: null,
+        fireblocksId: 'EOS_TEST',
+        bitgoId: null
+      },
+      {
+        networkId: 'ETHEREUM',
+        name: 'Ethereum',
+        coinType: 60,
+        anchorageId: 'ETH',
+        fireblocksId: 'ETH',
+        bitgoId: 'ETH'
+      },
+      {
+        networkId: 'ETHEREUM_HOLESKY',
+        name: 'Ethereum Holesky',
+        coinType: 1,
+        anchorageId: 'ETHHOL',
+        fireblocksId: null,
+        bitgoId: 'HTETH'
+      },
+      {
+        networkId: 'ETHEREUM_SEPOLIA',
+        name: 'Ethereum Sepolia',
+        coinType: 1,
+        anchorageId: 'ETHSEP',
+        fireblocksId: null,
+        bitgoId: null
+      },
+      {
+        networkId: 'EVMOS',
+        name: 'Evmos',
+        coinType: null,
+        anchorageId: 'EVMOS',
+        fireblocksId: null,
+        bitgoId: null
+      },
+      {
+        networkId: 'EVMOS_TESTNET',
+        name: 'Evmos Testnet',
+        coinType: 1,
+        anchorageId: 'EVMOS_T',
+        fireblocksId: null,
+        bitgoId: null
+      },
+      {
+        networkId: 'FILECOIN',
+        name: 'Filecoin',
+        coinType: 461,
+        anchorageId: 'FIL',
+        fireblocksId: null,
+        bitgoId: null
+      },
+      {
+        networkId: 'FLOW_TESTNET',
+        name: 'Flow Testnet',
+        coinType: 1,
+        anchorageId: 'FLOW_T',
+        fireblocksId: null,
+        bitgoId: null
+      },
+      {
+        networkId: 'LITECOIN',
+        name: 'Litecoin',
+        coinType: 2,
+        anchorageId: 'LTC',
+        fireblocksId: 'LTC',
+        bitgoId: 'LTC'
+      },
+      {
+        networkId: 'LITECOIN_TESTNET',
+        name: 'Litecoin Testnet',
+        coinType: 1,
+        anchorageId: null,
+        fireblocksId: 'LTC_TEST',
+        bitgoId: null
+      },
+      {
+        networkId: 'NEUTRON',
+        name: 'Neutron',
+        coinType: null,
+        anchorageId: 'NTRN',
+        fireblocksId: null,
+        bitgoId: null
+      },
+      {
+        networkId: 'OASIS',
+        name: 'Oasis',
+        coinType: 474,
+        anchorageId: 'ROSE',
+        fireblocksId: null,
+        bitgoId: null
+      },
+      {
+        networkId: 'OASYS',
+        name: 'Oasys',
+        coinType: 685,
+        anchorageId: null,
+        fireblocksId: 'OAS',
+        bitgoId: 'OAS'
+      },
+      {
+        networkId: 'OASYS_TESTNET',
+        name: 'Oasys Testnet',
+        coinType: 1,
+        anchorageId: null,
+        fireblocksId: 'OAS_TEST',
+        bitgoId: null
+      },
+      {
+        networkId: 'OM_MANTRA',
+        name: 'OM Mantra',
+        coinType: null,
+        anchorageId: 'OM_MANTRA',
+        fireblocksId: null,
+        bitgoId: null
+      },
+      {
+        networkId: 'OM_MANTRA_TESTNET',
+        name: 'OM Mantra Testnet',
+        coinType: 1,
+        anchorageId: 'OM_MANTRA_T',
+        fireblocksId: null,
+        bitgoId: null
       },
       {
         networkId: 'OPTIMISM',
-        coinType: 614,
         name: 'Optimism',
-        fireblocksId: 'ETH-OPT'
-      },
-      {
-        networkId: 'OPTIMISM_SEPOLIA',
-        coinType: 1,
-        name: 'Optimism Sepolia',
-        fireblocksId: 'ETH-OPT_SEPOLIA'
+        coinType: 614,
+        anchorageId: null,
+        fireblocksId: 'ETH-OPT',
+        bitgoId: 'OPETH'
       },
       {
         networkId: 'OPTIMISM_KOVAN',
-        coinType: 1,
         name: 'Optimism Kovan',
-        fireblocksId: 'ETH-OPT_KOV'
+        coinType: 1,
+        anchorageId: null,
+        fireblocksId: 'ETH-OPT_KOV',
+        bitgoId: null
+      },
+      {
+        networkId: 'OPTIMISM_SEPOLIA',
+        name: 'Optimism Sepolia',
+        coinType: 1,
+        anchorageId: null,
+        fireblocksId: 'ETH-OPT_SEPOLIA',
+        bitgoId: null
+      },
+      {
+        networkId: 'OSMOSIS',
+        name: 'Osmosis',
+        coinType: 10000118,
+        anchorageId: 'OSMO',
+        fireblocksId: 'OSMO',
+        bitgoId: 'OSMO'
+      },
+      {
+        networkId: 'OSMOSIS_TESTNET',
+        name: 'Osmosis Testnet',
+        coinType: 1,
+        anchorageId: null,
+        fireblocksId: 'OSMO_TEST',
+        bitgoId: null
+      },
+      {
+        networkId: 'PLUME_SEPOLIA',
+        name: 'Plume Sepolia Testnet',
+        coinType: 1,
+        anchorageId: 'ETH_PLUME_T',
+        fireblocksId: null,
+        bitgoId: null
+      },
+      {
+        networkId: 'POLKADOT',
+        name: 'Polkadot',
+        coinType: 354,
+        anchorageId: null,
+        fireblocksId: 'DOT',
+        bitgoId: 'DOT'
+      },
+      {
+        networkId: 'POLYGON',
+        name: 'Polygon',
+        coinType: 966,
+        anchorageId: 'POL_POLYGON',
+        fireblocksId: 'MATIC_POLYGON',
+        bitgoId: 'POLYGON'
+      },
+      {
+        networkId: 'PROVENANCE',
+        name: 'Provenance',
+        coinType: 505,
+        anchorageId: 'HASH',
+        fireblocksId: null,
+        bitgoId: 'HASH'
+      },
+      {
+        networkId: 'RARIMO',
+        name: 'Rarimo',
+        coinType: null,
+        anchorageId: 'RMO',
+        fireblocksId: null,
+        bitgoId: null
+      },
+      {
+        networkId: 'RIPPLE',
+        name: 'Ripple',
+        coinType: 144,
+        anchorageId: 'XRP',
+        fireblocksId: 'XRP',
+        bitgoId: 'XRP'
+      },
+      {
+        networkId: 'RIPPLE_TESTNET',
+        name: 'Ripple Testnet',
+        coinType: 1,
+        anchorageId: null,
+        fireblocksId: 'XRP_TEST',
+        bitgoId: null
+      },
+      {
+        networkId: 'SEI',
+        name: 'Sei',
+        coinType: 19000118,
+        anchorageId: 'SEI',
+        fireblocksId: 'SEI',
+        bitgoId: 'SEI'
+      },
+      {
+        networkId: 'SEI_TESTNET',
+        name: 'Sei Testnet',
+        coinType: 1,
+        anchorageId: 'SEI_T',
+        fireblocksId: 'SEI_TEST',
+        bitgoId: null
+      },
+      {
+        networkId: 'SOLANA',
+        name: 'Solana',
+        coinType: 501,
+        anchorageId: null,
+        fireblocksId: 'SOL',
+        bitgoId: 'SOL'
+      },
+      {
+        networkId: 'SOLANA_TESTNET',
+        name: 'Solana Testnet',
+        coinType: 1,
+        anchorageId: null,
+        fireblocksId: 'SOL_TEST',
+        bitgoId: null
+      },
+      {
+        networkId: 'SOLONA_DEVNET',
+        name: 'Solana Devnet',
+        coinType: 1,
+        anchorageId: null,
+        fireblocksId: 'SOL_TD',
+        bitgoId: 'TSOL'
+      },
+      {
+        networkId: 'STARKNET',
+        name: 'Starknet',
+        coinType: 9004,
+        anchorageId: 'STRK_STARKNET',
+        fireblocksId: null,
+        bitgoId: null
+      },
+      {
+        networkId: 'STARKNET_TESTNET',
+        name: 'Starknet Testnet',
+        coinType: 1,
+        anchorageId: 'STRK_STARKNET_T',
+        fireblocksId: null,
+        bitgoId: null
+      },
+      {
+        networkId: 'STELLAR_LUMENS',
+        name: 'Stellar Lumens',
+        coinType: 148,
+        anchorageId: null,
+        fireblocksId: 'XLM',
+        bitgoId: 'XLM'
+      },
+      {
+        networkId: 'STELLAR_LUMENS_TESTNET',
+        name: 'Stellar Lumens Testnet',
+        coinType: 1,
+        anchorageId: null,
+        fireblocksId: 'XLM_TEST',
+        bitgoId: null
+      },
+      {
+        networkId: 'STRIDE',
+        name: 'Stride',
+        coinType: null,
+        anchorageId: 'STRD',
+        fireblocksId: null,
+        bitgoId: null
+      },
+      {
+        networkId: 'SUI_TESTNET',
+        name: 'Sui Testnet',
+        coinType: 1,
+        anchorageId: 'SUI_T',
+        fireblocksId: null,
+        bitgoId: 'TSUI'
+      },
+      {
+        networkId: 'SUI',
+        name: 'Sui',
+        coinType: 784,
+        anchorageId: 'SUI',
+        fireblocksId: null,
+        bitgoId: 'SUI'
+      },
+      {
+        networkId: 'TELOS',
+        name: 'Telos',
+        coinType: 424,
+        anchorageId: null,
+        fireblocksId: 'TELOS',
+        bitgoId: null
+      },
+      {
+        networkId: 'TELOS_TESTNET',
+        name: 'Telos Testnet',
+        coinType: 1,
+        anchorageId: null,
+        fireblocksId: 'TELOS_TEST',
+        bitgoId: null
+      },
+      {
+        networkId: 'TEZOS',
+        name: 'Tezos',
+        coinType: 1729,
+        anchorageId: null,
+        fireblocksId: 'XTZ',
+        bitgoId: 'XTZ'
+      },
+      {
+        networkId: 'TEZOS_TESTNET',
+        name: 'Tezos Testnet',
+        coinType: 1,
+        anchorageId: null,
+        fireblocksId: 'XTZ_TEST',
+        bitgoId: null
+      },
+      {
+        networkId: 'TRON',
+        name: 'Tron',
+        coinType: 195,
+        anchorageId: null,
+        fireblocksId: 'TRX',
+        bitgoId: 'TRX'
+      },
+      {
+        networkId: 'TRON_TESTNET',
+        name: 'Tron Testnet',
+        coinType: 1,
+        anchorageId: null,
+        fireblocksId: 'TRX_TEST',
+        bitgoId: null
+      },
+      {
+        networkId: 'VANA',
+        name: 'Vana',
+        coinType: null,
+        anchorageId: 'VANA_VANA',
+        fireblocksId: null,
+        bitgoId: null
+      },
+      {
+        networkId: 'VANA_MOKSHA_TESTNET',
+        name: 'Vana Moksha Testnet',
+        coinType: 1,
+        anchorageId: 'VANA_VANA_MOKSHA_T',
+        fireblocksId: null,
+        bitgoId: null
+      },
+      {
+        networkId: 'ZKSYNC_SEPOLIA',
+        name: 'ZKsync Sepolia Testnet',
+        coinType: 1,
+        anchorageId: 'ETH_ZKSYNC_T',
+        fireblocksId: null,
+        bitgoId: null
       }
     ]
   }

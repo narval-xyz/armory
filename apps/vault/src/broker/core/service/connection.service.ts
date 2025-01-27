@@ -14,6 +14,8 @@ import { ConnectionInvalidStatusException } from '../exception/connection-invali
 import { NotFoundException } from '../exception/not-found.exception'
 import { AnchorageCredentialService } from '../provider/anchorage/anchorage-credential.service'
 import { AnchorageCredentials, AnchorageInputCredentials } from '../provider/anchorage/anchorage.type'
+import { BitgoCredentialService } from '../provider/bitgo/bitgo-credential.service'
+import { BitgoCredentials, BitgoInputCredentials } from '../provider/bitgo/bitgo.type'
 import { FireblocksCredentialService } from '../provider/fireblocks/fireblocks-credential.service'
 import { FireblocksCredentials, FireblocksInputCredentials } from '../provider/fireblocks/fireblocks.type'
 import {
@@ -33,11 +35,13 @@ import { Provider, ProviderCredentialService } from '../type/provider.type'
 type ProviderInputCredentialsMap = {
   anchorage: AnchorageInputCredentials
   fireblocks: FireblocksInputCredentials
+  bitgo: BitgoInputCredentials
 }
 
 type ProviderCredentialsMap = {
   anchorage: AnchorageCredentials
   fireblocks: FireblocksCredentials
+  bitgo: BitgoCredentials
 }
 
 @Injectable()
@@ -54,11 +58,13 @@ export class ConnectionService {
     private readonly logger: LoggerService,
     // Provider Specific Credential Services
     fireblocksCredentialService: FireblocksCredentialService,
-    anchorageCredentialService: AnchorageCredentialService
+    anchorageCredentialService: AnchorageCredentialService,
+    bitgoCredentialService: BitgoCredentialService
   ) {
     this.providerCredentialServices = {
       [Provider.ANCHORAGE]: anchorageCredentialService,
-      [Provider.FIREBLOCKS]: fireblocksCredentialService
+      [Provider.FIREBLOCKS]: fireblocksCredentialService,
+      [Provider.BITGO]: bitgoCredentialService
     }
   }
 
@@ -136,7 +142,7 @@ export class ConnectionService {
       // If a private key is provided in the input, it overrides the existing
       // private and public key. Otherwise, adds the API key to the
       // generated credentials.
-      if (inputCredentials.privateKey) {
+      if ('privateKey' in inputCredentials && inputCredentials.privateKey) {
         this.logger.log('Existing private key is being overridden with a new one', {
           clientId,
           connectionId: connection.connectionId
@@ -293,7 +299,11 @@ export class ConnectionService {
     return Connection.parse(update)
   }
 
-  private async getInputCredentials(provider: Provider, clientId: string, input: CreateConnection | UpdateConnection) {
+  private async getInputCredentials<P extends Provider>(
+    provider: P,
+    clientId: string,
+    input: CreateConnection | UpdateConnection
+  ): Promise<ProviderInputCredentialsMap[P]> {
     if (input.encryptedCredentials) {
       const raw = await this.encryptionKeyService.decrypt(clientId, input.encryptedCredentials)
       const json = JSON.parse(raw)

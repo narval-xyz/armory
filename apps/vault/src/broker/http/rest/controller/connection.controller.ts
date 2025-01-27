@@ -1,12 +1,16 @@
 import { ApiClientIdHeader, Paginated, PaginationOptions, PaginationParam } from '@narval/nestjs-shared'
+import { Alg, RsaPrivateKey } from '@narval/signature'
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
 import { VaultPermission } from '../../../../shared/type/domain.type'
+import { FireblocksCredentialService } from '../../../core/provider/fireblocks/fireblocks-credential.service'
 import { AccountService } from '../../../core/service/account.service'
 import { ConnectionService } from '../../../core/service/connection.service'
 import { WalletService } from '../../../core/service/wallet.service'
+import { PendingConnection } from '../../../core/type/connection.type'
+import { Provider } from '../../../core/type/provider.type'
 import { formatPublicKey, formatRsaPublicKey } from '../../../core/util/user-friendly-key-format.util'
 import { CreateConnectionDto } from '../dto/request/create-connection.dto'
 import { InitiateConnectionDto } from '../dto/request/initiate-connection.dto'
@@ -47,7 +51,7 @@ export class ConnectionController {
     @Body() body: InitiateConnectionDto
   ): Promise<ProviderPendingConnectionDto> {
     const pendingConnection = await this.connectionService.initiate(clientId, body)
-    const credentials = await this.connectionService.findCredentials(pendingConnection)
+    const publicKey = await this.formatPublicKey(pendingConnection)
 
     const data = {
       ...pendingConnection,
@@ -56,14 +60,33 @@ export class ConnectionController {
             encryptionPublicKey: await formatRsaPublicKey(pendingConnection.encryptionPublicKey)
           }
         : {}),
-      ...(credentials
-        ? {
-            publicKey: await formatPublicKey(credentials.publicKey)
-          }
-        : {})
+      ...(publicKey ? { publicKey } : {})
     }
 
     return ProviderPendingConnectionDto.create({ data })
+  }
+
+  private async formatPublicKey(connection: PendingConnection) {
+    const credentials = await this.connectionService.findCredentials(connection)
+
+    if (credentials && 'publicKey' in credentials) {
+      const publicKey = await formatPublicKey(credentials.publicKey)
+
+      if (connection.provider === Provider.FIREBLOCKS && credentials.publicKey.alg === Alg.RS256) {
+        const certificateOrgName = `Narval Fireblocks Connection - Client ${connection.clientId}`
+
+        const csr = await FireblocksCredentialService.signCertificateRequest(
+          credentials.privateKey as RsaPrivateKey,
+          certificateOrgName
+        )
+
+        return { ...publicKey, csr }
+      }
+
+      return publicKey
+    }
+
+    return null
   }
 
   @Post()
@@ -98,25 +121,6 @@ export class ConnectionController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async revoke(@ClientId() clientId: string, @Param('connectionId') connectionId: string): Promise<void> {
     await this.connectionService.revoke(clientId, connectionId)
-  }
-
-  @Get()
-  @PermissionGuard(VaultPermission.CONNECTION_READ)
-  @ApiOperation({
-    summary: 'List all connections',
-    description: 'This endpoint retrieves a list of all connections associated with the client.'
-  })
-  @Paginated({
-    type: PaginatedConnectionsDto,
-    description: 'Returns a paginated list of connections associated with the client'
-  })
-  async list(
-    @ClientId() clientId: string,
-    @PaginationParam() pagination: PaginationOptions
-  ): Promise<PaginatedConnectionsDto> {
-    const { data, page } = await this.connectionService.findAll(clientId, { pagination })
-
-    return PaginatedConnectionsDto.create({ data, page })
   }
 
   @Get(':connectionId')
@@ -166,11 +170,31 @@ export class ConnectionController {
     return ProviderConnectionDto.create({ data })
   }
 
+  @Get()
+  @PermissionGuard(VaultPermission.CONNECTION_READ)
+  @ApiOperation({
+    summary: 'List all connections',
+    description: 'This endpoint retrieves a list of all connections associated with the client.'
+  })
+  @Paginated({
+    type: PaginatedConnectionsDto,
+    description: 'Returns a paginated list of connections associated with the client'
+  })
+  async list(
+    @ClientId() clientId: string,
+    @PaginationParam() pagination: PaginationOptions
+  ): Promise<PaginatedConnectionsDto> {
+    const { data, page } = await this.connectionService.findAll(clientId, { pagination })
+
+    return PaginatedConnectionsDto.create({ data, page })
+  }
+
   @Get(':connectionId/wallets')
   @PermissionGuard(VaultPermission.CONNECTION_READ)
   @ApiOperation({
-    summary: 'List wallets for a specific connection',
-    description: 'This endpoint retrieves a list of wallets associated with a specific connection.'
+    deprecated: true,
+    summary: '(DEPRECATED) List wallets for a specific connection',
+    description: 'Note: use GET /v1/provider/wallets endpoint instead'
   })
   @Paginated({
     type: PaginatedWalletsDto,
@@ -181,19 +205,25 @@ export class ConnectionController {
     @Param('connectionId') connectionId: string,
     @PaginationParam() pagination: PaginationOptions
   ): Promise<PaginatedWalletsDto> {
-    const { data, page } = await this.walletService.findAll(clientId, {
-      filters: { connectionId },
-      pagination
-    })
+    const page = await this.walletService.findAll(
+      {
+        clientId,
+        connectionId
+      },
+      {
+        pagination
+      }
+    )
 
-    return PaginatedWalletsDto.create({ data, page })
+    return PaginatedWalletsDto.create(page)
   }
 
   @Get(':connectionId/accounts')
   @PermissionGuard(VaultPermission.CONNECTION_READ)
   @ApiOperation({
-    summary: 'List accounts for a specific connection',
-    description: 'This endpoint retrieves a list of accounts associated with a specific connection.'
+    deprecated: true,
+    summary: '(DEPRECATED) List accounts for a specific connection',
+    description: 'Note: use GET /v1/provider/accounts endpoint instead'
   })
   @Paginated({
     type: PaginatedAccountsDto,
@@ -204,11 +234,16 @@ export class ConnectionController {
     @Param('connectionId') connectionId: string,
     @PaginationParam() pagination: PaginationOptions
   ): Promise<PaginatedAccountsDto> {
-    const { data, page } = await this.accountService.findAll(clientId, {
-      filters: { connectionId },
-      pagination
-    })
+    const page = await this.accountService.findAll(
+      {
+        clientId,
+        connectionId
+      },
+      {
+        pagination
+      }
+    )
 
-    return PaginatedAccountsDto.create({ data, page })
+    return PaginatedAccountsDto.create(page)
   }
 }

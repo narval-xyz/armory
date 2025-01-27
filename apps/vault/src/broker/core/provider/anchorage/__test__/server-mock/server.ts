@@ -1,3 +1,4 @@
+import { HttpStatus } from '@nestjs/common'
 import { HttpResponse, http } from 'msw'
 import getTransferOk from './response/get-transfer-200.json'
 import trustedDestinationsSecond from './response/get-trusted-destinations-200-second.json'
@@ -6,6 +7,7 @@ import trustedDestinationsFirst from './response/get-trusted-destinations-200.js
 import getVaultsOkSecond from './response/get-vaults-200-second.json'
 import getVaultsOk from './response/get-vaults-200.json'
 import getVaultAddressesOk from './response/get-vaults-addresses-200.json'
+import getWalletOk from './response/get-wallet-200.json'
 import getWalletsOk from './response/get-wallets-200.json'
 import postTransferCreated from './response/post-transfer-201.json'
 
@@ -45,6 +47,17 @@ export const getHandlers = (baseUrl = ANCHORAGE_TEST_API_BASE_URL) => [
 
   http.get(`${baseUrl}/v2/wallets`, () => {
     return new HttpResponse(JSON.stringify(getWalletsOk))
+  }),
+
+  http.get(`${baseUrl}/v2/wallets/6a46a1977959e0529f567e8e927e3895`, () => {
+    return new HttpResponse(JSON.stringify(getWalletOk))
+  }),
+
+  http.get(`${baseUrl}/v2/wallets/notFound`, () => {
+    return new HttpResponse(JSON.stringify({ errorType: 'NotFound', message: 'Wallet not found' }), {
+      status: HttpStatus.NOT_FOUND
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as unknown as any)
   }),
 
   http.get(`${baseUrl}/v2/transfers/:transferId`, () => {

@@ -1,11 +1,11 @@
-import { ApiClientIdHeader } from '@narval/nestjs-shared'
-import { Controller, Get, HttpStatus, Query } from '@nestjs/common'
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ApiClientIdHeader, Paginated } from '@narval/nestjs-shared'
+import { Controller, Get, Query } from '@nestjs/common'
+import { ApiOperation, ApiTags } from '@nestjs/swagger'
 import { PermissionGuard } from '../../../../shared/decorator/permission-guard.decorator'
 import { VaultPermission } from '../../../../shared/type/domain.type'
 import { AssetService } from '../../../core/service/asset.service'
 import { Provider } from '../../../core/type/provider.type'
-import { AssetDto } from '../dto/response/asset.dto'
+import { PaginatedAssetsDto } from '../dto/response/paginated-assets.dto'
 
 @Controller({
   path: 'assets',
@@ -22,16 +22,15 @@ export class AssetController {
     summary: 'Retrieve all assets',
     description: 'This endpoint retrieves a list of all available assets.'
   })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'The assets were successfully retrieved.',
-    type: AssetDto
+  @Paginated({
+    type: PaginatedAssetsDto,
+    description: 'The assets were successfully retrieved.'
   })
-  async list(@Query('provider') provider?: Provider): Promise<AssetDto> {
+  async list(@Query('provider') provider?: Provider): Promise<PaginatedAssetsDto> {
     const data = await this.assetService.findAll({
       filters: { provider }
     })
 
-    return AssetDto.create({ data })
+    return PaginatedAssetsDto.create({ data })
   }
 }

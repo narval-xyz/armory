@@ -1,0 +1,36 @@
+{
+  "data": {
+    "assets": [
+      {
+        "assetType": "BTC_S",
+        "availableBalance": {
+          "assetType": "BTC_S",
+          "currentPrice": "105552.083758084",
+          "currentUSDValue": "372.77",
+          "quantity": "0.00353165"
+        },
+        "totalBalance": {
+          "assetType": "BTC_S",
+          "currentPrice": "105552.083758084",
+          "currentUSDValue": "372.77",
+          "quantity": "0.00353165"
+        }
+      }
+    ],
+    "depositAddress": {
+      "address": "2N85qduq5HGsQkAUsUGyouAE8YKz4we6y2h",
+      "addressId": "7ca733da4a4a665bbb26163c31058a95",
+      "addressSignaturePayload": "7b225465787441646472657373223a22324e38357164757135484773516b4155735547796f75414538594b7a34776536793268227d",
+      "addressID": "7ca733da4a4a665bbb26163c31058a95",
+      "signature": "2339b329a3bc43815b50d5cca805b4f3e87c081068ef5d397763e0095651afa066788f7ab60f0b705d2cf4b0366d31a2f2b2417ae3c78c973c8888be4b7a0f04"
+    },
+    "isArchived": false,
+    "isDefault": true,
+    "networkId": "BTC_S",
+    "type": "WALLET",
+    "vaultId": "084ff57c0984420efac31723579c94fc",
+    "vaultName": "Vault 1",
+    "walletId": "6a46a1977959e0529f567e8e927e3895",
+    "walletName": "Bitcoin Signet Wallet 1"
+  }
+}

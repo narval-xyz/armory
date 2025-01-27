@@ -68,12 +68,17 @@ export class ProxyController {
     const queryString = new URLSearchParams(request.query as Record<string, string>).toString()
     const sanitizedEndpoint = queryString ? `/${endpoint}?${queryString}` : `/${endpoint}`
 
-    const response = await this.proxyService.forward(clientId, {
-      connectionId,
-      endpoint: sanitizedEndpoint,
-      method: request.method,
-      data: body
-    })
+    const response = await this.proxyService.forward(
+      {
+        clientId,
+        connectionId
+      },
+      {
+        endpoint: sanitizedEndpoint,
+        method: request.method,
+        data: body
+      }
+    )
 
     res.status(response.code).set(response.headers)
     response.data.pipe(res)

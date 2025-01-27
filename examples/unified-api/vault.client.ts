@@ -1,9 +1,10 @@
-import { Hex, privateKeyToJwk, VaultClient } from '@narval-xyz/armory-sdk'
+import { Hex, privateKeyToJwk } from '@narval-xyz/armory-sdk'
 import { buildSignerEdDSA } from '@narval-xyz/armory-sdk/signature'
 import dotenv from 'dotenv'
 import fs from 'fs'
 import path from 'path'
 import { z } from 'zod'
+import { VaultClient } from '../../packages/armory-sdk/src/lib/vault/client'
 dotenv.config()
 
 const configSchema = z.object({
