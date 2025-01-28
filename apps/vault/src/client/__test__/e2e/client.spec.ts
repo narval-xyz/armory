@@ -1,5 +1,4 @@
-import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
-import { LoggerModule, REQUEST_HEADER_ADMIN_API_KEY } from '@narval/nestjs-shared'
+import { REQUEST_HEADER_ADMIN_API_KEY } from '@narval/nestjs-shared'
 import {
   Alg,
   SMALLEST_RSA_MODULUS_LENGTH,
@@ -8,13 +7,13 @@ import {
   secp256k1PublicKeySchema
 } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
-import { Test, TestingModule } from '@nestjs/testing'
+import { TestingModule } from '@nestjs/testing'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
+import { VaultTest } from '../../../__test__/shared/vault.test'
 import { MainModule } from '../../../main.module'
 import { ProvisionService } from '../../../provision.service'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
-import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
 import { ClientRepository } from '../../persistence/repository/client.repository'
 
 describe('Client', () => {
@@ -27,16 +26,9 @@ describe('Client', () => {
   const adminApiKey = 'test-vault-admin-api-key'
 
   beforeAll(async () => {
-    module = await Test.createTestingModule({
+    module = await VaultTest.createTestingModule({
       imports: [MainModule]
-    })
-      .overrideModule(LoggerModule)
-      .useModule(LoggerModule.forTest())
-      .overrideProvider(EncryptionModuleOptionProvider)
-      .useValue({
-        keyring: getTestRawAesKeyring()
-      })
-      .compile()
+    }).compile()
 
     app = module.createNestApplication()
 

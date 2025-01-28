@@ -1,17 +1,13 @@
-import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
-import { LoggerModule } from '@narval/nestjs-shared'
 import { Ed25519PrivateKey, getPublicKey } from '@narval/signature'
 import { INestApplication } from '@nestjs/common'
-import { Test, TestingModule } from '@nestjs/testing'
+import { TestingModule } from '@nestjs/testing'
 import { v4 as uuid } from 'uuid'
 import { generatePrivateKey, privateKeyToAddress } from 'viem/accounts'
+import { VaultTest } from '../../../../../../__test__/shared/vault.test'
 import { ClientService } from '../../../../../../client/core/service/client.service'
 import { MainModule } from '../../../../../../main.module'
 import { ProvisionService } from '../../../../../../provision.service'
-import { KeyValueRepository } from '../../../../../../shared/module/key-value/core/repository/key-value.repository'
-import { InMemoryKeyValueRepository } from '../../../../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { TestPrismaService } from '../../../../../../shared/module/persistence/service/test-prisma.service'
-import { getTestRawAesKeyring } from '../../../../../../shared/testing/encryption.testing'
 import { testClient } from '../../../../../__test__/util/mock-data'
 import { AccountRepository } from '../../../../../persistence/repository/account.repository'
 import { AddressRepository } from '../../../../../persistence/repository/address.repository'
@@ -158,18 +154,9 @@ describe(AnchorageTransferService.name, () => {
   }
 
   beforeAll(async () => {
-    module = await Test.createTestingModule({
+    module = await VaultTest.createTestingModule({
       imports: [MainModule]
-    })
-      .overrideModule(LoggerModule)
-      .useModule(LoggerModule.forTest())
-      .overrideProvider(KeyValueRepository)
-      .useValue(new InMemoryKeyValueRepository())
-      .overrideProvider(EncryptionModuleOptionProvider)
-      .useValue({
-        keyring: getTestRawAesKeyring()
-      })
-      .compile()
+    }).compile()
 
     app = module.createNestApplication()
 

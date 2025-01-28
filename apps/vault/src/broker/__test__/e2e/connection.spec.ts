@@ -60,6 +60,9 @@ describe('Connection', () => {
     eventEmitterMock = mock<EventEmitter2>()
     eventEmitterMock.emit.mockReturnValue(true)
 
+    // IMPORTANT: Does not use `VaultTest.createTestingModule` because it would
+    // disable encryption and testing the connection credentials' encryption is
+    // critical.
     module = await Test.createTestingModule({
       imports: [MainModule]
     })

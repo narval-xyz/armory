@@ -1,15 +1,9 @@
-import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
-import { LoggerModule, REQUEST_HEADER_CLIENT_ID } from '@narval/nestjs-shared'
+import { REQUEST_HEADER_CLIENT_ID } from '@narval/nestjs-shared'
 import { HttpStatus, INestApplication } from '@nestjs/common'
-import { EventEmitter2 } from '@nestjs/event-emitter'
-import { Test, TestingModule } from '@nestjs/testing'
-import { mock } from 'jest-mock-extended'
+import { TestingModule } from '@nestjs/testing'
 import { MainModule } from '../../../main.module'
 import { ProvisionService } from '../../../provision.service'
-import { KeyValueRepository } from '../../../shared/module/key-value/core/repository/key-value.repository'
-import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
-import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
 import { PaginatedAccountsDto } from '../../http/rest/dto/response/paginated-accounts.dto'
 import { PaginatedAddressesDto } from '../../http/rest/dto/response/paginated-addresses.dto'
 import { ProviderAccountDto } from '../../http/rest/dto/response/provider-account.dto'
@@ -18,6 +12,7 @@ import { signedRequest } from '../../shared/__test__/request'
 import { REQUEST_HEADER_CONNECTION_ID } from '../../shared/constant'
 import { TEST_ACCOUNTS } from '../util/mock-data'
 
+import { VaultTest } from '../../../__test__/shared/vault.test'
 import '../../shared/__test__/matcher'
 
 describe('Account', () => {
@@ -27,22 +22,9 @@ describe('Account', () => {
   let provisionService: ProvisionService
 
   beforeAll(async () => {
-    module = await Test.createTestingModule({
+    module = await VaultTest.createTestingModule({
       imports: [MainModule]
-    })
-      .overrideModule(LoggerModule)
-      .useModule(LoggerModule.forTest())
-      .overrideProvider(KeyValueRepository)
-      .useValue(new InMemoryKeyValueRepository())
-      .overrideProvider(EncryptionModuleOptionProvider)
-      .useValue({
-        keyring: getTestRawAesKeyring()
-      })
-      // Mock the event emitter because we don't want to send a
-      // connection.activated event after the creation.
-      .overrideProvider(EventEmitter2)
-      .useValue(mock<EventEmitter2>())
-      .compile()
+    }).compile()
 
     app = module.createNestApplication()
     testPrismaService = module.get(TestPrismaService)

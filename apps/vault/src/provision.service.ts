@@ -30,6 +30,40 @@ export class ProvisionService {
   // NOTE: The `adminApiKeyHash` argument is for test convinience in case it
   // needs to provision the application.
   async provision(adminApiKeyHash?: string): Promise<App> {
+    return this.run({
+      adminApiKeyHash,
+      setupEncryption: async (app, thisApp, keyring) => {
+        await this.setupEncryption(app, thisApp, keyring)
+        await this.setupRawEncryption(thisApp, keyring)
+      }
+    })
+  }
+
+  /**
+   * Core provisioning logic that sets up or updates the application
+   * configuration. This includes handling encryption setup and admin
+   * authentication settings.
+   *
+   * @param params Configuration parameters for the provisioning process
+   *
+   * @param params.adminApiKeyHash Optional hash of the admin API key for
+   * authentication
+   *
+   * @param params.setupEncryption Optional callback to customize encryption
+   * setup. Receives current app state, new app config, and keyring
+   * configuration. **Useful for disabling encryption during tests.**
+   *
+   * @returns Promise<App> The provisioned application configuration
+   *
+   * @throws ProvisionException If app is already provisioned with different ID
+   *         or if encryption setup fails
+   */
+  protected async run(params: {
+    adminApiKeyHash?: string
+    setupEncryption?: (app: App | null, thisApp: App, keyring: Config['keyring']) => Promise<void>
+  }): Promise<App> {
+    const { adminApiKeyHash, setupEncryption } = params
+
     // TEMPORARY: Migrate the key-value format of the App config into the table format.
     // Can be removed once this runs once.
     await this.appService.migrateV1Data()
@@ -46,6 +80,33 @@ export class ProvisionService {
       })
     }
 
+    if (setupEncryption) {
+      await setupEncryption(app, thisApp, keyring)
+    }
+
+    // Now set the Auth if needed
+    thisApp.adminApiKeyHash = adminApiKeyHash || this.getAdminApiKeyHash() || null // fallback to null so we _unset_ it if it's not provided.
+
+    // If we have an app already & the adminApiKeyHash has changed, just log that we're changing it.
+    if (app && thisApp.adminApiKeyHash !== app?.adminApiKeyHash) {
+      this.logger.log('Admin API Key has been changed', {
+        previous: app?.adminApiKeyHash,
+        current: thisApp.adminApiKeyHash
+      })
+    }
+
+    // Check if we disabled all auth
+    thisApp.authDisabled = this.configService.get('app.auth.disabled')
+    if (thisApp.authDisabled) {
+      thisApp.adminApiKeyHash = null
+    }
+
+    this.logger.log('App configuration saved')
+
+    return this.appService.save(thisApp)
+  }
+
+  protected async setupEncryption(app: App | null, thisApp: App, keyring: Config['keyring']) {
     // No encryption set up yet, so initialize encryption
     if (!app?.encryptionKeyringType || (!app.encryptionMasterKey && !app.encryptionMasterAwsKmsArn)) {
       thisApp.encryptionKeyringType = keyring.type
@@ -70,7 +131,9 @@ export class ProvisionService {
         throw new ProvisionException('Unsupported keyring type')
       }
     }
+  }
 
+  protected async setupRawEncryption(thisApp: App, keyring: Config['keyring']) {
     // if raw encryption, verify the encryptionMasterPassword in config is the valid kek for the encryptionMasterKey
     if (thisApp?.encryptionKeyringType === 'raw' && keyring.type === 'raw' && thisApp.encryptionMasterKey) {
       try {
@@ -85,26 +148,6 @@ export class ProvisionService {
         throw new ProvisionException('Master Encryption Key Verification Failed', { error })
       }
     }
-
-    // Now set the Auth if needed
-    thisApp.adminApiKeyHash = adminApiKeyHash || this.getAdminApiKeyHash() || null // fallback to null so we _unset_ it if it's not provided.
-
-    // If we have an app already & the adminApiKeyHash has changed, just log that we're changing it.
-    if (app && thisApp.adminApiKeyHash !== app?.adminApiKeyHash) {
-      this.logger.log('Admin API Key has been changed', {
-        previous: app?.adminApiKeyHash,
-        current: thisApp.adminApiKeyHash
-      })
-    }
-
-    // Check if we disabled all auth
-    thisApp.authDisabled = this.configService.get('app.auth.disabled')
-    if (thisApp.authDisabled) {
-      thisApp.adminApiKeyHash = null
-    }
-
-    this.logger.log('App configuration saved')
-    return this.appService.save(thisApp)
   }
 
   private getAdminApiKeyHash(): string | null | undefined {

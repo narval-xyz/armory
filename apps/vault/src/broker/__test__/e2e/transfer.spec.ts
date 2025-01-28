@@ -1,20 +1,15 @@
-import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
-import { LoggerModule, REQUEST_HEADER_CLIENT_ID } from '@narval/nestjs-shared'
+import { REQUEST_HEADER_CLIENT_ID } from '@narval/nestjs-shared'
 import { Ed25519PrivateKey, getPublicKey } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
-import { EventEmitter2 } from '@nestjs/event-emitter'
-import { Test, TestingModule } from '@nestjs/testing'
-import { mock } from 'jest-mock-extended'
+import { TestingModule } from '@nestjs/testing'
 import { HttpResponse, http } from 'msw'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
+import { VaultTest } from '../../../__test__/shared/vault.test'
 import { ClientService } from '../../../client/core/service/client.service'
 import { MainModule } from '../../../main.module'
 import { ProvisionService } from '../../../provision.service'
-import { KeyValueRepository } from '../../../shared/module/key-value/core/repository/key-value.repository'
-import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
-import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
 import postAnchorageTransferBadRequest from '../../core/provider/anchorage/__test__/server-mock/response/post-transfer-400.json'
 import { ANCHORAGE_TEST_API_BASE_URL, getHandlers } from '../../core/provider/anchorage/__test__/server-mock/server'
 import { ConnectionStatus, ConnectionWithCredentials } from '../../core/type/connection.type'
@@ -151,22 +146,9 @@ describe('Transfer', () => {
   const mockServer = setupMockServer(getHandlers())
 
   beforeAll(async () => {
-    module = await Test.createTestingModule({
+    module = await VaultTest.createTestingModule({
       imports: [MainModule]
-    })
-      .overrideModule(LoggerModule)
-      .useModule(LoggerModule.forTest())
-      .overrideProvider(KeyValueRepository)
-      .useValue(new InMemoryKeyValueRepository())
-      .overrideProvider(EncryptionModuleOptionProvider)
-      .useValue({
-        keyring: getTestRawAesKeyring()
-      })
-      // Mock the event emitter because we don't want to send a
-      // connection.activated event after the creation.
-      .overrideProvider(EventEmitter2)
-      .useValue(mock<EventEmitter2>())
-      .compile()
+    }).compile()
 
     app = module.createNestApplication()
 

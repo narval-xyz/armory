@@ -1,6 +1,5 @@
 import { Permission, resourceId } from '@narval/armory-sdk'
-import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
-import { LoggerModule, REQUEST_HEADER_CLIENT_ID } from '@narval/nestjs-shared'
+import { REQUEST_HEADER_CLIENT_ID } from '@narval/nestjs-shared'
 import {
   Alg,
   Curves,
@@ -18,16 +17,16 @@ import {
   signJwt
 } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
-import { Test, TestingModule } from '@nestjs/testing'
+import { TestingModule } from '@nestjs/testing'
 import { generateMnemonic } from '@scure/bip39'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
 import { english } from 'viem/accounts'
+import { VaultTest } from '../../../__test__/shared/vault.test'
 import { ClientService } from '../../../client/core/service/client.service'
 import { MainModule } from '../../../main.module'
 import { ProvisionService } from '../../../provision.service'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
-import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
 import { Client, Origin } from '../../../shared/type/domain.type'
 import { ImportService } from '../../core/service/import.service'
 import { KeyGenerationService } from '../../core/service/key-generation.service'
@@ -103,16 +102,9 @@ describe('Generate', () => {
   }
 
   beforeAll(async () => {
-    module = await Test.createTestingModule({
+    module = await VaultTest.createTestingModule({
       imports: [MainModule]
-    })
-      .overrideModule(LoggerModule)
-      .useModule(LoggerModule.forTest())
-      .overrideProvider(EncryptionModuleOptionProvider)
-      .useValue({
-        keyring: getTestRawAesKeyring()
-      })
-      .compile()
+    }).compile()
 
     app = module.createNestApplication({ logger: false })
 
