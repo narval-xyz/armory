@@ -15,6 +15,8 @@ export type ValidConnection = {
     apiKey: string
     privateKey: Ed25519PrivateKey
   }
+  clientId: string
+  connectionId: string
 }
 
 export function validateConnection(

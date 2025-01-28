@@ -1,9 +1,11 @@
 import { createZodDto } from 'nestjs-zod'
 import { z } from 'zod'
-import { ScopedSync } from '../../../../core/type/scoped-sync.type'
+import { RawAccountSyncFailure, ScopedSync } from '../../../../core/type/scoped-sync.type'
 
 export class ScopedSyncDto extends createZodDto(
   z.object({
-    data: ScopedSync
+    data: ScopedSync.extend({
+      failures: z.array(RawAccountSyncFailure)
+    })
   })
 ) {}

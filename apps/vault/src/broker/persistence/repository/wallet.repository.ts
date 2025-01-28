@@ -1,4 +1,10 @@
-import { PaginatedResult, PaginationOptions, applyPagination, getPaginatedResult } from '@narval/nestjs-shared'
+import {
+  LoggerService,
+  PaginatedResult,
+  PaginationOptions,
+  applyPagination,
+  getPaginatedResult
+} from '@narval/nestjs-shared'
 import { Injectable } from '@nestjs/common'
 import { ProviderAccount, ProviderAddress, ProviderWallet } from '@prisma/client/vault'
 import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
@@ -28,7 +34,10 @@ export type FindAllPaginatedOptions = PaginationOptions & FindAllFilters
 
 @Injectable()
 export class WalletRepository {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    private prismaService: PrismaService,
+    private readonly logger: LoggerService
+  ) {}
 
   static parseModel(wallet: ProviderWalletsAndRelations): Wallet {
     const { accounts, id, ...walletData } = wallet
@@ -183,6 +192,77 @@ export class WalletRepository {
     })
 
     return wallets
+  }
+
+  async bulkUpsert(wallets: Wallet[]): Promise<Wallet[]> {
+    const providerWallets: ProviderWallet[] = wallets.map(WalletRepository.parseEntity)
+
+    const stats = {
+      inserted: 0,
+      updated: 0
+    }
+
+    const existingWallets = await this.prismaService.providerWallet.findMany({
+      where: {
+        OR: providerWallets.map((wallet) => ({
+          clientId: wallet.clientId,
+          connectionId: wallet.connectionId,
+          externalId: wallet.externalId
+        }))
+      }
+    })
+
+    const upsertedWallets = await this.prismaService.$transaction(async (tx) => {
+      const upsertPromises = providerWallets.map(async (wallet) => {
+        const existing = existingWallets.find(
+          (w) =>
+            w.clientId === wallet.clientId &&
+            w.connectionId === wallet.connectionId &&
+            w.externalId === wallet.externalId
+        )
+
+        const result = tx.providerWallet.upsert({
+          where: {
+            clientId_connectionId_externalId: {
+              clientId: wallet.clientId,
+              connectionId: wallet.connectionId,
+              externalId: wallet.externalId
+            }
+          },
+          create: {
+            ...wallet
+          },
+          update: {
+            label: wallet.label,
+            updatedAt: wallet.updatedAt
+          },
+          include: {
+            accounts: {
+              include: {
+                addresses: true
+              }
+            }
+          }
+        })
+
+        if (!existing) {
+          stats.inserted++
+        } else {
+          stats.updated++
+        }
+
+        return result
+      })
+      return Promise.all(upsertPromises)
+    })
+
+    this.logger.log('Wallet bulk upsert operation completed:', {
+      total: wallets.length,
+      inserted: stats.inserted,
+      updated: stats.updated
+    })
+
+    return upsertedWallets.map(WalletRepository.parseModel)
   }
 
   async update(wallet: UpdateWallet) {

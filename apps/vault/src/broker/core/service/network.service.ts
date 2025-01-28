@@ -3,7 +3,7 @@ import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager'
 import { Inject, Injectable } from '@nestjs/common'
 import { uniq } from 'lodash'
 import { FindAllOptions, NetworkRepository } from '../../persistence/repository/network.repository'
-import { ExternalNetwork, Network } from '../type/network.type'
+import { ExternalNetwork, Network, NetworkMap } from '../type/network.type'
 import { Provider } from '../type/provider.type'
 
 @Injectable()
@@ -114,7 +114,7 @@ export class NetworkService {
    * traversals on subsequent queries. All lookups become O(1) after indexing
    * at the cost of O(n) additional memory.
    */
-  async buildProviderExternalIdIndex(provider: Provider): Promise<Map<string, Network>> {
+  async buildProviderExternalIdIndex(provider: Provider): Promise<NetworkMap> {
     const networks = await this.findAll({ filters: { provider } })
     const index = new Map<string, Network>()
 
