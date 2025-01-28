@@ -5,14 +5,17 @@ import { AnchorageClient } from '../../http/client/anchorage.client'
 import { FireblocksClient } from '../../http/client/fireblocks.client'
 import { AccountRepository } from '../../persistence/repository/account.repository'
 import { AssetRepository } from '../../persistence/repository/asset.repository'
-import { NetworkRepository } from '../../persistence/repository/network.repository'
 import { BrokerException } from '../exception/broker.exception'
 import { validateConnection as validateAnchorageConnection } from '../provider/anchorage/anchorage.util'
-import { validateConnection as validateFireblocksConnection } from '../provider/fireblocks/fireblocks.util'
+import {
+  buildFireblocksAssetWalletExternalId,
+  validateConnection as validateFireblocksConnection
+} from '../provider/fireblocks/fireblocks.util'
 import { Asset } from '../type/asset.type'
 import { Network } from '../type/network.type'
 import { Provider } from '../type/provider.type'
 import { ConnectionService } from './connection.service'
+import { NetworkService } from './network.service'
 
 export const RawAccount = z.object({
   provider: z.nativeEnum(Provider),
@@ -49,7 +52,7 @@ export class RawAccountService {
   constructor(
     private readonly accountRepository: AccountRepository,
     private readonly connectionService: ConnectionService,
-    private readonly networkRepository: NetworkRepository,
+    private readonly networkService: NetworkService,
     private readonly assetRepository: AssetRepository,
     private readonly anchorageClient: AnchorageClient,
     private readonly fireblocksClient: FireblocksClient,
@@ -67,7 +70,7 @@ export class RawAccountService {
       ? await this.assetRepository.findById(options.filters.assetId)
       : undefined
     const networkFilter = options?.filters?.networkId
-      ? await this.networkRepository.findById(options.filters.networkId)
+      ? await this.networkService.findById(options.filters.networkId)
       : undefined
 
     if (connection.provider === Provider.ANCHORAGE) {
@@ -87,7 +90,7 @@ export class RawAccountService {
           label: wallet.walletName,
           subLabel: wallet.vaultName,
           defaultAddress: wallet.depositAddress.address,
-          network: await this.networkRepository.findByExternalId(Provider.ANCHORAGE, wallet.networkId),
+          network: await this.networkService.findByExternalId(Provider.ANCHORAGE, wallet.networkId),
           assets: await Promise.all(
             wallet.assets.map(async (a) => ({
               asset: await this.assetRepository.findByExternalId(Provider.ANCHORAGE, a.assetType),
@@ -154,9 +157,11 @@ export class RawAccountService {
         }
       })
       // In Fireblocks, a VaultAccount is not network-specific, so we'll map the AssetWallets to get what we call "Accounts"
+      // Map accounts to our format
       const rawAccounts = await Promise.all(
         response.accounts.map(async (account) => {
-          const assets = await Promise.all(
+          // 1. First map and filter assets
+          const mappedAssets = await Promise.all(
             account.assets
               .filter((a) => !a.hiddenOnUI)
               .map(async (asset) => ({
@@ -165,43 +170,62 @@ export class RawAccountService {
                 asset: await this.assetRepository.findByExternalId(Provider.FIREBLOCKS, asset.id)
               }))
           )
-          // Group assets by network
-          const assetsByNetwork = assets.reduce(
+
+          // 2. Group assets by network
+          const assetsByNetwork = mappedAssets.reduce(
             (acc, asset) => {
-              if (!asset.asset?.networkId) return acc // Skip assets without a networkId
-              if (!acc[asset.asset.networkId]) {
-                acc[asset.asset.networkId] = []
+              if (!asset.asset?.networkId) return acc
+              return {
+                ...acc,
+                [asset.asset.networkId]: [...(acc[asset.asset.networkId] || []), asset]
               }
-              acc[asset.asset.networkId].push(asset)
-              return acc
             },
-            {} as Record<string, typeof assets>
+            {} as Record<string, typeof mappedAssets>
           )
 
-          // Create an account for each network that has assets
-          return await Promise.all(
-            Object.entries(assetsByNetwork).map(async ([networkId, networkAssets]) => {
-              const network = await this.networkRepository.findById(networkId)
-              return {
-                provider: Provider.FIREBLOCKS,
-                externalId: `${account.id}-${networkId}`,
-                label: account.name || account.id,
-                subLabel: networkId,
-                defaultAddress: '', // Fireblocks doesn't provide a default address at account level
-                network,
-                assets: networkAssets
-                  .map((a) =>
-                    a.asset
-                      ? {
-                          asset: a.asset,
-                          balance: a.balance
-                        }
-                      : undefined
-                  )
-                  .filter((a) => !!a)
-              }
-            })
-          )
+          // 3. Validate networks and get their Fireblocks IDs
+          const validNetworks = (
+            await Promise.all(
+              Object.entries(assetsByNetwork).map(async ([networkId, assets]) => {
+                const network = await this.networkService.findById(networkId)
+                const fireblocksNetworkId = network?.externalNetworks.find(
+                  (n) => n.provider === Provider.FIREBLOCKS
+                )?.externalId
+
+                if (!network || !fireblocksNetworkId) return null
+
+                return {
+                  network,
+                  fireblocksNetworkId,
+                  assets
+                }
+              })
+            )
+          ).filter((item): item is NonNullable<typeof item> => item !== null)
+
+          return validNetworks.map(({ network, fireblocksNetworkId, assets }) => {
+            return {
+              provider: Provider.FIREBLOCKS,
+              externalId: buildFireblocksAssetWalletExternalId({
+                vaultId: account.id,
+                networkId: fireblocksNetworkId
+              }),
+              label: account.name || account.id,
+              subLabel: network?.networkId,
+              defaultAddress: '', // Fireblocks doesn't provide a default address at account level
+              network: Network.parse(network),
+              assets: assets
+                .map((a) =>
+                  a.asset
+                    ? {
+                        asset: a.asset,
+                        balance: a.balance
+                      }
+                    : undefined
+                )
+                .filter((a) => !!a)
+            }
+          })
         })
       ).then((a) => a.flat())
 

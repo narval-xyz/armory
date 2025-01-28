@@ -1,4 +1,10 @@
-import { PaginatedResult, PaginationOptions, applyPagination, getPaginatedResult } from '@narval/nestjs-shared'
+import {
+  LoggerService,
+  PaginatedResult,
+  PaginationOptions,
+  applyPagination,
+  getPaginatedResult
+} from '@narval/nestjs-shared'
 import { Injectable } from '@nestjs/common'
 import { ProviderAccount, ProviderAddress } from '@prisma/client/vault'
 import { PrismaService } from '../../../shared/module/persistence/service/prisma.service'
@@ -30,7 +36,10 @@ export type UpdateAccount = {
 
 @Injectable()
 export class AccountRepository {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    private prismaService: PrismaService,
+    private readonly logger: LoggerService
+  ) {}
 
   static parseModel(model: ProviderAccountAndRelations): Account {
     const { id, ...rest } = model
@@ -148,6 +157,75 @@ export class AccountRepository {
     })
 
     return true
+  }
+
+  async bulkUpsert(accounts: Account[]): Promise<Account[]> {
+    const providerAccounts = accounts.map(AccountRepository.parseEntity)
+    const stats = {
+      inserted: 0,
+      updated: 0
+    }
+
+    const existingAccounts = await this.prismaService.providerAccount.findMany({
+      where: {
+        OR: providerAccounts.map((account) => ({
+          clientId: account.clientId,
+          connectionId: account.connectionId,
+          externalId: account.externalId
+        }))
+      }
+    })
+
+    const results = await this.prismaService.$transaction(async (tx) => {
+      const operations = await Promise.all(
+        providerAccounts.map(async (account) => {
+          const existing = existingAccounts.find(
+            (a) =>
+              a.clientId === account.clientId &&
+              a.connectionId === account.connectionId &&
+              a.externalId === account.externalId
+          )
+
+          const result = await tx.providerAccount.upsert({
+            where: {
+              clientId_connectionId_externalId: {
+                clientId: account.clientId,
+                connectionId: account.connectionId,
+                externalId: account.externalId
+              }
+            },
+            create: {
+              ...account
+            },
+            update: {
+              label: account.label,
+              updatedAt: account.updatedAt
+            },
+            include: {
+              addresses: true
+            }
+          })
+
+          if (!existing) {
+            stats.inserted++
+          } else {
+            stats.updated++
+          }
+
+          return result
+        })
+      )
+
+      return operations
+    })
+
+    this.logger.log('Account bulk upsert operation completed:', {
+      total: accounts.length,
+      inserted: stats.inserted,
+      updated: stats.updated
+    })
+
+    return results.map(AccountRepository.parseModel)
   }
 
   async findAll(

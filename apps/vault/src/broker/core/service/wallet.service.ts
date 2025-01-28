@@ -12,6 +12,10 @@ export class WalletService {
     return this.walletRepository.bulkCreate(wallets)
   }
 
+  async bulkUpsert(wallets: Wallet[]): Promise<Wallet[]> {
+    return this.walletRepository.bulkUpsert(wallets)
+  }
+
   async bulkUpdate(wallets: UpdateWallet[]): Promise<Wallet[]> {
     return Promise.all(wallets.map((wallet) => this.update(wallet)))
   }

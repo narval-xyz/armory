@@ -124,13 +124,13 @@ model ProviderAccount {
   connectionId String   @map("connection_id")
   externalId   String   @map("external_id")
   provider     String
-  walletId     String   @map("wallet_id")
+  walletId     String?  @map("wallet_id")
   networkId    String   @map("network_id")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
   connection ProviderConnection @relation(fields: [connectionId], references: [id])
-  wallet     ProviderWallet     @relation(fields: [walletId], references: [id])
+  wallet     ProviderWallet?    @relation(fields: [walletId], references: [id])
   addresses  ProviderAddress[]
 
   sourceTransfers      ProviderTransfer[] @relation("SourceAccount")
@@ -206,16 +206,19 @@ model ProviderSync {
 }
 
 model ProviderScopedSync {
-  id           String    @id
-  clientId     String    @map("client_id")
-  connectionId String    @map("connection_id")
+  id           String @id
+  clientId     String @map("client_id")
+  connectionId String @map("connection_id")
   status       String
+  rawAccounts  String @map("raw_accounts")
+
   errorName    String?   @map("error_name")
   errorMessage String?   @map("error_message")
   errorTraceId String?   @map("error_trace_id")
-  rawAccounts  String    @map("raw_accounts")
   createdAt    DateTime  @default(now()) @map("created_at")
   completedAt  DateTime? @map("completed_at")
+
+  failedRawAccounts String? @map("failed_raw_accounts")
 
   connection ProviderConnection @relation(fields: [connectionId], references: [id])
 
