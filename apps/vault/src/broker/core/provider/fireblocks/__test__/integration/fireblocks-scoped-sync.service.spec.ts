@@ -68,8 +68,6 @@ iYDlTZ/pWsEotE2yCl/8krs=
 
   const privateKey = Buffer.from(privateKeyPem).toString('base64')
 
-  const mockServer = setupMockServer(getHandlers())
-
   const clientId = 'test-client-id'
 
   beforeAll(async () => {
