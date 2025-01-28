@@ -1,10 +1,4 @@
-import {
-  LoggerService,
-  PaginatedResult,
-  PaginationOptions,
-  applyPagination,
-  getPaginatedResult
-} from '@narval/nestjs-shared'
+import { PaginatedResult, PaginationOptions, applyPagination, getPaginatedResult } from '@narval/nestjs-shared'
 import { Injectable } from '@nestjs/common'
 import { ProviderAddress } from '@prisma/client/vault'
 import { z } from 'zod'
@@ -27,10 +21,7 @@ export type FindAllOptions = FindAllFilters & { pagination?: PaginationOptions }
 
 @Injectable()
 export class AddressRepository {
-  constructor(
-    private prismaService: PrismaService,
-    private readonly logger: LoggerService
-  ) {}
+  constructor(private prismaService: PrismaService) {}
 
   static parseModel(model: ProviderAddress): Address {
     const { id, ...rest } = model
@@ -148,16 +139,10 @@ export class AddressRepository {
   }
 
   async bulkCreate(addresses: Address[]): Promise<Address[]> {
-    const { count } = await this.prismaService.providerAddress.createMany({
-      data: addresses.map(AddressRepository.parseEntity),
-      skipDuplicates: true
+    await this.prismaService.providerAddress.createMany({
+      data: addresses.map(AddressRepository.parseEntity)
     })
 
-    this.logger.log('Address bulk create operation done', {
-      addressesLength: addresses.length,
-      addressesCreated: count,
-      addressesSkipped: addresses.length - count
-    })
     return addresses
   }
 }

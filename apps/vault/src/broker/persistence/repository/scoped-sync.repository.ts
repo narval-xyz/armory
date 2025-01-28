@@ -6,7 +6,7 @@ import { PrismaService } from '../../../shared/module/persistence/service/prisma
 import { ModelInvalidException } from '../../core/exception/model-invalid.exception'
 import { NotFoundException } from '../../core/exception/not-found.exception'
 import { ConnectionScope } from '../../core/type/scope.type'
-import { RawAccount, RawAccountSyncFailure, ScopedSync, ScopedSyncStatus } from '../../core/type/scoped-sync.type'
+import { RawAccount, ScopedSync, ScopedSyncStatus } from '../../core/type/scoped-sync.type'
 
 export type FindAllOptions = PaginationOptions & {
   filters?: {
@@ -21,7 +21,6 @@ export type UpdateScopedSync = {
   completedAt?: Date
   status?: ScopedSyncStatus
   error?: ScopedSync['error']
-  failures?: RawAccountSyncFailure[]
 }
 
 const parseErrorEntity = (
@@ -48,7 +47,6 @@ export class ScopedSyncRepository {
         // with how NULL values work in databases.
         rawAccounts: model.rawAccounts ? z.array(RawAccount).parse(PrismaService.toJson(model.rawAccounts)) : [],
         completedAt: model.completedAt || undefined,
-        failures: z.array(RawAccountSyncFailure).parse(PrismaService.toJson(model.failedRawAccounts) || []),
         error:
           model.errorName || model.errorMessage || model.errorTraceId
             ? {
@@ -72,7 +70,6 @@ export class ScopedSyncRepository {
       rawAccounts: z.string().parse(PrismaService.toStringJson(entity.rawAccounts)),
       createdAt: entity.createdAt,
       status: entity.status,
-      failedRawAccounts: PrismaService.toStringJson(entity.failures),
       ...parseErrorEntity(entity.error)
     }
   }
@@ -94,7 +91,6 @@ export class ScopedSyncRepository {
   }
 
   async update(updateScopedSync: UpdateScopedSync): Promise<boolean> {
-    const failures = updateScopedSync.failures ? PrismaService.toStringJson(updateScopedSync.failures) : null
     await this.prismaService.providerScopedSync.update({
       where: {
         id: updateScopedSync.scopedSyncId,
@@ -103,8 +99,7 @@ export class ScopedSyncRepository {
       data: {
         completedAt: updateScopedSync.completedAt,
         status: updateScopedSync.status,
-        ...(updateScopedSync.error ? parseErrorEntity(updateScopedSync.error) : {}),
-        failedRawAccounts: failures
+        ...(updateScopedSync.error ? parseErrorEntity(updateScopedSync.error) : {})
       }
     })
 
@@ -148,16 +143,5 @@ export class ScopedSyncRepository {
       data: data.map(ScopedSyncRepository.parseModel),
       page
     }
-  }
-
-  async exists({ clientId, connectionId, status }: ConnectionScope & { status?: ScopedSyncStatus }): Promise<boolean> {
-    const count = await this.prismaService.providerScopedSync.count({
-      where: {
-        clientId,
-        connectionId,
-        ...(status ? { status } : {})
-      }
-    })
-    return count > 0
   }
 }

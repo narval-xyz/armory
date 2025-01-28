@@ -20,10 +20,6 @@ export class AccountService {
     return this.accountRepository.bulkCreate(accounts)
   }
 
-  async bulkUpsert(accounts: Account[]): Promise<Account[]> {
-    return this.accountRepository.bulkUpsert(accounts)
-  }
-
   async bulkUpdate(updateAccounts: UpdateAccount[]): Promise<boolean> {
     return this.accountRepository.bulkUpdate(updateAccounts)
   }

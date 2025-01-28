@@ -1,278 +1,287 @@
 import { LoggerService } from '@narval/nestjs-shared'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { randomUUID } from 'crypto'
-import { chunk, uniqBy } from 'lodash/fp'
+import { filter, find, flatMap, flow, groupBy, isEmpty, map, uniqBy } from 'lodash/fp'
 import { AnchorageClient, Wallet as AnchorageWallet } from '../../../http/client/anchorage.client'
+import { UpdateAccount } from '../../../persistence/repository/account.repository'
+import { NetworkRepository } from '../../../persistence/repository/network.repository'
+import { WalletRepository } from '../../../persistence/repository/wallet.repository'
 import { ConnectionWithCredentials } from '../../type/connection.type'
-import { Account, Address, Wallet } from '../../type/indexed-resources.type'
-import { NetworkMap } from '../../type/network.type'
-import { Provider, ProviderScopedSyncService } from '../../type/provider.type'
+import { Account, Address, UpdateWallet, Wallet } from '../../type/indexed-resources.type'
 import {
-  RawAccount,
-  RawAccountError,
-  RawAccountSyncFailure,
-  ScopedSyncContext,
+  CreateScopedSyncOperation,
+  Provider,
+  ProviderScopedSyncService,
+  ScopedSyncOperation,
+  ScopedSyncOperationType,
   ScopedSyncResult
-} from '../../type/scoped-sync.type'
-import { CONCURRENT_ANCHORAGE_REQUESTS, ValidConnection, validateConnection } from './anchorage.util'
-
-type RawAccountSyncSuccess = {
-  success: true
-  wallet: Wallet
-  account: Account
-  address: Address
-}
-
-type RawAccountSyncFailed = {
-  success: false
-  failure: RawAccountSyncFailure
-}
-
-type RawAccountSyncResult = RawAccountSyncSuccess | RawAccountSyncFailed
+} from '../../type/provider.type'
+import { RawAccount } from '../../type/scoped-sync.type'
+import { CONCURRENT_ANCHORAGE_REQUESTS, validateConnection } from './anchorage.util'
 
 @Injectable()
 export class AnchorageScopedSyncService implements ProviderScopedSyncService {
   constructor(
     private readonly anchorageClient: AnchorageClient,
+    private readonly networkRepository: NetworkRepository,
+    private readonly walletRepository: WalletRepository,
     private readonly logger: LoggerService
   ) {}
 
-  private resolveFailure(failure: RawAccountSyncFailure): RawAccountSyncFailed {
-    this.logger.log('Failed to sync Raw Account', failure)
-    return { success: false, failure }
-  }
-
-  private resolveSuccess({
-    rawAccount,
-    wallet,
-    account,
-    address
-  }: {
-    wallet: Wallet
-    address: Address
-    rawAccount: RawAccount
-    account: Account
-  }): RawAccountSyncSuccess {
-    this.logger.log('Successfully fetched and map Raw Account', {
-      rawAccount,
-      account
-    })
-    return {
-      success: true,
-      wallet,
-      account,
-      address
-    }
-  }
-
-  private mapAnchorageWalletToNarvalModel(
-    anchorageWallet: AnchorageWallet,
-    {
-      networks,
-      now,
-      existingAccounts,
-      rawAccount,
-      connection,
-      existingWallets
-    }: {
-      networks: NetworkMap
-      now: Date
-      existingAccounts: Account[]
-      existingWallets: Wallet[]
-      rawAccount: RawAccount
-      connection: ValidConnection
-    }
-  ): RawAccountSyncResult {
-    const network = networks.get(anchorageWallet.networkId)
-    if (!network) {
-      this.logger.error('Network not found', {
-        rawAccount,
-        externalNetwork: anchorageWallet.networkId
-      })
-      return this.resolveFailure({
-        rawAccount,
-        message: 'Network for this account is not supported',
-        code: RawAccountError.UNLISTED_NETWORK,
-        networkId: anchorageWallet.networkId
-      })
-    }
-    const existingAccount = existingAccounts.find((a) => a.externalId === anchorageWallet.walletId)
-    const existingWallet = existingWallets.find((w) => w.externalId === anchorageWallet.vaultId)
-
-    const walletId = existingWallet?.walletId || existingAccount?.walletId || randomUUID()
-    const accountId = existingAccount?.accountId || randomUUID()
-
-    const wallet: Wallet = {
-      accounts: [],
-      clientId: connection.clientId,
-      connectionId: connection.connectionId,
-      createdAt: now,
-      externalId: anchorageWallet.vaultId,
-      label: anchorageWallet.walletName,
-      provider: Provider.ANCHORAGE,
-      updatedAt: now,
-      walletId
-    }
-
-    const account: Account = {
-      externalId: anchorageWallet.walletId,
-      accountId,
-      addresses: [],
-      clientId: connection.clientId,
-      connectionId: connection.connectionId,
-      createdAt: now,
-      label: anchorageWallet.walletName,
-      networkId: network.networkId,
-      provider: Provider.ANCHORAGE,
-      updatedAt: now,
-      walletId
-    }
-
-    const address: Address = {
-      accountId,
-      address: anchorageWallet.depositAddress.address,
-      addressId: randomUUID(),
-      clientId: connection.clientId,
-      connectionId: connection.connectionId,
-      createdAt: now,
-      externalId: anchorageWallet.depositAddress.addressId,
-      provider: Provider.ANCHORAGE,
-      updatedAt: now
-    }
-
-    return this.resolveSuccess({ rawAccount, wallet, account, address })
-  }
-
-  private async syncRawAccount({
-    connection,
-    rawAccount,
-    networks,
-    now,
-    existingAccounts,
-    existingWallets
-  }: {
-    connection: ConnectionWithCredentials
-    rawAccount: RawAccount
-    networks: NetworkMap
-    now: Date
-    existingAccounts: Account[]
-    existingWallets: Wallet[]
-  }): Promise<RawAccountSyncResult> {
+  private async fetchRawAccountWallets(
+    connection: ConnectionWithCredentials,
+    rawAccounts: RawAccount[]
+  ): Promise<AnchorageWallet[]> {
     validateConnection(connection)
 
-    try {
-      const anchorageWallet = await this.anchorageClient.getWallet({
-        url: connection.url,
-        apiKey: connection.credentials.apiKey,
-        signKey: connection.credentials.privateKey,
-        walletId: rawAccount.externalId
-      })
+    const wallets: AnchorageWallet[] = []
 
-      return this.mapAnchorageWalletToNarvalModel(anchorageWallet, {
-        networks,
-        now,
-        existingAccounts,
-        rawAccount,
-        connection,
-        existingWallets
-      })
-    } catch (error) {
-      if (error.response?.status === HttpStatus.NOT_FOUND) {
-        return this.resolveFailure({
-          rawAccount,
-          message: 'Anchorage wallet not found',
-          code: RawAccountError.EXTERNAL_RESOURCE_NOT_FOUND,
-          externalResourceType: 'wallet',
-          externalResourceId: rawAccount.externalId
+    for (let i = 0; i < rawAccounts.length; i += CONCURRENT_ANCHORAGE_REQUESTS) {
+      const batch = rawAccounts.slice(i, i + CONCURRENT_ANCHORAGE_REQUESTS)
+      const batchPromises = batch.map((rawAccount) =>
+        this.anchorageClient.getWallet({
+          url: connection.url,
+          apiKey: connection.credentials.apiKey,
+          signKey: connection.credentials.privateKey,
+          walletId: rawAccount.externalId
         })
-      }
-      throw error
+      )
+
+      const batchResults = await Promise.allSettled(batchPromises)
+
+      const validWallets = batchResults
+        .map((result, index) => {
+          if (result.status === 'fulfilled') {
+            return result.value
+          } else {
+            // Handle rejected promises
+            const error = result.reason
+            const rawAccount = batch[index]
+
+            if (error.response?.status === HttpStatus.NOT_FOUND) {
+              this.logger.warn('Anchorage wallet not found', {
+                connectionId: connection.connectionId,
+                clientId: connection.clientId,
+                url: connection.url,
+                externalId: rawAccount.externalId
+              })
+              return null
+            }
+            throw error
+          }
+        })
+        .filter((wallet): wallet is AnchorageWallet => wallet !== null) as AnchorageWallet[]
+
+      wallets.push(...validWallets)
     }
+
+    return wallets
   }
 
-  async scopeSync({
-    connection,
-    rawAccounts,
-    networks,
-    existingAccounts
-  }: ScopedSyncContext): Promise<ScopedSyncResult> {
+  async scopedSync(connection: ConnectionWithCredentials, rawAccounts: RawAccount[]): Promise<ScopedSyncResult> {
+    const now = new Date()
+
     this.logger.log('Sync Anchorage accounts', {
       connectionId: connection.connectionId,
       clientId: connection.clientId,
       url: connection.url
     })
 
-    const now = new Date()
+    validateConnection(connection)
 
-    const chunkedRawAccounts = chunk(CONCURRENT_ANCHORAGE_REQUESTS, rawAccounts)
-    const results: RawAccountSyncResult[] = []
+    const existingWallets = await this.walletRepository.findAll(
+      { clientId: connection.clientId, connectionId: connection.connectionId },
+      { pagination: { disabled: true } }
+    )
 
-    // TODO @ptroger: remove the if block when we completely move towards picking accounts in UI
-    if (rawAccounts.length === 0) {
-      validateConnection(connection)
+    const existingWalletMap = new Map(existingWallets.data.map((wallet) => [wallet.externalId, wallet]))
+    const existingAccountMap = new Map(
+      existingWallets.data.flatMap(
+        (wallet) =>
+          wallet.accounts?.map((account) => [account.externalId, { ...account, walletId: wallet.walletId }]) ?? []
+      )
+    )
 
-      const anchorageWallets = await this.anchorageClient.getWallets({
-        url: connection.url,
-        apiKey: connection.credentials.apiKey,
-        signKey: connection.credentials.privateKey
-      })
-
-      const existingWallets: Wallet[] = []
-      const mappedAnchorageWallets = anchorageWallets.map((anchorageWallet) => {
-        const map = this.mapAnchorageWalletToNarvalModel(anchorageWallet, {
-          networks,
-          now,
-          existingAccounts,
-          rawAccount: { provider: Provider.ANCHORAGE, externalId: anchorageWallet.walletId },
-          connection,
-          existingWallets
+    // TODO @ptroger: revert that back to 'return empty array' when we completely move towards the scoped connections
+    const scopedAnchorageWallets = isEmpty(rawAccounts)
+      ? await this.anchorageClient.getWallets({
+          url: connection.url,
+          apiKey: connection.credentials.apiKey,
+          signKey: connection.credentials.privateKey
         })
-        map.success && existingWallets.push(map.wallet)
-        return map
-      })
+      : await this.fetchRawAccountWallets(connection, rawAccounts)
 
-      results.push(...mappedAnchorageWallets)
-    } else {
-      const existingWallets: Wallet[] = []
-      for (const chunk of chunkedRawAccounts) {
-        const chunkResults = await Promise.all(
-          chunk.map(async (rawAccount) => {
-            const mapResult = await this.syncRawAccount({
-              connection,
-              rawAccount,
-              networks,
-              now,
-              existingAccounts,
-              existingWallets
-            })
-            mapResult.success && existingWallets.push(mapResult.wallet)
-            return mapResult
+    const walletsByVault = groupBy('vaultId', scopedAnchorageWallets)
+    const vaultAndWallets = Object.entries(walletsByVault).map(([vaultId, wallets]) => ({
+      id: vaultId,
+      // All wallets in a vault should have the same vault name
+      name: wallets[0].vaultName,
+      wallets: wallets.map((wallet) => ({
+        walletId: wallet.walletId,
+        walletName: wallet.walletName,
+        address: {
+          address: wallet.depositAddress.address,
+          addressId: wallet.depositAddress.addressId
+        },
+        assets: wallet.assets.map((asset) => ({
+          assetType: asset.assetType,
+          availableBalance: asset.availableBalance,
+          totalBalance: asset.totalBalance,
+          stakedBalance: asset.stakedBalance,
+          unclaimedBalance: asset.unclaimedBalance
+        })),
+        networkId: wallet.networkId
+      }))
+    }))
+
+    const walletOperations: ScopedSyncOperation<Wallet, UpdateWallet>[] = []
+    const accountOperations: ScopedSyncOperation<Account, UpdateAccount>[] = []
+    const addressOperations: ScopedSyncOperation<Address, never>[] = []
+
+    for (const vault of vaultAndWallets) {
+      const existingWallet = existingWalletMap.get(vault.id)
+      const walletId = existingWallet?.walletId || randomUUID()
+
+      if (existingWallet) {
+        // Check if wallet needs update
+        if (existingWallet.label !== vault.name) {
+          walletOperations.push({
+            type: ScopedSyncOperationType.UPDATE,
+            update: {
+              clientId: connection.clientId,
+              walletId,
+              label: vault.name,
+              updatedAt: now
+            }
           })
-        )
-        results.push(...chunkResults)
-      }
-    }
-
-    const wallets: Wallet[] = []
-    const accounts: Account[] = []
-    const addresses: Address[] = []
-    const failures: RawAccountSyncFailure[] = []
-
-    for (const result of results) {
-      if (result.success) {
-        wallets.push(result.wallet)
-        accounts.push(result.account)
-        addresses.push(result.address)
+        }
       } else {
-        failures.push(result.failure)
+        // Create new wallet
+        walletOperations.push({
+          type: ScopedSyncOperationType.CREATE,
+          create: {
+            accounts: [],
+            clientId: connection.clientId,
+            connectionId: connection.connectionId,
+            createdAt: now,
+            externalId: vault.id,
+            label: vault.name,
+            provider: Provider.ANCHORAGE,
+            updatedAt: now,
+            walletId
+          }
+        })
+      }
+
+      const vaultAssetTypes = flow(flatMap('assets'), uniqBy('assetType'), map('assetType'))(vault.wallets)
+
+      for (const anchorageWallet of vault.wallets) {
+        const existingAccount = existingAccountMap.get(anchorageWallet.walletId)
+        const accountId = existingAccount?.accountId || randomUUID()
+        const network = await this.networkRepository.findByExternalId(Provider.ANCHORAGE, anchorageWallet.networkId)
+
+        if (network) {
+          if (existingAccount) {
+            // Check if account needs update
+            if (existingAccount.label !== anchorageWallet.walletName) {
+              accountOperations.push({
+                type: ScopedSyncOperationType.UPDATE,
+                update: {
+                  clientId: connection.clientId,
+                  accountId: existingAccount.accountId,
+                  label: anchorageWallet.walletName,
+                  updatedAt: now
+                }
+              })
+            }
+          } else {
+            accountOperations.push({
+              type: ScopedSyncOperationType.CREATE,
+              create: {
+                externalId: anchorageWallet.walletId,
+                accountId,
+                addresses: [],
+                clientId: connection.clientId,
+                connectionId: connection.connectionId,
+                createdAt: now,
+                label: anchorageWallet.walletName,
+                networkId: network.networkId,
+                provider: Provider.ANCHORAGE,
+                updatedAt: now,
+                walletId
+              }
+            })
+          }
+        } else {
+          accountOperations.push({
+            type: ScopedSyncOperationType.FAILED,
+            externalId: anchorageWallet.walletId,
+            message: 'Unknown Anchorage wallet network ID',
+            context: {
+              externalId: anchorageWallet.walletId,
+              anchorageNetworkId: anchorageWallet.networkId
+            }
+          })
+        }
+      }
+
+      // Process addresses - Anchorage only creates, no updates
+      for (const assetType of vaultAssetTypes) {
+        const addresses = await this.anchorageClient.getVaultAddresses({
+          signKey: connection.credentials.privateKey,
+          apiKey: connection.credentials.apiKey,
+          assetType,
+          url: connection.url,
+          vaultId: vault.id
+        })
+
+        for (const address of addresses) {
+          const account = flow(
+            filter((op: ScopedSyncOperation<Account, UpdateAccount>) => op.type === ScopedSyncOperationType.CREATE),
+            find((op: CreateScopedSyncOperation<Account>) => op.create.externalId === address.walletId)
+          )(accountOperations)
+
+          const existingAccount = existingAccountMap.get(address.walletId)
+          const skipAddress = existingAccount?.addresses?.some((a) => a.externalId === address.addressId)
+
+          const tiedAccount = account?.create?.accountId || existingAccount?.accountId
+          if (!skipAddress && tiedAccount) {
+            if (account?.create?.accountId || existingAccount?.accountId) {
+              addressOperations.push({
+                type: ScopedSyncOperationType.CREATE,
+                create: {
+                  accountId: tiedAccount,
+                  address: address.address,
+                  addressId: randomUUID(),
+                  clientId: connection.clientId,
+                  connectionId: connection.connectionId,
+                  createdAt: now,
+                  externalId: address.addressId,
+                  provider: Provider.ANCHORAGE,
+                  updatedAt: now
+                }
+              })
+            } else {
+              addressOperations.push({
+                type: ScopedSyncOperationType.FAILED,
+                externalId: address.addressId,
+                message: 'Unknown Anchorage wallet address',
+                context: {
+                  externalId: address.addressId,
+                  address: address.address,
+                  walletId: address.walletId
+                }
+              })
+            }
+          }
+        }
       }
     }
 
     return {
-      wallets: uniqBy('externalId', wallets),
-      accounts: uniqBy('externalId', accounts),
-      addresses: uniqBy('externalId', addresses),
-      failures
+      wallets: walletOperations,
+      accounts: accountOperations,
+      addresses: addressOperations
     }
   }
 }

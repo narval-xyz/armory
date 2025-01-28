@@ -9,18 +9,15 @@ import { TestPrismaService } from '../../../../../../shared/module/persistence/s
 import { testClient } from '../../../../../__test__/util/mock-data'
 import { NetworkSeed } from '../../../../../persistence/seed/network.seed'
 import { setupMockServer } from '../../../../../shared/__test__/mock-server'
+import { AccountService } from '../../../../service/account.service'
+import { AddressService } from '../../../../service/address.service'
 import { ConnectionService } from '../../../../service/connection.service'
-import { NetworkService } from '../../../../service/network.service'
+import { WalletService } from '../../../../service/wallet.service'
 import { ConnectionWithCredentials } from '../../../../type/connection.type'
-import { Provider } from '../../../../type/provider.type'
-import { RawAccountError } from '../../../../type/scoped-sync.type'
-import {
-  FIREBLOCKS_TEST_API_BASE_URL,
-  getHandlers,
-  getVaultAccountHandlers
-} from '../../../fireblocks/__test__/server-mock/server'
+import { Provider, isCreateOperation } from '../../../../type/provider.type'
+import { FIREBLOCKS_TEST_API_BASE_URL, getHandlers } from '../../../fireblocks/__test__/server-mock/server'
 import { FireblocksScopedSyncService } from '../../fireblocks-scoped-sync.service'
-import { buildFireblocksAssetWalletExternalId } from '../../fireblocks.util'
+import { getFireblocksAssetWalletExternalId } from '../../fireblocks.util'
 
 describe(FireblocksScopedSyncService.name, () => {
   let app: INestApplication
@@ -29,9 +26,11 @@ describe(FireblocksScopedSyncService.name, () => {
   let fireblocksScopedSyncService: FireblocksScopedSyncService
   let clientService: ClientService
   let connection: ConnectionWithCredentials
+  let walletService: WalletService
+  let accountService: AccountService
+  let addressService: AddressService
   let connectionService: ConnectionService
   let networkSeed: NetworkSeed
-  let networkService: NetworkService
   let provisionService: ProvisionService
   let testPrismaService: TestPrismaService
 
@@ -80,7 +79,9 @@ iYDlTZ/pWsEotE2yCl/8krs=
     testPrismaService = module.get(TestPrismaService)
     fireblocksScopedSyncService = module.get(FireblocksScopedSyncService)
     connectionService = module.get(ConnectionService)
-    networkService = module.get(NetworkService)
+    walletService = module.get(WalletService)
+    accountService = module.get(AccountService)
+    addressService = module.get(AddressService)
     provisionService = module.get(ProvisionService)
     networkSeed = module.get(NetworkSeed)
     clientService = module.get(ClientService)
@@ -121,96 +122,87 @@ iYDlTZ/pWsEotE2yCl/8krs=
       const rawAccounts = [
         {
           provider: Provider.FIREBLOCKS,
-          externalId: buildFireblocksAssetWalletExternalId({ vaultId: '3', networkId: 'ETH' })
+          externalId: getFireblocksAssetWalletExternalId({ vaultId: '3', networkId: 'ETHEREUM' })
         }
       ]
-
-      const networks = await networkService.buildProviderExternalIdIndex(Provider.FIREBLOCKS)
-      const sync = await fireblocksScopedSyncService.scopeSync({
-        connection,
-        rawAccounts,
-        networks,
-        existingAccounts: []
-      })
+      const sync = await fireblocksScopedSyncService.scopedSync(connection, rawAccounts)
 
       expect(sync.wallets.length).toBe(1)
       expect(sync.accounts.length).toBe(1)
       expect(sync.addresses.length).toBe(1)
     })
 
-    it('returns empty objects when no rawAccounts are provided', async () => {
-      const networks = await networkService.buildProviderExternalIdIndex(Provider.FIREBLOCKS)
-
-      const sync = await fireblocksScopedSyncService.scopeSync({
-        connection,
-        rawAccounts: [],
-        networks,
-        existingAccounts: []
-      })
+    it('returns empty array when no rawAccounts are provided', async () => {
+      const sync = await fireblocksScopedSyncService.scopedSync(connection, [])
 
       expect(sync.wallets.length).toBe(0)
       expect(sync.accounts.length).toBe(0)
       expect(sync.addresses.length).toBe(0)
     })
 
-    it('adds failure when external resource is not found', async () => {
-      mockServer.use(getVaultAccountHandlers(FIREBLOCKS_TEST_API_BASE_URL).invalid)
+    it('returns empty array when no wallets are found for the provided rawAccounts', async () => {
       const rawAccounts = [
         {
           provider: Provider.FIREBLOCKS,
-          externalId: buildFireblocksAssetWalletExternalId({ vaultId: 'notfound', networkId: 'ETH' })
+          externalId: getFireblocksAssetWalletExternalId({ vaultId: 'notfound', networkId: 'ETHEREUM' })
         }
       ]
-      const networks = await networkService.buildProviderExternalIdIndex(Provider.FIREBLOCKS)
-
-      const sync = await fireblocksScopedSyncService.scopeSync({
-        connection,
-        rawAccounts,
-        networks,
-        existingAccounts: []
-      })
+      const sync = await fireblocksScopedSyncService.scopedSync(connection, rawAccounts)
 
       expect(sync.wallets.length).toBe(0)
       expect(sync.accounts.length).toBe(0)
       expect(sync.addresses.length).toBe(0)
-      expect(sync.failures).toEqual([
-        {
-          rawAccount: rawAccounts[0],
-          message: 'Fireblocks Vault Account not found',
-          code: RawAccountError.EXTERNAL_RESOURCE_NOT_FOUND,
-          externalResourceType: 'vaultAccount',
-          externalResourceId: 'NOTFOUND'
-        }
-      ])
     })
 
-    it('adds failure when network is not found in our list', async () => {
+    it('skips duplicate for the same connection', async () => {
       const rawAccounts = [
         {
           provider: Provider.FIREBLOCKS,
-          externalId: buildFireblocksAssetWalletExternalId({ vaultId: '3', networkId: 'notFound' })
+          externalId: getFireblocksAssetWalletExternalId({ vaultId: '3', networkId: 'ETHEREUM' })
         }
       ]
-      const networks = await networkService.buildProviderExternalIdIndex(Provider.FIREBLOCKS)
+      const firstSync = await fireblocksScopedSyncService.scopedSync(connection, rawAccounts)
 
-      const sync = await fireblocksScopedSyncService.scopeSync({
-        connection,
-        rawAccounts,
-        networks,
-        existingAccounts: []
+      await walletService.bulkCreate(firstSync.wallets.filter(isCreateOperation).map(({ create }) => create))
+      await accountService.bulkCreate(firstSync.accounts.filter(isCreateOperation).map(({ create }) => create))
+      await addressService.bulkCreate(firstSync.addresses.filter(isCreateOperation).map(({ create }) => create))
+
+      const secondSync = await fireblocksScopedSyncService.scopedSync(connection, rawAccounts)
+
+      expect(secondSync.wallets.length).toBe(0)
+      expect(secondSync.accounts.length).toBe(0)
+      expect(secondSync.addresses.length).toBe(0)
+    })
+
+    it('duplicates for different connections', async () => {
+      const rawAccounts = [
+        {
+          provider: Provider.FIREBLOCKS,
+          externalId: getFireblocksAssetWalletExternalId({ vaultId: '3', networkId: 'ETHEREUM' })
+        }
+      ]
+      const firstSync = await fireblocksScopedSyncService.scopedSync(connection, rawAccounts)
+
+      await walletService.bulkCreate(firstSync.wallets.filter(isCreateOperation).map(({ create }) => create))
+      await accountService.bulkCreate(firstSync.accounts.filter(isCreateOperation).map(({ create }) => create))
+      await addressService.bulkCreate(firstSync.addresses.filter(isCreateOperation).map(({ create }) => create))
+
+      const secondConnection = await connectionService.create(clientId, {
+        connectionId: uuid(),
+        provider: Provider.FIREBLOCKS,
+        url: FIREBLOCKS_TEST_API_BASE_URL,
+        label: 'test active connection',
+        credentials: {
+          apiKey: 'test-api-key',
+          privateKey
+        }
       })
 
-      expect(sync.wallets.length).toBe(0)
-      expect(sync.accounts.length).toBe(0)
-      expect(sync.addresses.length).toBe(0)
-      expect(sync.failures).toEqual([
-        {
-          rawAccount: rawAccounts[0],
-          message: 'Network for this account is not supported',
-          code: RawAccountError.UNLISTED_NETWORK,
-          networkId: 'NOTFOUND'
-        }
-      ])
+      const secondSync = await fireblocksScopedSyncService.scopedSync(secondConnection, rawAccounts)
+
+      expect(secondSync.wallets.length).toBe(1)
+      expect(secondSync.accounts.length).toBe(1)
+      expect(secondSync.addresses.length).toBe(1)
     })
   })
 })

@@ -10,11 +10,12 @@ import { TestPrismaService } from '../../../../../../shared/module/persistence/s
 import { testClient } from '../../../../../__test__/util/mock-data'
 import { NetworkSeed } from '../../../../../persistence/seed/network.seed'
 import { setupMockServer } from '../../../../../shared/__test__/mock-server'
+import { AccountService } from '../../../../service/account.service'
+import { AddressService } from '../../../../service/address.service'
 import { ConnectionService } from '../../../../service/connection.service'
-import { NetworkService } from '../../../../service/network.service'
+import { WalletService } from '../../../../service/wallet.service'
 import { ConnectionWithCredentials } from '../../../../type/connection.type'
-import { Provider } from '../../../../type/provider.type'
-import { RawAccountError } from '../../../../type/scoped-sync.type'
+import { Provider, isCreateOperation } from '../../../../type/provider.type'
 import { AnchorageScopedSyncService } from '../../anchorage-scoped-sync.service'
 import { ANCHORAGE_TEST_API_BASE_URL, getHandlers } from '../server-mock/server'
 
@@ -25,7 +26,9 @@ describe(AnchorageScopedSyncService.name, () => {
   let anchorageScopedSyncService: AnchorageScopedSyncService
   let clientService: ClientService
   let connection: ConnectionWithCredentials
-  let networkService: NetworkService
+  let walletService: WalletService
+  let accountService: AccountService
+  let addressService: AddressService
   let connectionService: ConnectionService
   let networkSeed: NetworkSeed
   let provisionService: ProvisionService
@@ -45,7 +48,9 @@ describe(AnchorageScopedSyncService.name, () => {
     testPrismaService = module.get(TestPrismaService)
     anchorageScopedSyncService = module.get(AnchorageScopedSyncService)
     connectionService = module.get(ConnectionService)
-    networkService = module.get(NetworkService)
+    walletService = module.get(WalletService)
+    accountService = module.get(AccountService)
+    addressService = module.get(AddressService)
     provisionService = module.get(ProvisionService)
     networkSeed = module.get(NetworkSeed)
     clientService = module.get(ClientService)
@@ -89,14 +94,7 @@ describe(AnchorageScopedSyncService.name, () => {
           externalId: '6a46a1977959e0529f567e8e927e3895'
         }
       ]
-      const networks = await networkService.buildProviderExternalIdIndex(Provider.ANCHORAGE)
-
-      const sync = await anchorageScopedSyncService.scopeSync({
-        connection,
-        rawAccounts,
-        networks,
-        existingAccounts: []
-      })
+      const sync = await anchorageScopedSyncService.scopedSync(connection, rawAccounts)
 
       expect(sync.wallets.length).toBe(1)
       expect(sync.accounts.length).toBe(1)
@@ -105,76 +103,75 @@ describe(AnchorageScopedSyncService.name, () => {
 
     // TODO @ptroger: revert that back to 'return empty array' when we completely move towards the scoped connections
     it('returns full connection sync when empty rawAccounts are provided', async () => {
-      const networks = await networkService.buildProviderExternalIdIndex(Provider.ANCHORAGE)
-
-      const sync = await anchorageScopedSyncService.scopeSync({
-        connection,
-        rawAccounts: [],
-        networks,
-        existingAccounts: []
-      })
+      const sync = await anchorageScopedSyncService.scopedSync(connection, [])
 
       expect(sync.wallets.length).toBe(2)
       expect(sync.accounts.length).toBe(18)
-      expect(sync.addresses.length).toBe(18)
+      expect(sync.addresses.length).toBe(2)
     })
 
-    it('adds failure when external resource is not found', async () => {
+    it('returns empty array when no wallets are found for the provided rawAccounts', async () => {
       const rawAccounts = [
         {
           provider: Provider.ANCHORAGE,
           externalId: 'notFound'
         }
       ]
-      const networks = await networkService.buildProviderExternalIdIndex(Provider.ANCHORAGE)
-
-      const sync = await anchorageScopedSyncService.scopeSync({
-        connection,
-        rawAccounts,
-        networks,
-        existingAccounts: []
-      })
+      const sync = await anchorageScopedSyncService.scopedSync(connection, rawAccounts)
 
       expect(sync.wallets.length).toBe(0)
       expect(sync.accounts.length).toBe(0)
       expect(sync.addresses.length).toBe(0)
-      expect(sync.failures).toEqual([
-        {
-          rawAccount: rawAccounts[0],
-          message: 'Anchorage wallet not found',
-          code: RawAccountError.EXTERNAL_RESOURCE_NOT_FOUND,
-          externalResourceType: 'wallet',
-          externalResourceId: rawAccounts[0].externalId
-        }
-      ])
     })
-
-    it('adds failure when network is not found in our list', async () => {
+    it('skips duplicate for the same connection', async () => {
       const rawAccounts = [
         {
           provider: Provider.ANCHORAGE,
           externalId: '6a46a1977959e0529f567e8e927e3895'
         }
       ]
+      const firstSync = await anchorageScopedSyncService.scopedSync(connection, rawAccounts)
 
-      const sync = await anchorageScopedSyncService.scopeSync({
-        connection,
-        rawAccounts,
-        networks: new Map(),
-        existingAccounts: []
+      await walletService.bulkCreate(firstSync.wallets.filter(isCreateOperation).map(({ create }) => create))
+      await accountService.bulkCreate(firstSync.accounts.filter(isCreateOperation).map(({ create }) => create))
+      await addressService.bulkCreate(firstSync.addresses.filter(isCreateOperation).map(({ create }) => create))
+
+      const secondSync = await anchorageScopedSyncService.scopedSync(connection, rawAccounts)
+
+      expect(secondSync.wallets.length).toBe(0)
+      expect(secondSync.accounts.length).toBe(0)
+      expect(secondSync.addresses.length).toBe(0)
+    })
+
+    it('duplicates for different connections', async () => {
+      const rawAccounts = [
+        {
+          provider: Provider.ANCHORAGE,
+          externalId: '6a46a1977959e0529f567e8e927e3895'
+        }
+      ]
+      const firstSync = await anchorageScopedSyncService.scopedSync(connection, rawAccounts)
+
+      await walletService.bulkCreate(firstSync.wallets.filter(isCreateOperation).map(({ create }) => create))
+      await accountService.bulkCreate(firstSync.accounts.filter(isCreateOperation).map(({ create }) => create))
+      await addressService.bulkCreate(firstSync.addresses.filter(isCreateOperation).map(({ create }) => create))
+
+      const secondConnection = await connectionService.create(clientId, {
+        connectionId: uuid(),
+        provider: Provider.ANCHORAGE,
+        url: ANCHORAGE_TEST_API_BASE_URL,
+        label: 'test active connection',
+        credentials: {
+          apiKey: 'test-api-key',
+          privateKey: await privateKeyToHex(await generateJwk(Alg.EDDSA))
+        }
       })
 
-      expect(sync.wallets.length).toBe(0)
-      expect(sync.accounts.length).toBe(0)
-      expect(sync.addresses.length).toBe(0)
-      expect(sync.failures).toEqual([
-        {
-          rawAccount: rawAccounts[0],
-          message: 'Network for this account is not supported',
-          code: RawAccountError.UNLISTED_NETWORK,
-          networkId: 'BTC_S'
-        }
-      ])
+      const secondSync = await anchorageScopedSyncService.scopedSync(secondConnection, rawAccounts)
+
+      expect(secondSync.wallets.length).toBe(1)
+      expect(secondSync.accounts.length).toBe(1)
+      expect(secondSync.addresses.length).toBe(1)
     })
   })
 })

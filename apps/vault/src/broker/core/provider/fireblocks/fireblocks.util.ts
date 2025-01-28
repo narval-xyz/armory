@@ -57,18 +57,18 @@ export function validateConnection(
 }
 
 export type FireblocksAccountExternalId = `${string}-${string}`
-export function buildFireblocksAssetWalletExternalId({
+export function getFireblocksAssetWalletExternalId({
   vaultId,
   networkId
 }: {
   vaultId: string
   networkId: string
 }): string {
-  return `${vaultId.toString()}-${networkId}`.toUpperCase()
+  return `${vaultId.toString()}-${networkId}`
 }
 
-export type FireblocksAssetWalletId = { vaultId: string; baseAssetId: string }
-export function parseFireblocksAssetWalletExternalId(externalId: string): FireblocksAssetWalletId {
+export type FireblocksAssetWalletId = { vaultId: string; networkId: string }
+export function toFireblocksAssetWalletExternalId(externalId: string): FireblocksAssetWalletId {
   const matches = externalId.match(/^([^-]+)-([^-]+)$/)
   if (!matches) {
     throw new BrokerException({
@@ -81,12 +81,12 @@ export function parseFireblocksAssetWalletExternalId(externalId: string): Firebl
   const [, vaultId, networkId] = matches
   return {
     vaultId,
-    baseAssetId: networkId
+    networkId
   }
 }
 
 export type FireblocksAddressExternalId = `${string}-${string}-${string}`
-export function buildFireblocksAssetAddressExternalId({
+export function getFireblocksAssetAddressExternalId({
   vaultId,
   networkId,
   address
@@ -95,11 +95,11 @@ export function buildFireblocksAssetAddressExternalId({
   networkId: string
   address: string
 }): string {
-  return `${vaultId}-${networkId}-${address}`.toUpperCase()
+  return `${vaultId}-${networkId}-${address}`
 }
 
 export type FireblocksAssetAddressId = { vaultId: string; networkId: string; address: string }
-export function parseFireblocksAssetAddressExternalId(externalId: string): FireblocksAssetAddressId {
+export function toFireblocksAssetAddressExternalId(externalId: string): FireblocksAssetAddressId {
   const matches = externalId.match(/^([^-]+)-([^-]+)-([^-]+)$/)
   if (!matches) {
     throw new BrokerException({
