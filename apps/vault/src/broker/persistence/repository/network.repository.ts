@@ -62,11 +62,18 @@ export class NetworkRepository {
         createdAt
       }))
 
-      // Ensure we have them all inserted
-      await this.prismaService.providerNetwork.createMany({
-        data: externalNetworks,
-        skipDuplicates: true
-      })
+      for (const externalNetwork of externalNetworks) {
+        await this.prismaService.providerNetwork.upsert({
+          where: {
+            provider_networkId: {
+              provider: externalNetwork.provider,
+              networkId: externalNetwork.networkId
+            }
+          },
+          create: externalNetwork,
+          update: externalNetwork
+        })
+      }
     }
 
     return networks
