@@ -2,13 +2,12 @@
 import {
   AuthClient,
   AuthConfig,
-  Decision,
   Request,
   TransactionRequest,
   buildSignerEip191,
   privateKeyToJwk
 } from '@narval-xyz/armory-sdk'
-import { hexSchema } from '@narval-xyz/armory-sdk/policy-engine-shared'
+import { Decision, hexSchema } from '@narval-xyz/armory-sdk/policy-engine-shared'
 import 'dotenv/config'
 import { v4 } from 'uuid'
 
