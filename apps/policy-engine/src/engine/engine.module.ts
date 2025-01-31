@@ -9,6 +9,7 @@ import { AdminApiKeyGuard } from '../shared/guard/admin-api-key.guard'
 import { KeyValueModule } from '../shared/module/key-value/key-value.module'
 import { AppController } from './app.controller'
 import { DataStoreRepositoryFactory } from './core/factory/data-store-repository.factory'
+import { OpenPolicyAgentEngineFactory } from './core/factory/open-policy-agent-engine.factory'
 import { signingServiceFactory } from './core/factory/signing-service.factory'
 import { BootstrapService } from './core/service/bootstrap.service'
 import { ClientService } from './core/service/client.service'
@@ -38,6 +39,8 @@ import { HttpDataStoreRepository } from './persistence/repository/http-data-stor
   providers: [
     AdminApiKeyGuard,
     BootstrapService,
+    ClientRepository,
+    ClientService,
     DataStoreRepositoryFactory,
     DataStoreService,
     EngineRepository,
@@ -45,9 +48,8 @@ import { HttpDataStoreRepository } from './persistence/repository/http-data-stor
     EvaluationService,
     FileSystemDataStoreRepository,
     HttpDataStoreRepository,
+    OpenPolicyAgentEngineFactory,
     ProvisionService,
-    ClientRepository,
-    ClientService,
     {
       provide: 'SigningService',
       useFactory: signingServiceFactory,

@@ -1,12 +1,9 @@
-import { ConfigService } from '@narval/config-module'
 import { TraceService } from '@narval/nestjs-shared'
 import { Action, Decision, EvaluationRequest, EvaluationResponse } from '@narval/policy-engine-shared'
 import { Payload, SigningAlg, hash, nowSeconds, signJwt } from '@narval/signature'
 import { HttpStatus, Inject, Injectable } from '@nestjs/common'
-import { resolve } from 'path'
-import { OpenPolicyAgentEngine } from '../../../open-policy-agent/core/open-policy-agent.engine'
-import { Config } from '../../../policy-engine.config'
 import { ApplicationException } from '../../../shared/exception/application.exception'
+import { OpenPolicyAgentEngineFactory } from '../factory/open-policy-agent-engine.factory'
 import { buildTransactionRequestHashWildcard } from '../util/wildcard-transaction-fields.util'
 import { ClientService } from './client.service'
 import { SigningService } from './signing.service.interface'
@@ -19,6 +16,7 @@ export async function buildPermitTokenPayload(clientId: string, evaluation: Eval
       context: { clientId }
     })
   }
+
   if (!evaluation.principal) {
     throw new ApplicationException({
       message: 'Principal is missing',
@@ -26,6 +24,7 @@ export async function buildPermitTokenPayload(clientId: string, evaluation: Eval
       context: { clientId }
     })
   }
+
   if (!evaluation.request) {
     throw new ApplicationException({
       message: 'Request is missing',
@@ -37,18 +36,34 @@ export async function buildPermitTokenPayload(clientId: string, evaluation: Eval
   const { audience, issuer } = evaluation.metadata || {}
   const iat = evaluation.metadata?.issuedAt || nowSeconds()
   const exp = evaluation.metadata?.expiresIn ? evaluation.metadata.expiresIn + iat : null
-
   const hashWildcard = buildTransactionRequestHashWildcard(evaluation.request)
 
   const payload: Payload = {
-    sub: evaluation.principal.userId,
+    // jti: TODO
     iat,
+    hashWildcard,
+    /**
+     * Confirmation (cnf) claim handling for token binding:
+     *
+     * Two scenarios are supported:
+     * 1. Standard flow: Uses principal's key as the confirmation claim
+     * 2. Delegation flow: Uses a provided confirmation key for token binding
+     *
+     * The delegation flow enables secure token delegation where:
+     * - A client generates a key pair
+     * - Passes the public key (metadata.confirmation) to the server
+     * - Server issues a token bound to this specific key with the auth server
+     * - Only the holder of the corresponding private key can use the token
+     *   with the resource server
+     *
+     * The cnf claim is used in the JWSD header to cryptographically bind the
+     * token to a specific key.
+     */
+    cnf: evaluation.metadata?.confirmation?.key.jwk || evaluation.principal.key,
+    sub: evaluation.principal.userId,
     ...(exp && { exp }),
     ...(audience && { aud: audience }),
-    ...(issuer && { iss: issuer }),
-    hashWildcard,
-    // jti: TODO
-    cnf: evaluation.principal.key
+    ...(issuer && { iss: issuer })
   }
 
   // Action-specific payload claims
@@ -73,10 +88,10 @@ export async function buildPermitTokenPayload(clientId: string, evaluation: Eval
 @Injectable()
 export class EvaluationService {
   constructor(
-    private configService: ConfigService<Config>,
-    private clientService: ClientService,
-    @Inject(TraceService) private traceService: TraceService,
-    @Inject('SigningService') private signingService: SigningService
+    private readonly clientService: ClientService,
+    private readonly openPolicyAgentEngineFactory: OpenPolicyAgentEngineFactory,
+    @Inject(TraceService) private readonly traceService: TraceService,
+    @Inject('SigningService') private readonly signingService: SigningService
   ) {}
 
   async evaluate(clientId: string, evaluation: EvaluationRequest): Promise<EvaluationResponse> {
@@ -121,16 +136,9 @@ export class EvaluationService {
       })
     }
 
-    const engineLoadSpan = this.traceService.startSpan(`${EvaluationService.name}.evaluate.engineLoad`)
     // WARN: Loading a new engine is an IO bounded process due to the Rego
     // transpilation and WASM build.
-    const engine = await new OpenPolicyAgentEngine({
-      entities: entityStore.data,
-      policies: policyStore.data,
-      resourcePath: resolve(this.configService.get('resourcePath')),
-      tracer: this.traceService.getTracer()
-    }).load()
-    engineLoadSpan.end()
+    const engine = await this.openPolicyAgentEngineFactory.create(entityStore.data, policyStore.data)
 
     const engineEvaluationSpan = this.traceService.startSpan(`${EvaluationService.name}.evaluate.engineEvaluation`)
     const evaluationResponse = await engine.evaluate(evaluation)

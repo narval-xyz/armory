@@ -17,8 +17,10 @@ export const toCreateAuthorizationRequest = (
   const authentication = dto.authentication
   const approvals = dto.approvals || []
   const audience = dto.metadata?.audience
+  const confirmation = dto.metadata?.confirmation
   const metadata = {
     ...(audience && { audience }),
+    ...(confirmation && { confirmation }),
     expiresIn: dto.metadata?.expiresIn || TEN_MINUTES,
     issuedAt: nowSeconds(),
     issuer: `${clientId}.armory.narval.xyz`

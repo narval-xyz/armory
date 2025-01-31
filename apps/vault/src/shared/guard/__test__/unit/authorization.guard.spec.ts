@@ -155,12 +155,12 @@ describe('AuthorizationGuard', () => {
       } as unknown as ExecutionContext
     }
 
-    it('should throw when client-id header is missing', async () => {
+    it('throws when client-id header is missing', async () => {
       const guard = new AuthorizationGuard(mockClientService, mockConfigService, mockReflector, mockLogger)
       await expect(guard.canActivate(mockExecutionContext())).rejects.toThrow('Missing or invalid x-client-id header')
     })
 
-    it('should throw when client is not found', async () => {
+    it('throws when client is not found', async () => {
       const guard = new AuthorizationGuard(mockClientService, mockConfigService, mockReflector, mockLogger)
       const mockRequest = {
         headers: { 'x-client-id': 'client-that-does-not-exist' },
@@ -173,7 +173,7 @@ describe('AuthorizationGuard', () => {
       await expect(guard.canActivate(context)).rejects.toThrow('Client not found')
     })
 
-    it('should pass when client auth is disabled', async () => {
+    it('passes when client auth is disabled', async () => {
       const client = getBaseClient()
       client.auth.disabled = true
       mockClientService.findById.mockResolvedValue(client)
@@ -192,7 +192,7 @@ describe('AuthorizationGuard', () => {
     })
 
     // For this scenario, we don't yet support JWKS, so if you disable tokenValidation you must pin the allowed users
-    it('should throw when client auth is enabled AND token validation is disabled AND no allowed users are configured', async () => {
+    it('throws when client auth is enabled AND token validation is disabled AND no allowed users are configured', async () => {
       const client = getBaseClient()
       client.auth.tokenValidation.disabled = true
       mockClientService.findById.mockResolvedValue(client)
@@ -210,7 +210,7 @@ describe('AuthorizationGuard', () => {
       expect(mockLogger.warn).toHaveBeenCalled()
     })
 
-    it('should throw when client auth is enabled AND token validation is disabled AND invalid jwsd for allowedUsers', async () => {
+    it('throws when client auth is enabled AND token validation is disabled AND invalid jwsd for allowedUsers', async () => {
       const client = getBaseClient()
       client.auth.tokenValidation.disabled = true
       client.auth.local = {
@@ -238,7 +238,7 @@ describe('AuthorizationGuard', () => {
       expect(mockLogger.warn).toHaveBeenCalled()
     })
 
-    it('should pass when client auth is enabled AND token validation is disabled AND jwsd is valid for allowedUsers', async () => {
+    it('passes when client auth is enabled AND token validation is disabled AND jwsd is valid for allowedUsers', async () => {
       const userPrivateJwk = secp256k1PrivateKeyToJwk(FIXTURE.UNSAFE_PRIVATE_KEY.Alice)
       const userJwk = secp256k1PublicKeyToJwk(FIXTURE.VIEM_ACCOUNT.Alice.publicKey)
       const client = getBaseClient()
@@ -309,7 +309,7 @@ describe('AuthorizationGuard', () => {
     })
 
     // JWT Validation
-    it('should throw when no pinnedPublicKey is configured', async () => {
+    it('throws when no pinnedPublicKey is configured', async () => {
       const client = getBaseClient()
       client.auth.tokenValidation.pinnedPublicKey = null
       mockClientService.findById.mockResolvedValue(client)
@@ -361,7 +361,7 @@ describe('AuthorizationGuard', () => {
       )
     })
 
-    it('should pass when token is bound but used by a different user', async () => {
+    it('passes when token is bound but used by a different user', async () => {
       const userJwk = secp256k1PublicKeyToJwk(FIXTURE.VIEM_ACCOUNT.Alice.publicKey)
       const client = getBaseClient()
       mockClientService.findById.mockResolvedValue(client)
@@ -389,7 +389,7 @@ describe('AuthorizationGuard', () => {
       await expect(guard.canActivate(context)).rejects.toThrow('Invalid signature')
     })
 
-    it('should pass when token is valid & request is bound with jwsd', async () => {
+    it('passes when token is valid & request is bound with jwsd', async () => {
       const userPrivateJwk = secp256k1PrivateKeyToJwk(FIXTURE.UNSAFE_PRIVATE_KEY.Alice)
       const userJwk = secp256k1PublicKeyToJwk(FIXTURE.VIEM_ACCOUNT.Alice.publicKey)
       const client = getBaseClient()

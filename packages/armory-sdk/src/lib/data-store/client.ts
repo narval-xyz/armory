@@ -4,9 +4,9 @@ import assert from 'assert'
 import axios, { InternalAxiosRequestConfig } from 'axios'
 import { promisify } from 'util'
 import * as zlib from 'zlib'
-import { Configuration, ManagedDataStoreApiFactory } from '../http/client/auth'
+import { Configuration, ManagedDataStoreApi } from '../http/client/auth'
 import { REQUEST_HEADER_CLIENT_ID, REQUEST_HEADER_CLIENT_SECRET } from '../shared/constant'
-import { DataStoreConfig, DataStoreHttp, SetEntityStoreResponse, SetPolicyStoreResponse, SignOptions } from './type'
+import { DataStoreConfig, SetEntityStoreResponse, SetPolicyStoreResponse, SignOptions } from './type'
 
 const gzip = promisify(zlib.gzip)
 
@@ -47,7 +47,7 @@ export const addCompressionInterceptor = (axiosInstance: any) => {
 export class EntityStoreClient {
   private config: DataStoreConfig
 
-  private dataStoreHttp: DataStoreHttp
+  private dataStoreHttp: ManagedDataStoreApi
 
   constructor(config: DataStoreConfig) {
     this.config = config
@@ -60,7 +60,7 @@ export class EntityStoreClient {
 
     addCompressionInterceptor(axiosInstance)
 
-    this.dataStoreHttp = ManagedDataStoreApiFactory(httpConfig, config.host, axiosInstance)
+    this.dataStoreHttp = new ManagedDataStoreApi(httpConfig, config.host, axiosInstance)
   }
 
   /**
@@ -88,9 +88,12 @@ export class EntityStoreClient {
    * @returns A promise that resolves to the response.
    */
   async push(store: { data: Partial<Entities>; signature: string }): Promise<SetEntityStoreResponse> {
-    const { data } = await this.dataStoreHttp.setEntities(this.config.clientId, {
-      data: this.populate(store.data),
-      signature: store.signature
+    const { data } = await this.dataStoreHttp.setEntities({
+      clientId: this.config.clientId,
+      setEntityStoreDto: {
+        data: this.populate(store.data),
+        signature: store.signature
+      }
     })
 
     return data
@@ -120,11 +123,16 @@ export class EntityStoreClient {
   async fetch(): Promise<EntityStore> {
     assert(this.config.clientSecret !== undefined, 'Missing clientSecret')
 
-    const { data } = await this.dataStoreHttp.getEntities(this.config.clientId, {
-      headers: {
-        [REQUEST_HEADER_CLIENT_SECRET]: this.config.clientSecret
+    const { data } = await this.dataStoreHttp.getEntities(
+      {
+        clientId: this.config.clientId
+      },
+      {
+        headers: {
+          [REQUEST_HEADER_CLIENT_SECRET]: this.config.clientSecret
+        }
       }
-    })
+    )
 
     return EntityStore.parse(data.entity)
   }
@@ -137,12 +145,17 @@ export class EntityStoreClient {
   async sync(): Promise<boolean> {
     assert(this.config.clientSecret !== undefined, 'Missing clientSecret')
 
-    const { data } = await this.dataStoreHttp.sync(this.config.clientSecret, {
-      headers: {
-        [REQUEST_HEADER_CLIENT_ID]: this.config.clientId,
-        [REQUEST_HEADER_CLIENT_SECRET]: this.config.clientSecret
+    const { data } = await this.dataStoreHttp.sync(
+      {
+        xClientSecret: this.config.clientSecret
+      },
+      {
+        headers: {
+          [REQUEST_HEADER_CLIENT_ID]: this.config.clientId,
+          [REQUEST_HEADER_CLIENT_SECRET]: this.config.clientSecret
+        }
       }
-    })
+    )
 
     return data.latestSync.success
   }
@@ -151,7 +164,7 @@ export class EntityStoreClient {
 export class PolicyStoreClient {
   private config: DataStoreConfig
 
-  private dataStoreHttp: DataStoreHttp
+  private dataStoreHttp: ManagedDataStoreApi
 
   constructor(config: DataStoreConfig) {
     this.config = config
@@ -164,7 +177,7 @@ export class PolicyStoreClient {
 
     addCompressionInterceptor(axiosInstance)
 
-    this.dataStoreHttp = ManagedDataStoreApiFactory(httpConfig, config.host, axiosInstance)
+    this.dataStoreHttp = new ManagedDataStoreApi(httpConfig, config.host, axiosInstance)
   }
 
   /**
@@ -185,7 +198,10 @@ export class PolicyStoreClient {
    * @returns A promise that resolves to the response.
    */
   async push(store: PolicyStore): Promise<SetPolicyStoreResponse> {
-    const { data } = await this.dataStoreHttp.setPolicies(this.config.clientId, store)
+    const { data } = await this.dataStoreHttp.setPolicies({
+      clientId: this.config.clientId,
+      setPolicyStoreDto: store
+    })
 
     return data
   }
@@ -211,11 +227,16 @@ export class PolicyStoreClient {
   async fetch(): Promise<PolicyStore> {
     assert(this.config.clientSecret !== undefined, 'Missing clientSecret')
 
-    const { data } = await this.dataStoreHttp.getPolicies(this.config.clientId, {
-      headers: {
-        [REQUEST_HEADER_CLIENT_SECRET]: this.config.clientSecret
+    const { data } = await this.dataStoreHttp.getPolicies(
+      {
+        clientId: this.config.clientId
+      },
+      {
+        headers: {
+          [REQUEST_HEADER_CLIENT_SECRET]: this.config.clientSecret
+        }
       }
-    })
+    )
 
     return PolicyStore.parse(data.policy)
   }
@@ -228,12 +249,17 @@ export class PolicyStoreClient {
   async sync(): Promise<boolean> {
     assert(this.config.clientSecret !== undefined, 'Missing clientSecret')
 
-    const { data } = await this.dataStoreHttp.sync(this.config.clientSecret, {
-      headers: {
-        [REQUEST_HEADER_CLIENT_ID]: this.config.clientId,
-        [REQUEST_HEADER_CLIENT_SECRET]: this.config.clientSecret
+    const { data } = await this.dataStoreHttp.sync(
+      {
+        xClientSecret: this.config.clientSecret
+      },
+      {
+        headers: {
+          [REQUEST_HEADER_CLIENT_ID]: this.config.clientId,
+          [REQUEST_HEADER_CLIENT_SECRET]: this.config.clientSecret
+        }
       }
-    })
+    )
 
     return data.latestSync.success
   }

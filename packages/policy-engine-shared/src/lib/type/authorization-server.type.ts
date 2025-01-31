@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { Action, SerializedTransactionRequest, TransactionRequest } from './action.type'
-import { Approvals, JwtString, Request, SerializedRequest } from './domain.type'
+import { Approvals, ConfirmationClaim, JwtString, Request, SerializedRequest } from './domain.type'
 
 export const AuthorizationRequestStatus = {
   CREATED: 'CREATED',
@@ -78,7 +78,8 @@ export type AuthorizationRequestError = z.infer<typeof AuthorizationRequestError
 
 export const AuthorizationRequestMetadata = z.object({
   audience: z.union([z.string(), z.array(z.string())]).optional(),
-  expiresIn: z.number().optional()
+  expiresIn: z.number().optional(),
+  confirmation: ConfirmationClaim.optional()
 })
 export type AuthorizationRequestMetadata = z.infer<typeof AuthorizationRequestMetadata>
 

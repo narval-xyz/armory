@@ -15,6 +15,7 @@ export * from './lib/type/policy.type'
 export * as EntityUtil from './lib/util/entity.util'
 
 export * from './lib/util/caip.util'
+export * from './lib/util/confirmation-claim.util'
 export * from './lib/util/encoding.util'
 export * from './lib/util/enum.util'
 export * from './lib/util/evm.util'
