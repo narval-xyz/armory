@@ -73,6 +73,9 @@
   },
   "dependencies": {
     "@aws-crypto/client-node": "4.0.1",
+    "@bitgo/public-types": "4.11.2",
+    "@bitgo/sdk-api": "1.58.2",
+    "@bitgo/sdk-core": "28.20.0",
     "@bull-board/api": "5.20.1",
     "@bull-board/express": "5.20.1",
     "@bull-board/nestjs": "5.20.1",
@@ -117,6 +120,7 @@
     "@tanstack/react-query": "5.51.11",
     "axios": "1.7.7",
     "axios-retry": "4.5.0",
+    "bitgo": "39.23.0",
     "bull": "4.16.4",
     "cache-manager": "6.3.2",
     "class-transformer": "0.5.1",

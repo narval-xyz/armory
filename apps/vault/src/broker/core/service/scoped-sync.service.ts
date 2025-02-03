@@ -10,6 +10,7 @@ import { OTEL_ATTR_CONNECTION_ID, OTEL_ATTR_CONNECTION_PROVIDER, OTEL_ATTR_SYNC_
 import { ScopedSyncStartedEvent } from '../../shared/event/scoped-sync-started.event'
 import { ScopedSyncException } from '../exception/scoped-sync.exception'
 import { AnchorageScopedSyncService } from '../provider/anchorage/anchorage-scoped-sync.service'
+import { BitgoScopedSyncService } from '../provider/bitgo/bitgo-scoped-sync.service'
 import { FireblocksScopedSyncService } from '../provider/fireblocks/fireblocks-scoped-sync.service'
 import { ConnectionWithCredentials } from '../type/connection.type'
 import { Provider, ProviderScopedSyncService } from '../type/provider.type'
@@ -34,6 +35,7 @@ export class ScopedSyncService {
     private readonly scopedSyncRepository: ScopedSyncRepository,
     private readonly anchorageScopedSyncService: AnchorageScopedSyncService,
     private readonly fireblocksScopedSyncService: FireblocksScopedSyncService,
+    private readonly bitgoScopedSyncService: BitgoScopedSyncService,
     private readonly walletService: WalletService,
     private readonly accountService: AccountService,
     private readonly addressService: AddressService,
@@ -318,6 +320,8 @@ export class ScopedSyncService {
         return this.anchorageScopedSyncService
       case Provider.FIREBLOCKS:
         return this.fireblocksScopedSyncService
+      case Provider.BITGO:
+        return this.bitgoScopedSyncService
       default:
         throw new NotImplementedException(`Unsupported Scoped Sync for provider ${provider}`)
     }

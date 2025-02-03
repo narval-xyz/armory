@@ -19,10 +19,10 @@ TERM_GREEN := \033[0;32m
 # === Install ===
 
 install:
-	npm install --engine-strict
+	npm install
 
 install/ci:
-	npm ci --engine-strict
+	npm ci
 
 # === Setup ===
 

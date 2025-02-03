@@ -25,7 +25,7 @@ export const Account = z.object({
   networkId: z.string(),
   provider: z.nativeEnum(Provider),
   updatedAt: z.date(),
-  walletId: z.string()
+  walletId: z.string().nullable()
 })
 export type Account = z.infer<typeof Account>
 

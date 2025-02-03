@@ -1,12 +1,15 @@
 import { LoggerService, PaginatedResult, PaginationOptions } from '@narval/nestjs-shared'
 import { HttpStatus, Injectable } from '@nestjs/common'
+import { formatUnits } from 'viem'
 import { z } from 'zod'
 import { AnchorageClient } from '../../http/client/anchorage.client'
+import { BitgoClient } from '../../http/client/bitgo.client'
 import { FireblocksClient } from '../../http/client/fireblocks.client'
 import { AccountRepository } from '../../persistence/repository/account.repository'
 import { AssetRepository } from '../../persistence/repository/asset.repository'
 import { BrokerException } from '../exception/broker.exception'
 import { validateConnection as validateAnchorageConnection } from '../provider/anchorage/anchorage.util'
+import { validateConnection as validateBitgoConnection } from '../provider/bitgo/bitgo.util'
 import {
   buildFireblocksAssetWalletExternalId,
   validateConnection as validateFireblocksConnection
@@ -56,6 +59,7 @@ export class RawAccountService {
     private readonly assetRepository: AssetRepository,
     private readonly anchorageClient: AnchorageClient,
     private readonly fireblocksClient: FireblocksClient,
+    private readonly bitgoClient: BitgoClient,
     private readonly loggerService: LoggerService
   ) {}
 
@@ -260,8 +264,74 @@ export class RawAccountService {
       return {
         data: rawAccountsWithAddresses.map((account) => RawAccount.parse(account)) // TODO: don't re-do the parse. It's an asset typedef because the .filter isn't inferred that it's no longer nullable.
       }
-    }
+    } else if (connection.provider === Provider.BITGO) {
+      validateBitgoConnection(connection)
 
+      let bitgoNetworkFilter: string | undefined
+      if (networkFilter) {
+        const baseAsset = await this.assetRepository.findNative(networkFilter.networkId)
+        bitgoNetworkFilter = baseAsset?.externalAssets.find((a) => a.provider === Provider.BITGO)?.externalId
+        if (!bitgoNetworkFilter) {
+          throw new BrokerException({
+            message: 'BitGo does not support this network',
+            suggestedHttpStatusCode: HttpStatus.BAD_REQUEST,
+            context: {
+              networkId: networkFilter.networkId
+            }
+          })
+        }
+      }
+      // BitGo "coin" filter can be a network or asset
+      const bitgoCoinFilter =
+        assetFilter?.externalAssets.find((a) => a.provider === Provider.BITGO)?.externalId || bitgoNetworkFilter
+
+      const wallets = await this.bitgoClient.getWallets({
+        url: connection.url,
+        apiKey: connection.credentials.apiKey,
+        walletPassphrase: connection.credentials.walletPassphrase,
+        options: {
+          labelContains: options?.filters?.namePrefix || options?.filters?.nameSuffix,
+          limit: options?.pagination?.take,
+          after: options?.pagination?.cursor?.id, // TODO: Our cursor has too strict of typing, it can't pass-through
+          coin: bitgoCoinFilter
+        }
+      })
+
+      const accounts = await Promise.all(
+        wallets.map(async (w) => ({
+          provider: Provider.BITGO,
+          externalId: w.id,
+          label: w.label,
+          subLabel: w.coin,
+          defaultAddress: w.receiveAddress?.address,
+          network: await this.networkService.findByExternalId(Provider.BITGO, w.coin),
+          assets: await Promise.all(
+            Object.entries({
+              [w.coin]: {
+                balanceString: w.balanceString || '0',
+                confirmedBalanceString: w.confirmedBalanceString || '0',
+                spendableBalanceString: w.spendableBalanceString || '0',
+                transferCount: 0 // unknown
+              },
+              ...(w.tokens || {})
+            }).map(async ([coin, balance]) => {
+              if (balance.balanceString === '0' && balance.transferCount === 0) return undefined // bitgo returns some other "tokens" that are defaults, so filter them out
+              const asset = await this.assetRepository.findByExternalId(Provider.BITGO, coin)
+
+              if (!asset) return undefined
+              return {
+                asset,
+                balance: asset?.decimals ? formatUnits(BigInt(balance.balanceString), asset.decimals) : undefined
+              }
+            })
+          ).then((a) => [...a.filter((a) => !!a)])
+        }))
+      )
+
+      return {
+        data: accounts.map((a) => RawAccount.parse(a))
+      }
+    }
     throw new BrokerException({
       message: 'Unsupported provider',
       suggestedHttpStatusCode: HttpStatus.NOT_IMPLEMENTED,
