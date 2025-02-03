@@ -16,8 +16,6 @@ import { AnchorageProxyService } from './core/provider/anchorage/anchorage-proxy
 import { AnchorageScopedSyncService } from './core/provider/anchorage/anchorage-scoped-sync.service'
 import { AnchorageTransferService } from './core/provider/anchorage/anchorage-transfer.service'
 import { BitgoCredentialService } from './core/provider/bitgo/bitgo-credential.service'
-import { BitgoScopedSyncService } from './core/provider/bitgo/bitgo-scoped-sync.service'
-import { BitgoTransferService } from './core/provider/bitgo/bitgo-transfer.service'
 import { FireblocksCredentialService } from './core/provider/fireblocks/fireblocks-credential.service'
 import { FireblocksKnownDestinationService } from './core/provider/fireblocks/fireblocks-known-destination.service'
 import { FireblocksProxyService } from './core/provider/fireblocks/fireblocks-proxy.service'
@@ -38,7 +36,6 @@ import { TransferService } from './core/service/transfer.service'
 import { WalletService } from './core/service/wallet.service'
 import { ConnectionScopedSyncEventHandler } from './event/handler/connection-scoped-sync.event-handler'
 import { AnchorageClient } from './http/client/anchorage.client'
-import { BitgoClient } from './http/client/bitgo.client'
 import { FireblocksClient } from './http/client/fireblocks.client'
 import { ProviderAccountController } from './http/rest/controller/account.controller'
 import { ProviderAddressController } from './http/rest/controller/address.controller'
@@ -105,13 +102,10 @@ import { NetworkSeed } from './persistence/seed/network.seed'
     AnchorageKnownDestinationService,
     AnchorageProxyService,
     AnchorageScopedSyncService,
-    BitgoScopedSyncService,
     AnchorageTransferService,
     AssetRepository,
     AssetService,
     BitgoCredentialService,
-    BitgoClient,
-    BitgoTransferService,
     ConnectionRepository,
     ConnectionService,
     ConnectionScopedSyncEventHandler,

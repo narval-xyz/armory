@@ -5,7 +5,6 @@ import { TransferRepository } from '../../persistence/repository/transfer.reposi
 import { OTEL_ATTR_CONNECTION_PROVIDER } from '../../shared/constant'
 import { BrokerException } from '../exception/broker.exception'
 import { AnchorageTransferService } from '../provider/anchorage/anchorage-transfer.service'
-import { BitgoTransferService } from '../provider/bitgo/bitgo-transfer.service'
 import { FireblocksTransferService } from '../provider/fireblocks/fireblocks-transfer.service'
 import { isActiveConnection } from '../type/connection.type'
 import { Provider, ProviderTransferService } from '../type/provider.type'
@@ -20,7 +19,6 @@ export class TransferService {
     private readonly connectionService: ConnectionService,
     private readonly anchorageTransferService: AnchorageTransferService,
     private readonly fireblocksTransferService: FireblocksTransferService,
-    private readonly bitgoTransferService: BitgoTransferService,
     private readonly logger: LoggerService,
     @Inject(TraceService) private readonly traceService: TraceService
   ) {}
@@ -84,8 +82,6 @@ export class TransferService {
         return this.anchorageTransferService
       case Provider.FIREBLOCKS:
         return this.fireblocksTransferService
-      case Provider.BITGO:
-        return this.bitgoTransferService
       default:
         throw new NotImplementedException(`Unsupported transfer for provider ${provider}`)
     }

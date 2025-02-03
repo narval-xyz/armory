@@ -22,14 +22,6 @@ export class AssetService {
     @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) {}
 
-  toBaseUnit(amount: string, decimals: number): string {
-    const amountStr = amount.toString()
-    const [integerPart, decimalPart = ''] = amountStr.split('.')
-    const paddedDecimal = decimalPart.padEnd(decimals, '0').slice(0, decimals)
-    const cleanInteger = integerPart.replace(/^0+/, '') || '0'
-    return cleanInteger + paddedDecimal
-  }
-
   async bulkCreate(assets: Asset[]): Promise<Asset[]> {
     const createdAssets: Asset[] = []
 

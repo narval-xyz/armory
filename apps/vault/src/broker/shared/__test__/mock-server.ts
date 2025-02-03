@@ -16,8 +16,7 @@ export const useRequestSpy = (server: SetupServerApi): [jest.Mock, SetupServerAp
     spy({
       method: clone.method,
       url: clone.url,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      headers: Object.fromEntries(request.headers as any), // For some reason, adding the BitGo SDK causes this to break typedefs..
+      headers: Object.fromEntries(request.headers),
       body
     })
   })

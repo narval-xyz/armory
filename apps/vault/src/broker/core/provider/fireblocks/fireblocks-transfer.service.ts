@@ -244,7 +244,7 @@ export class FireblocksTransferService implements ProviderTransferService {
     if (sendTransfer.source.type === TransferPartyType.ACCOUNT) {
       const account = await this.accountService.findById(scope, sendTransfer.source.id)
 
-      if (account && account.walletId) {
+      if (account) {
         const wallet = await this.walletService.findById(scope, account.walletId)
 
         if (wallet) {
@@ -280,7 +280,7 @@ export class FireblocksTransferService implements ProviderTransferService {
       if (address) {
         const account = await this.accountService.findById(scope, address.accountId)
 
-        if (account && account.walletId) {
+        if (account) {
           const wallet = await this.walletService.findById(scope, account.walletId)
 
           if (wallet) {
@@ -303,7 +303,7 @@ export class FireblocksTransferService implements ProviderTransferService {
     if (destination.type === TransferPartyType.ACCOUNT) {
       const account = await this.accountService.findById(scope, destination.id)
 
-      if (account && account.walletId) {
+      if (account) {
         const wallet = await this.walletService.findById(scope, account.walletId)
 
         if (wallet) {

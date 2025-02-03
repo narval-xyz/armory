@@ -23,8 +23,7 @@ on:
 jobs:
   test:
     name: Test
-    runs-on:
-      labels: default-larger
+    runs-on: ubuntu-latest
 
     services:
       postgres:
@@ -106,9 +105,7 @@ jobs:
 
   release:
     name: Release
-    runs-on:
-      labels: default-larger
-
+    runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
 
     # Only run if the Test job succeeds
