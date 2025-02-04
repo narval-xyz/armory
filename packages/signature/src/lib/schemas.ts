@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { addressSchema } from './address.schema'
-import { Alg, Curves, KeyTypes, Use } from './types'
+import { Alg, Curves, KeyTypes, PayloadAccessSchema, Use } from './types'
 
 // Base JWK Schema
 export const jwkBaseSchema = z.object({
@@ -210,7 +210,8 @@ export const Payload = z.object({
   cnf: publicKeySchema.optional(),
   requestHash: z.string().optional(),
   hashWildcard: z.array(z.string()).optional(),
-  data: z.string().optional()
+  data: z.string().optional(),
+  access: z.array(PayloadAccessSchema).optional()
 })
 
 export const Jwt = z.object({

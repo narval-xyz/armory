@@ -4,7 +4,7 @@ import { Reflector } from '@nestjs/core'
 import { AuthorizationGuard } from '../guard/authorization.guard'
 import { VaultPermission } from '../type/domain.type'
 
-const RequiredPermission = Reflector.createDecorator<VaultPermission[]>()
+export const RequiredPermission = Reflector.createDecorator<VaultPermission[]>()
 
 export function PermissionGuard(...permissions: VaultPermission[]) {
   return applyDecorators(
