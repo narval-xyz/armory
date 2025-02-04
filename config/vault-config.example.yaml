@@ -17,7 +17,6 @@ baseUrl: http://localhost:3011
 # Application identity and security
 app:
   id: local-dev-vault-instance-1
-  # OPTIONAL: Sets the admin API key instead of generating a new one during the provision.
 
   auth:
     # Disable all auth; only useful in dev
@@ -28,7 +27,7 @@ app:
     local:
       # [optional]: Sets the admin API key for client provisioning operations
       #
-      # Key should be hashed, like this: `echo -n "my-api-key" | openssl dgst -sha256 | awk '{print $2}'`
+      # Key should be hashed, like this: `echo -n "vault-admin-api-key" | openssl dgst -sha256 | awk '{print $2}'`
       # Plain text API key: vault-admin-api-key
       adminApiKeyHash: d4a6b4c1cb71dbdb68a1dd429ad737369f74b9e264b9dfa639258753987caaad
     # Auth config for requests from this service

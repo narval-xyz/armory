@@ -1,22 +1,18 @@
 import { ConfigModule } from '@narval/config-module'
-import { EncryptionException, EncryptionService } from '@narval/encryption-module'
+import { EncryptionService } from '@narval/encryption-module'
 import { LoggerModule } from '@narval/nestjs-shared'
 import { HttpSource, SourceType } from '@narval/policy-engine-shared'
-import { Alg, privateKeyToJwk } from '@narval/signature'
+import { Alg, SigningAlg, privateKeyToJwk, secp256k1PrivateKeyToPublicJwk } from '@narval/signature'
 import { Test } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
 import { generatePrivateKey } from 'viem/accounts'
-import { EngineService } from '../../../../../engine/core/service/engine.service'
-import { EngineRepository } from '../../../../../engine/persistence/repository/engine.repository'
+import { BootstrapService } from '../../../../../client/core/service/bootstrap.service'
+import { ClientService } from '../../../../../client/core/service/client.service'
 import { load } from '../../../../../policy-engine.config'
 import { KeyValueRepository } from '../../../../../shared/module/key-value/core/repository/key-value.repository'
-import { KeyValueService } from '../../../../../shared/module/key-value/core/service/key-value.service'
 import { InMemoryKeyValueRepository } from '../../../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { getTestRawAesKeyring } from '../../../../../shared/testing/encryption.testing'
 import { Client } from '../../../../../shared/type/domain.type'
-import { BootstrapException } from '../../../exception/bootstrap.exception'
-import { BootstrapService } from '../../bootstrap.service'
-import { ClientService } from '../../client.service'
 
 describe(BootstrapService.name, () => {
   let bootstrapService: BootstrapService
@@ -41,23 +37,53 @@ describe(BootstrapService.name, () => {
     }
   }
 
+  const clientOneSignerKey = generatePrivateKey()
   const clientOne: Client = {
     dataStore,
     clientId: 'test-client-one-id',
-    clientSecret: 'unsafe-client-secret',
-    signer: {
-      privateKey: privateKeyToJwk(generatePrivateKey(), Alg.ES256K)
+    name: 'test-client-one',
+    configurationSource: 'dynamic',
+    baseUrl: null,
+    auth: {
+      disabled: false,
+      local: {
+        clientSecret: 'unsafe-client-secret'
+      }
+    },
+    decisionAttestation: {
+      disabled: false,
+      signer: {
+        alg: SigningAlg.EIP191,
+        keyId: 'test-key-id',
+        publicKey: secp256k1PrivateKeyToPublicJwk(clientOneSignerKey),
+        privateKey: privateKeyToJwk(clientOneSignerKey, Alg.ES256K)
+      }
     },
     createdAt: new Date(),
     updatedAt: new Date()
   }
 
+  const clientTwoSignerKey = generatePrivateKey()
   const clientTwo: Client = {
     dataStore,
     clientId: 'test-client-two-id',
-    clientSecret: 'unsafe-client-secret',
-    signer: {
-      privateKey: privateKeyToJwk(generatePrivateKey(), Alg.ES256K)
+    name: 'test-client-two',
+    configurationSource: 'dynamic',
+    baseUrl: null,
+    auth: {
+      disabled: false,
+      local: {
+        clientSecret: 'unsafe-client-secret'
+      }
+    },
+    decisionAttestation: {
+      disabled: false,
+      signer: {
+        alg: SigningAlg.EIP191,
+        keyId: 'test-key-id-2',
+        publicKey: secp256k1PrivateKeyToPublicJwk(clientTwoSignerKey),
+        privateKey: privateKeyToJwk(clientTwoSignerKey, Alg.ES256K)
+      }
     },
     createdAt: new Date(),
     updatedAt: new Date()
@@ -80,9 +106,6 @@ describe(BootstrapService.name, () => {
       ],
       providers: [
         BootstrapService,
-        EngineRepository,
-        EngineService,
-        KeyValueService,
         {
           provide: KeyValueRepository,
           useClass: InMemoryKeyValueRepository
@@ -107,21 +130,6 @@ describe(BootstrapService.name, () => {
 
       expect(clientServiceMock.syncDataStore).toHaveBeenNthCalledWith(1, clientOne.clientId)
       expect(clientServiceMock.syncDataStore).toHaveBeenNthCalledWith(2, clientTwo.clientId)
-    })
-
-    it('checks if the encryption keyring is configured', async () => {
-      await bootstrapService.boot()
-
-      expect(encryptionServiceMock.getKeyring).toHaveBeenCalledTimes(1)
-    })
-
-    it('throws when encryption keyring is not configure', async () => {
-      encryptionServiceMock.getKeyring.mockImplementation(() => {
-        throw new EncryptionException('Something went wrong')
-      })
-
-      await expect(() => bootstrapService.boot()).rejects.toThrow(BootstrapException)
-      await expect(() => bootstrapService.boot()).rejects.toThrow('Encryption keyring not found')
     })
   })
 })

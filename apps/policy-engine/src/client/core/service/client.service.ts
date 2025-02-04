@@ -1,14 +1,13 @@
 import { LoggerService, OTEL_ATTR_CLIENT_ID, TraceService, secret } from '@narval/nestjs-shared'
 import { DataStoreConfiguration, EntityStore, PolicyStore } from '@narval/policy-engine-shared'
-import { hash } from '@narval/signature'
+import { SigningAlg, hash } from '@narval/signature'
 import { HttpStatus, Inject, Injectable } from '@nestjs/common'
 import { SpanStatusCode } from '@opentelemetry/api'
-import { v4 as uuid } from 'uuid'
+import { DataStoreService } from '../../../engine/core/service/data-store.service'
+import { SigningService } from '../../../engine/core/service/signing.service.interface'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { Client } from '../../../shared/type/domain.type'
 import { ClientRepository } from '../../persistence/repository/client.repository'
-import { DataStoreService } from './data-store.service'
-import { SigningService } from './signing.service.interface'
 
 @Injectable()
 export class ClientService {
@@ -19,6 +18,35 @@ export class ClientService {
     @Inject(TraceService) private traceService: TraceService,
     @Inject('SigningService') private signingService: SigningService
   ) {}
+
+  // Temporary function to migrate data from V1 to V2
+  async migrateV1Data(): Promise<void> {
+    const clientsV1 = await this.clientRepository.findAllV1()
+    for (const clientV1 of clientsV1) {
+      const client: Client = {
+        clientId: clientV1.clientId,
+        name: clientV1.clientId,
+        configurationSource: 'dynamic',
+        baseUrl: null,
+        auth: {
+          disabled: false,
+          local: {
+            clientSecret: clientV1.clientSecret
+          }
+        },
+        dataStore: clientV1.dataStore,
+        decisionAttestation: {
+          disabled: false,
+          signer: clientV1.signer
+        },
+        createdAt: clientV1.createdAt,
+        updatedAt: clientV1.updatedAt
+      }
+      this.logger.info('Migrating client', { clientV1, client })
+      await this.clientRepository.save(client)
+      await this.clientRepository.deleteV1(clientV1.clientId)
+    }
+  }
 
   async findById(clientId: string): Promise<Client | null> {
     const span = this.traceService.startSpan(`${ClientService.name}.findById`, {
@@ -33,7 +61,7 @@ export class ClientService {
   }
 
   async create(input: {
-    clientId?: string
+    clientId: string
     clientSecret?: string
     unsafeKeyId?: string
     entityDataStore: DataStoreConfiguration
@@ -41,9 +69,26 @@ export class ClientService {
     allowSelfSignedData?: boolean
   }): Promise<Client> {
     const span = this.traceService.startSpan(`${ClientService.name}.create`)
+    const clientId = input.clientId
+
+    const exists = await this.clientRepository.findById(input.clientId)
+
+    if (exists && exists.configurationSource === 'dynamic') {
+      const exception = new ApplicationException({
+        message: 'Client already exist',
+        suggestedHttpStatusCode: HttpStatus.BAD_REQUEST,
+        context: { clientId: input.clientId }
+      })
+
+      span.recordException(exception)
+      span.setStatus({ code: SpanStatusCode.ERROR })
+      span.end()
+
+      throw exception
+    }
+
     const now = new Date()
     const { unsafeKeyId, entityDataStore, policyDataStore, allowSelfSignedData } = input
-    const clientId = input.clientId || uuid()
     // If we are generating the secret, we'll want to return the full thing to
     // the user one time.
     const fullClientSecret = input.clientSecret || secret.generate()
@@ -56,6 +101,7 @@ export class ClientService {
     const keypair = await this.signingService.generateKey(keyId, sessionId)
     const signer = {
       keyId: keypair.publicKey.kid,
+      alg: SigningAlg.EIP191,
       ...keypair
     }
 
@@ -69,12 +115,23 @@ export class ClientService {
     const client = await this.save(
       {
         clientId,
-        clientSecret,
+        name: clientId,
+        configurationSource: 'dynamic',
+        baseUrl: null,
+        auth: {
+          disabled: false,
+          local: {
+            clientSecret
+          }
+        },
         dataStore: {
           entity: entityDataStore,
           policy: policyDataStore
         },
-        signer,
+        decisionAttestation: {
+          disabled: false,
+          signer
+        },
         createdAt: now,
         updatedAt: now
       },
@@ -82,12 +139,12 @@ export class ClientService {
     )
 
     span.end()
-
-    return {
-      ...client,
-      // If we generated a new secret, we need to include it in the response the first time.
-      ...(!input.clientSecret ? { clientSecret: fullClientSecret } : {})
+    if (!input.clientSecret && !client.auth?.disabled && client.auth?.local?.clientSecret) {
+      client.auth.local = {
+        clientSecret: fullClientSecret
+      }
     }
+    return client
   }
 
   async save(client: Client, options?: { syncAfter?: boolean }): Promise<Client> {
@@ -96,22 +153,6 @@ export class ClientService {
     const span = this.traceService.startSpan(`${ClientService.name}.save`)
 
     const syncAfter = options?.syncAfter ?? true
-
-    const exists = await this.clientRepository.findById(client.clientId)
-
-    if (exists) {
-      const exception = new ApplicationException({
-        message: 'Client already exist',
-        suggestedHttpStatusCode: HttpStatus.BAD_REQUEST,
-        context: { clientId: client.clientId }
-      })
-
-      span.recordException(exception)
-      span.setStatus({ code: SpanStatusCode.ERROR })
-      span.end()
-
-      throw exception
-    }
 
     try {
       await this.clientRepository.save(client)

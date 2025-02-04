@@ -21,7 +21,6 @@ database:
 # Application identity and security
 app:
   id: local-dev-vault-instance-1
-  # OPTIONAL: Sets the admin API key instead of generating a new one during the provision.
 
   auth:
     # Disable all auth; only useful in dev

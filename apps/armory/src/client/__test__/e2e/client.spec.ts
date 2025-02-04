@@ -1,7 +1,7 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
 import { LoggerModule, OpenTelemetryModule, REQUEST_HEADER_ADMIN_API_KEY, secret } from '@narval/nestjs-shared'
-import { DataStoreConfiguration, HttpSource, PublicClient, Source, SourceType } from '@narval/policy-engine-shared'
-import { getPublicKey, privateKeyToJwk } from '@narval/signature'
+import { DataStoreConfiguration, HttpSource, Source, SourceType } from '@narval/policy-engine-shared'
+import { SigningAlg, getPublicKey, privateKeyToJwk } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import nock from 'nock'
@@ -12,6 +12,7 @@ import { Config, load } from '../../../armory.config'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
 import { ClientModule } from '../../client.module'
 import { ClientService } from '../../core/service/client.service'
+import { PolicyEnginePublicClient } from '../../core/type/client.type'
 import { CreateClientRequestDto } from '../../http/rest/dto/create-client.dto'
 
 // TODO: (@wcalderipe, 16/05/24) Evaluate testcontainers
@@ -31,13 +32,26 @@ const mockPolicyEngineServer = (url: string, clientId: string) => {
     keys: [getPublicKey(privateKeyToJwk(generatePrivateKey()))]
   }
 
-  const createClientResponse: PublicClient = {
+  const createClientResponse: PolicyEnginePublicClient = {
     clientId,
-    clientSecret: secret.generate(),
+    name: 'Acme',
+    configurationSource: 'dynamic',
+    baseUrl: null,
+    auth: {
+      disabled: false,
+      local: {
+        clientSecret: secret.generate()
+      }
+    },
     createdAt: new Date(),
     updatedAt: new Date(),
-    signer: {
-      publicKey: getPublicKey(privateKeyToJwk(generatePrivateKey()))
+    decisionAttestation: {
+      disabled: false,
+      signer: {
+        alg: SigningAlg.EIP191,
+        keyId: 'acme-key-ie',
+        publicKey: getPublicKey(privateKeyToJwk(generatePrivateKey()))
+      }
     },
     dataStore: {
       entity: dataStoreConfig,

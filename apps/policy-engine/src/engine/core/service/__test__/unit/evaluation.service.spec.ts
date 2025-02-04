@@ -1,7 +1,6 @@
 import { LoggerModule, OpenTelemetryModule } from '@narval/nestjs-shared'
 import {
   Action,
-  Client,
   DataStoreConfiguration,
   Decision,
   EntityUtil,
@@ -12,13 +11,14 @@ import {
   Request,
   SignTransactionAction
 } from '@narval/policy-engine-shared'
-import { Alg, PrivateKey, decodeJwt, generateJwk, getPublicKey, nowSeconds } from '@narval/signature'
+import { Alg, PrivateKey, SigningAlg, decodeJwt, generateJwk, getPublicKey, nowSeconds } from '@narval/signature'
 import { Test } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
+import { ClientService } from '../../../../../client/core/service/client.service'
 import { OpenPolicyAgentEngine } from '../../../../../open-policy-agent/core/open-policy-agent.engine'
 import { ApplicationException } from '../../../../../shared/exception/application.exception'
+import { Client } from '../../../../../shared/type/domain.type'
 import { OpenPolicyAgentEngineFactory } from '../../../factory/open-policy-agent-engine.factory'
-import { ClientService } from '../../client.service'
 import { EvaluationService, buildPermitTokenPayload } from '../../evaluation.service'
 import { SimpleSigningService } from '../../signing-basic.service'
 
@@ -168,14 +168,27 @@ describe(EvaluationService.name, () => {
 
     client = {
       clientId: 'test-client-id',
-      clientSecret: 'test-client-secret',
+      name: 'test-client-name',
+      configurationSource: 'dynamic',
+      baseUrl: null,
+      auth: {
+        disabled: false,
+        local: {
+          clientSecret: 'test-client-secret'
+        }
+      },
       dataStore: {
         entity: {} as DataStoreConfiguration,
         policy: {} as DataStoreConfiguration
       },
-      signer: {
-        publicKey: getPublicKey(clientSignerPrivateKey),
-        privateKey: clientSignerPrivateKey
+      decisionAttestation: {
+        disabled: false,
+        signer: {
+          publicKey: getPublicKey(clientSignerPrivateKey),
+          privateKey: clientSignerPrivateKey,
+          alg: SigningAlg.EIP191,
+          keyId: 'test-key-id'
+        }
       },
       createdAt: new Date(),
       updatedAt: new Date()

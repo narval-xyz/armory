@@ -1,5 +1,5 @@
 import { DataStoreConfiguration } from '@narval/policy-engine-shared'
-import { jwkSchema, publicKeySchema } from '@narval/signature'
+import { jwkSchema, publicKeySchema, SigningAlg } from '@narval/signature'
 import { z } from 'zod'
 
 export const PolicyEngineNode = z.object({
@@ -61,3 +61,38 @@ export const PublicClient = Client.extend({
   })
 })
 export type PublicClient = z.infer<typeof PublicClient>
+
+export const PolicyEnginePublicClient = z.object({
+  clientId: z.string(),
+  name: z.string(),
+  configurationSource: z.literal('declarative').or(z.literal('dynamic')), // Declarative = comes from config file, Dynamic = created at runtime
+  baseUrl: z.string().nullable(),
+
+  auth: z.object({
+    disabled: z.boolean(),
+    local: z
+      .object({
+        clientSecret: z.string().nullable()
+      })
+      .nullable()
+  }),
+
+  dataStore: z.object({
+    entity: DataStoreConfiguration,
+    policy: DataStoreConfiguration
+  }),
+
+  decisionAttestation: z.object({
+    disabled: z.boolean(),
+    signer: z
+      .object({
+        alg: z.nativeEnum(SigningAlg),
+        keyId: z.string().nullable().describe('Unique id of the signer key. Matches the kid in both jwks'),
+        publicKey: publicKeySchema.optional()
+      })
+      .nullable()
+  }),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date()
+})
+export type PolicyEnginePublicClient = z.infer<typeof PolicyEnginePublicClient>

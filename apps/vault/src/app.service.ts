@@ -56,7 +56,8 @@ export class AppService {
   /** Temporary migration function, converting the key-value format of the App config into the table format */
   async migrateV1Data(): Promise<void> {
     const appV1 = await this.appRepository.findByIdV1(this.getId())
-    if (appV1) {
+    const appV2 = await this.appRepository.findById(this.getId())
+    if (appV1 && !appV2) {
       this.logger.log('Migrating App V1 data to V2')
       const keyring = this.configService.get('keyring')
       const app = App.parse({

@@ -71,7 +71,7 @@ export class ClientService {
 
     if (exists && exists.configurationSource === 'dynamic') {
       throw new ApplicationException({
-        message: 'client already exist',
+        message: 'Client already exist',
         suggestedHttpStatusCode: HttpStatus.BAD_REQUEST,
         context: { clientId: client.clientId }
       })

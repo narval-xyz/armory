@@ -3,6 +3,7 @@ import { ExecutionContext } from '@nestjs/common'
 import { mock } from 'jest-mock-extended'
 import { EngineService } from '../../../../engine/core/service/engine.service'
 import { ApplicationException } from '../../../exception/application.exception'
+import { Engine } from '../../../type/domain.type'
 import { AdminApiKeyGuard } from '../../admin-api-key.guard'
 
 describe(AdminApiKeyGuard.name, () => {
@@ -20,11 +21,12 @@ describe(AdminApiKeyGuard.name, () => {
   }
 
   const mockEngineService = (adminApiKey = 'test-admin-api-key') => {
-    const engine = {
-      adminApiKey: secret.hash(adminApiKey),
+    const engine: Engine = {
+      adminApiKeyHash: secret.hash(adminApiKey),
       id: 'test-engine-id',
-      masterKey: 'test-master-key',
-      activated: true
+      encryptionKeyringType: 'raw',
+      encryptionMasterKey: 'test-master-key',
+      authDisabled: false
     }
 
     const serviceMock = mock<EngineService>()

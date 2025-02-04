@@ -1,11 +1,11 @@
 import { TraceService } from '@narval/nestjs-shared'
 import { Action, Decision, EvaluationRequest, EvaluationResponse } from '@narval/policy-engine-shared'
-import { Payload, SigningAlg, hash, nowSeconds, signJwt } from '@narval/signature'
+import { Payload, hash, nowSeconds, signJwt } from '@narval/signature'
 import { HttpStatus, Inject, Injectable } from '@nestjs/common'
+import { ClientService } from '../../../client/core/service/client.service'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { OpenPolicyAgentEngineFactory } from '../factory/open-policy-agent-engine.factory'
 import { buildTransactionRequestHashWildcard } from '../util/wildcard-transaction-fields.util'
-import { ClientService } from './client.service'
 import { SigningService } from './signing.service.interface'
 
 export async function buildPermitTokenPayload(clientId: string, evaluation: EvaluationResponse): Promise<Payload> {
@@ -105,7 +105,7 @@ export class EvaluationService {
       })
     }
 
-    if (!client.signer?.publicKey) {
+    if (!client.decisionAttestation?.signer?.publicKey) {
       throw new ApplicationException({
         message: 'Client signer is not configured',
         suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
@@ -151,9 +151,9 @@ export class EvaluationService {
 
       const jwt = await signJwt(
         jwtPayload,
-        client.signer.publicKey,
-        { alg: SigningAlg.EIP191 },
-        this.signingService.buildSignerEip191(client.signer, evaluation.sessionId)
+        client.decisionAttestation.signer.publicKey,
+        { alg: client.decisionAttestation.signer.alg },
+        this.signingService.buildSignerEip191(client.decisionAttestation.signer, evaluation.sessionId) // TODO: non-EIP191
       )
 
       buildAccessTokenSpan.end()

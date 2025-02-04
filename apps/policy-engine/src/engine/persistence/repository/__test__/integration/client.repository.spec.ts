@@ -1,25 +1,14 @@
 import { EncryptionModule } from '@narval/encryption-module'
-import {
-  Action,
-  Criterion,
-  DataStoreConfiguration,
-  EntityStore,
-  FIXTURE,
-  HttpSource,
-  PolicyStore,
-  SourceType,
-  Then
-} from '@narval/policy-engine-shared'
-import { Alg, getPublicKey, privateKeyToJwk } from '@narval/signature'
+import { Action, Criterion, EntityStore, FIXTURE, PolicyStore, Then } from '@narval/policy-engine-shared'
 import { Test } from '@nestjs/testing'
-import { generatePrivateKey } from 'viem/accounts'
+import { ClientRepository } from '../../../../../client/persistence/repository/client.repository'
 import { KeyValueRepository } from '../../../../../shared/module/key-value/core/repository/key-value.repository'
 import { EncryptKeyValueService } from '../../../../../shared/module/key-value/core/service/encrypt-key-value.service'
 import { KeyValueService } from '../../../../../shared/module/key-value/core/service/key-value.service'
 import { InMemoryKeyValueRepository } from '../../../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
+import { PrismaService } from '../../../../../shared/module/persistence/service/prisma.service'
+import { TestPrismaService } from '../../../../../shared/module/persistence/service/test-prisma.service'
 import { getTestRawAesKeyring } from '../../../../../shared/testing/encryption.testing'
-import { Client } from '../../../../../shared/type/domain.type'
-import { ClientRepository } from '../../client.repository'
 
 describe(ClientRepository.name, () => {
   let repository: ClientRepository
@@ -43,56 +32,15 @@ describe(ClientRepository.name, () => {
         {
           provide: KeyValueRepository,
           useValue: inMemoryKeyValueRepository
+        },
+        {
+          provide: PrismaService,
+          useValue: TestPrismaService
         }
       ]
     }).compile()
 
     repository = module.get<ClientRepository>(ClientRepository)
-  })
-
-  describe('save', () => {
-    const now = new Date()
-
-    const dataStoreSource: HttpSource = {
-      type: SourceType.HTTP,
-      url: 'a-url-that-doesnt-need-to-exist-for-the-purpose-of-this-test'
-    }
-
-    const dataStoreConfiguration: DataStoreConfiguration = {
-      data: dataStoreSource,
-      signature: dataStoreSource,
-      keys: [getPublicKey(privateKeyToJwk(generatePrivateKey(), Alg.ES256K))]
-    }
-
-    const client: Client = {
-      clientId,
-      clientSecret: 'test-client-secret',
-      signer: {
-        privateKey: privateKeyToJwk(generatePrivateKey(), Alg.ES256K)
-      },
-      dataStore: {
-        entity: dataStoreConfiguration,
-        policy: dataStoreConfiguration
-      },
-      createdAt: now,
-      updatedAt: now
-    }
-
-    it('saves a new client', async () => {
-      await repository.save(client)
-
-      const value = await inMemoryKeyValueRepository.get(repository.getKey(client.clientId))
-      const actualClient = await repository.findById(client.clientId)
-
-      expect(value).not.toEqual(null)
-      expect(client).toEqual(actualClient)
-    })
-
-    it('indexes the new client', async () => {
-      await repository.save(client)
-
-      expect(await repository.getClientListIndex()).toEqual([client.clientId])
-    })
   })
 
   describe('saveEntityStore', () => {

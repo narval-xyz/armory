@@ -1,11 +1,12 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common'
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { v4 as uuid } from 'uuid'
+import { SyncResponseDto } from '../../../../engine/http/rest/dto/sync-response.dto'
 import { AdminGuard } from '../../../../shared/decorator/admin-guard.decorator'
 import { ClientGuard } from '../../../../shared/decorator/client-guard.decorator'
 import { ClientId } from '../../../../shared/decorator/client-id.decorator'
 import { ClientService } from '../../../core/service/client.service'
 import { CreateClientRequestDto, CreateClientResponseDto } from '../dto/create-client.dto'
-import { SyncResponseDto } from '../dto/sync-response.dto'
 
 @Controller({
   path: '/clients',
@@ -26,7 +27,7 @@ export class ClientController {
   })
   async create(@Body() body: CreateClientRequestDto): Promise<CreateClientResponseDto> {
     const client = await this.clientService.create({
-      clientId: body.clientId,
+      clientId: body.clientId || uuid(),
       clientSecret: body.clientSecret,
       unsafeKeyId: body.keyId,
       entityDataStore: body.entityDataStore,

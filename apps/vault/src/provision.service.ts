@@ -27,14 +27,14 @@ export class ProvisionService {
   // 2. Check if we have Encryption set up; Encryption is initialized once.
   // 3. Auth can be updated, so change it if it's changed.
 
-  // NOTE: The `adminApiKeyHash` argument is for test convinience in case it
+  // NOTE: The `adminApiKeyHash` argument is for test convenience in case it
   // needs to provision the application.
   async provision(adminApiKeyHash?: string): Promise<App> {
     return this.run({
       adminApiKeyHash,
       setupEncryption: async (app, thisApp, keyring) => {
         await this.setupEncryption(app, thisApp, keyring)
-        await this.setupRawEncryption(thisApp, keyring)
+        await this.verifyRawEncryption(thisApp, keyring)
       }
     })
   }
@@ -133,7 +133,7 @@ export class ProvisionService {
     }
   }
 
-  protected async setupRawEncryption(thisApp: App, keyring: Config['keyring']) {
+  protected async verifyRawEncryption(thisApp: App, keyring: Config['keyring']) {
     // if raw encryption, verify the encryptionMasterPassword in config is the valid kek for the encryptionMasterKey
     if (thisApp?.encryptionKeyringType === 'raw' && keyring.type === 'raw' && thisApp.encryptionMasterKey) {
       try {

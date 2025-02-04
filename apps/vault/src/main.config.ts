@@ -277,7 +277,7 @@ const LoadConfig = VaultConfigSchema.transform((yaml, ctx) => {
 export type Config = z.output<typeof LoadConfig>
 
 export const load = (): Config => {
-  const configFilePathEnv = process.env.CONFIG_FILE
+  const configFilePathEnv = process.env.CONFIG_FILE_ABSOLUTE_PATH
   const configFileRelativePathEnv = process.env.CONFIG_FILE_RELATIVE_PATH
   const filePath = configFilePathEnv
     ? path.resolve(configFilePathEnv)

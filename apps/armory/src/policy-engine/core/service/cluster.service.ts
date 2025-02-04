@@ -68,8 +68,8 @@ export class ClusterService {
           return {
             id: uuid(),
             clientId: client.clientId,
-            clientSecret: client.clientSecret,
-            publicKey: client.signer.publicKey,
+            clientSecret: client.auth.local?.clientSecret,
+            publicKey: client.decisionAttestation.signer?.publicKey,
             url: node
           }
         }

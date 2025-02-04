@@ -20,6 +20,6 @@ export class AdminApiKeyGuard implements CanActivate {
 
     const engine = await this.engineService.getEngineOrThrow()
 
-    return engine.adminApiKey === secret.hash(apiKey)
+    return engine.adminApiKeyHash === secret.hash(apiKey)
   }
 }

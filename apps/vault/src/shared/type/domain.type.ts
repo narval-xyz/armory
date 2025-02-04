@@ -95,7 +95,7 @@ export type ClientV1 = z.infer<typeof ClientV1>
 export const Client = z.object({
   clientId: z.string(),
   name: z.string(),
-  configurationSource: z.literal('declarative').or(z.literal('dynamic')), // Declarative = comes from config file, Dyanmic = created at runtime
+  configurationSource: z.literal('declarative').or(z.literal('dynamic')), // Declarative = comes from config file, Dynamic = created at runtime
   backupPublicKey: rsaPublicKeySchema.nullable(),
   // Override if you want to use a different baseUrl for a single client.
   baseUrl: z.string().nullable(),

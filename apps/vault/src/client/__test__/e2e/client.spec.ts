@@ -111,7 +111,7 @@ describe('Client', () => {
         .send(payload)
 
       expect(body.statusCode).toEqual(HttpStatus.BAD_REQUEST)
-      expect(body.message).toEqual('client already exist')
+      expect(body.message).toEqual('Client already exist')
       expect(status).toEqual(HttpStatus.BAD_REQUEST)
     })
 
