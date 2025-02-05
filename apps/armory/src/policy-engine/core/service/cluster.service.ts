@@ -1,7 +1,7 @@
 import { ConfigService } from '@narval/config-module'
 import { LoggerService, MetricService, OTEL_ATTR_CLIENT_ID, TraceService } from '@narval/nestjs-shared'
 import { Decision, EvaluationRequest, EvaluationResponse } from '@narval/policy-engine-shared'
-import { PublicKey, verifyJwt } from '@narval/signature'
+import { PublicKey, nowSeconds, verifyJwt } from '@narval/signature'
 import { HttpStatus, Inject, Injectable } from '@nestjs/common'
 import { Counter } from '@opentelemetry/api'
 import { isEmpty } from 'lodash'
@@ -117,6 +117,11 @@ export class ClusterService {
       nodes: nodes.map(({ id, url }) => ({ id, url }))
     })
 
+    evaluation.metadata = {
+      issuedAt: nowSeconds(), // Ensure we have the SAME issuedAt for all nodes
+      ...evaluation.metadata
+    }
+
     const responses = await Promise.all(
       nodes.map((node) =>
         this.policyEngineClient.evaluate({
@@ -171,16 +176,16 @@ export class ClusterService {
         this.logger.log('Loaded finalizeEcdsaJwtSignature function', {
           finalizeEcdsaJwtSignature: this.finalizeEcdsaJwtSignature
         })
+      } else {
+        throw new ApplicationException({
+          message: 'The function finalizeEcdsaJwtSignature from @narval-xyz/armory-mpc-module is undefined',
+          suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR
+        })
       }
-
-      throw new ApplicationException({
-        message: 'The function finalizeEcdsaJwtSignature from @narval-xyz/armory-mpc-module is undefined',
-        suggestedHttpStatusCode: HttpStatus.INTERNAL_SERVER_ERROR
-      })
     }
 
     try {
-      // If MPC, wehave multiple partialSig responses to combine. If they don't
+      // If MPC, we have multiple partialSig responses to combine. If they don't
       // have exactly the same decision & accessToken, signature can't be
       // finalized and it will throw.
       const jwts = evaluations.map(({ accessToken }) => accessToken?.value).filter(isDefined)
@@ -200,6 +205,16 @@ export class ClusterService {
         context: { jwts }
       })
     } catch (error) {
+      this.logger.error('Finalizing JWT Error', {
+        evaluations,
+        partialTokens: evaluations.reduce(
+          (acc, { accessToken }, index) => ({
+            ...acc,
+            [index]: accessToken?.value
+          }),
+          {}
+        )
+      })
       throw new ApplicationException({
         message: 'Fail to finalize ECDSA JWT signature',
         suggestedHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,

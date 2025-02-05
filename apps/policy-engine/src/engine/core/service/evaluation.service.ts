@@ -1,6 +1,6 @@
 import { TraceService } from '@narval/nestjs-shared'
 import { Action, Decision, EvaluationRequest, EvaluationResponse } from '@narval/policy-engine-shared'
-import { Payload, hash, nowSeconds, signJwt } from '@narval/signature'
+import { Payload, hash, signJwt } from '@narval/signature'
 import { HttpStatus, Inject, Injectable } from '@nestjs/common'
 import { ClientService } from '../../../client/core/service/client.service'
 import { ApplicationException } from '../../../shared/exception/application.exception'
@@ -34,8 +34,8 @@ export async function buildPermitTokenPayload(clientId: string, evaluation: Eval
   }
 
   const { audience, issuer } = evaluation.metadata || {}
-  const iat = evaluation.metadata?.issuedAt || nowSeconds()
-  const exp = evaluation.metadata?.expiresIn ? evaluation.metadata.expiresIn + iat : null
+  const iat = evaluation.metadata?.issuedAt
+  const exp = evaluation.metadata?.expiresIn && iat ? evaluation.metadata.expiresIn + iat : null
   const hashWildcard = buildTransactionRequestHashWildcard(evaluation.request)
 
   const payload: Payload = {
