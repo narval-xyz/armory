@@ -13,7 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@narval-xyz/armory-sdk": "0.8.1",
+    "@narval-xyz/armory-sdk": "0.18.0",
     "dotenv": "^16.4.5",
     "minimist": "^1.2.8",
     "tsx": "^4.16.2",

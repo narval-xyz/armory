@@ -15,6 +15,7 @@ import {
 } from '../../sign'
 import { Alg, Curves, Jwk, KeyTypes, Payload, PrivateKey, SigningAlg } from '../../types'
 import {
+  SMALLEST_RSA_MODULUS_LENGTH,
   base64UrlToBytes,
   base64UrlToHex,
   ed25519polyfilled as ed,
@@ -107,7 +108,7 @@ describe('sign', () => {
   })
 
   it('sign RS256 correctly', async () => {
-    const key = await generateJwk(Alg.RS256)
+    const key = await generateJwk(Alg.RS256, { modulusLength: SMALLEST_RSA_MODULUS_LENGTH })
     const jwt = await signJwt(payload, key)
     const verifiedJwt = await verifyJwt(jwt, key)
     expect(verifiedJwt.payload).toEqual(payload)

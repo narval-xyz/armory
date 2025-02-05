@@ -1,0 +1,14 @@
+{
+  "data": [
+    {
+      "address": "2N18VkRep3F2z7Ggm8W94nkKdARMfEM3EWa",
+      "addressId": "96bf95f1b59d50d9d1149057e8c0f9fd",
+      "addressSignaturePayload": "7b225465787441646472657373223a22324e3138566b5265703346327a3747676d385739346e6b4b6441524d66454d33455761227d",
+      "signature": "95c4ae4f5ab905bea2d385da09cb87c45bc0be138ba624d06e65ffa7468fd21220c63535abf2e8723ede3e649be65a4a69b183b7cd7d6a592b452f4b9d0ea603",
+      "walletId": "6a46a1977959e0529f567e8e927e3895"
+    }
+  ],
+  "page": {
+    "next": null
+  }
+}

@@ -50,7 +50,8 @@ armory-sdk/generate/-http-client:
 		--input-spec ${INPUT_SPEC} \
 		--output ${OUTPUT_DIR} \
 		--generator-name typescript-axios \
-		--remove-operation-id-prefix
+		--remove-operation-id-prefix \
+		--additional-properties=useSingleRequestParameter=${USE_SINGLE_REQUEST_PARAMETER}
 
 	rm -rf ./${OUTPUT_DIR}/.openapi-generator \
 		./${OUTPUT_DIR}/.gitignore \
@@ -61,9 +62,11 @@ armory-sdk/generate/-http-client:
 armory-sdk/generate/auth-client:
 		INPUT_SPEC=http://localhost:3005/docs-yaml \
 		OUTPUT_DIR=packages/armory-sdk/src/lib/http/client/auth \
+		USE_SINGLE_REQUEST_PARAMETER=false \
 		make armory-sdk/generate/-http-client
 
 armory-sdk/generate/vault-client:
 		INPUT_SPEC=http://localhost:3011/docs-yaml \
 		OUTPUT_DIR=packages/armory-sdk/src/lib/http/client/vault \
+		USE_SINGLE_REQUEST_PARAMETER=true \
 		make armory-sdk/generate/-http-client

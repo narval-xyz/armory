@@ -6,5 +6,13 @@
   "singleQuote": true,
   "tabWidth": 2,
   "trailingComma": "none",
-  "useTabs": false
+  "useTabs": false,
+  "overrides": [
+    {
+      "files": ["*.yml", "*.yaml"],
+      "options": {
+        "quoteProps": "preserve"
+      }
+    }
+  ]
 }

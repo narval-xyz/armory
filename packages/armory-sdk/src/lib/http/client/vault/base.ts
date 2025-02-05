@@ -2,7 +2,7 @@
 /* eslint-disable */
 /**
  * Vault
- * Secure storage for private keys and sensitive data, designed to protect your most critical assets in web3.0
+ * Secure Enclave-backed authorization proxy for web3 secrets. Holds encrypted credentials and proxies API requests to custodians and wallet tech providers. Can also generate evm wallet private keys & sign transactions.
  *
  * The version of the OpenAPI document: 1.0
  * 
@@ -19,7 +19,7 @@ import type { Configuration } from './configuration';
 import type { AxiosPromise, AxiosInstance, RawAxiosRequestConfig } from 'axios';
 import globalAxios from 'axios';
 
-export const BASE_PATH = "http://localhost".replace(/\/+$/, "");
+export const BASE_PATH = "http://localhost:3011".replace(/\/+$/, "");
 
 /**
  *

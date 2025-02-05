@@ -14,10 +14,10 @@ import { v4 as uuid } from 'uuid'
 import { ArmorySdkException } from '../exceptions'
 import {
   ApplicationApi,
-  AuthorizationApiFactory,
+  AuthorizationApi,
   AuthorizationResponseDto,
   AuthorizationResponseDtoStatusEnum,
-  ClientApiFactory,
+  ClientApi,
   Configuration,
   CreateClientRequestDto,
   CreateClientResponseDto,
@@ -26,20 +26,12 @@ import {
 import { polling } from '../shared/promise'
 import { SignOptions } from '../shared/type'
 import { AuthorizationResponse } from '../types'
-import {
-  AuthAdminConfig,
-  AuthClientHttp,
-  AuthConfig,
-  AuthorizationHttp,
-  AuthorizationResult,
-  Evaluate,
-  RequestAccessTokenOptions
-} from './type'
+import { AuthAdminConfig, AuthConfig, AuthorizationResult, Evaluate, RequestAccessTokenOptions } from './type'
 
 export class AuthAdminClient {
   private config: AuthAdminConfig
 
-  private clientHttp: AuthClientHttp
+  private clientHttp: ClientApi
 
   constructor(config: AuthAdminConfig) {
     const httpConfig = new Configuration({
@@ -49,7 +41,8 @@ export class AuthAdminClient {
     const axiosInstance = axios.create()
 
     this.config = config
-    this.clientHttp = ClientApiFactory(httpConfig, config.host, axiosInstance)
+
+    this.clientHttp = new ClientApi(httpConfig, config.host, axiosInstance)
   }
 
   /**
@@ -62,7 +55,10 @@ export class AuthAdminClient {
   async createClient(input: CreateClientRequestDto): Promise<CreateClientResponseDto> {
     assert(this.config.adminApiKey !== undefined, 'Missing admin API key')
 
-    const { data } = await this.clientHttp.create(this.config.adminApiKey, input)
+    const { data } = await this.clientHttp.create({
+      xApiKey: this.config.adminApiKey,
+      createClientRequestDto: input
+    })
 
     return data
   }
@@ -71,7 +67,7 @@ export class AuthAdminClient {
 export class AuthClient {
   private config: AuthConfig
 
-  private authorizationHttp: AuthorizationHttp
+  private authorizationHttp: AuthorizationApi
 
   private applicationApi: ApplicationApi
 
@@ -84,7 +80,7 @@ export class AuthClient {
 
     this.config = AuthConfig.parse(config)
 
-    this.authorizationHttp = AuthorizationApiFactory(httpConfig, config.host, axiosInstance)
+    this.authorizationHttp = new AuthorizationApi(httpConfig, config.host, axiosInstance)
 
     this.applicationApi = new ApplicationApi(httpConfig, config.host, axiosInstance)
   }
@@ -116,7 +112,10 @@ export class AuthClient {
       authentication
     })
 
-    const { data } = await this.authorizationHttp.evaluate(this.config.clientId, request)
+    const { data } = await this.authorizationHttp.evaluate({
+      xClientId: this.config.clientId,
+      authorizationRequestDto: request
+    })
 
     return polling<AuthorizationRequest>({
       fn: async () => AuthorizationRequest.parse(await this.getAuthorizationById(data.id)),
@@ -135,7 +134,10 @@ export class AuthClient {
    * @returns A Promise that resolves to the retrieved AuthorizationResponseDto.
    */
   async getAuthorizationById(id: string): Promise<AuthorizationResponseDto> {
-    const { data } = await this.authorizationHttp.getById(id, this.config.clientId)
+    const { data } = await this.authorizationHttp.getById({
+      xClientId: this.config.clientId,
+      id
+    })
 
     return data
   }
@@ -170,10 +172,17 @@ export class AuthClient {
    * @returns A promise that resolves to the authorization response.
    */
   async approve(requestId: string): Promise<AuthorizationResponseDto> {
-    const res = await this.authorizationHttp.getById(requestId, this.config.clientId)
+    const res = await this.authorizationHttp.getById({
+      xClientId: this.config.clientId,
+      id: requestId
+    })
     const { request } = AuthorizationResponse.parse(res.data)
     const signature = await this.signJwtPayload(this.buildJwtPayload(request))
-    const { data } = await this.authorizationHttp.approve(requestId, this.config.clientId, { signature })
+    const { data } = await this.authorizationHttp.approve({
+      xClientId: this.config.clientId,
+      id: requestId,
+      approvalDto: { signature }
+    })
     return data
   }
 
@@ -188,7 +197,10 @@ export class AuthClient {
    * @returns
    */
   async getAccessToken(requestId: string): Promise<AccessToken> {
-    const res = await this.authorizationHttp.getById(requestId, this.config.clientId)
+    const res = await this.authorizationHttp.getById({
+      xClientId: this.config.clientId,
+      id: requestId
+    })
     const lastSignature = reverse(res.data.evaluations).find((e) => e.signature !== null)?.signature
 
     if (lastSignature) {
@@ -266,6 +278,7 @@ export class AuthClient {
   ): Promise<AccessToken> {
     const authorization = await this.evaluate(
       {
+        ...(opts?.metadata && { metadata: opts.metadata }),
         id: opts?.id || uuid(),
         approvals: opts?.approvals || [],
         request: {

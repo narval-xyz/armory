@@ -20,6 +20,7 @@ vault/setup:
 vault/copy-default-env:
 	cp ${VAULT_PROJECT_DIR}/.env.default ${VAULT_PROJECT_DIR}/.env
 	cp ${VAULT_PROJECT_DIR}/.env.test.default ${VAULT_PROJECT_DIR}/.env.test
+	cp ./config/vault-config.example.yaml ./config/vault-config.local.yaml
 
 # === Build ===
 
@@ -30,12 +31,17 @@ vault/build:
 
 vault/format:
 	npx nx format:write --projects ${VAULT_PROJECT_NAME}
+	make vault/format/prisma
+
+vault/format/prisma:
+	npx prisma format --schema ${VAULT_DATABASE_SCHEMA}
 
 vault/lint:
 	npx nx lint ${VAULT_PROJECT_NAME} -- --fix
 
 vault/format/check:
 	npx nx format:check --projects ${VAULT_PROJECT_NAME}
+	npx prisma format --schema ${VAULT_DATABASE_SCHEMA}
 
 vault/lint/check:
 	npx nx lint ${VAULT_PROJECT_NAME}

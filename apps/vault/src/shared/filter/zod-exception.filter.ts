@@ -5,6 +5,7 @@ import { Response } from 'express'
 import { ZodValidationException } from 'nestjs-zod'
 import { ZodError } from 'zod'
 import { Config, Env } from '../../main.config'
+import { HttpException } from '../type/http-exception.type'
 
 // Catch both types, because the zodToDto function will throw a wrapped
 // ZodValidationError that otherwise isn't picked up here.
@@ -23,24 +24,23 @@ export class ZodExceptionFilter implements ExceptionFilter {
 
     const zodError = exception instanceof ZodValidationException ? exception.getZodError() : exception
 
-    // Log as error level because Zod issues should be handled by the caller.
-    this.logger.error('Uncaught ZodError', {
+    this.logger.error("Uncaught ZodError | IF YOU'RE READING THIS, HANDLE THE ERROR IN THE CALLER", {
       exception: zodError
     })
 
-    response.status(status).json(
-      isProduction
-        ? {
-            statusCode: status,
-            message: 'Internal validation error',
-            context: zodError.flatten()
-          }
-        : {
-            statusCode: status,
-            message: 'Internal validation error',
-            context: zodError.flatten(),
-            stacktrace: zodError.stack
-          }
-    )
+    const body: HttpException = isProduction
+      ? {
+          statusCode: status,
+          message: 'Validation error',
+          context: zodError.flatten()
+        }
+      : {
+          statusCode: status,
+          message: 'Validation error',
+          context: zodError.flatten(),
+          stack: zodError.stack
+        }
+
+    response.status(status).json(body)
   }
 }

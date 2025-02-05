@@ -8,7 +8,8 @@ import {
   EvaluationRequest,
   EvaluationResponse,
   JwtString,
-  Policy
+  Policy,
+  verifyConfirmationClaimProofOfPossession
 } from '@narval/policy-engine-shared'
 import { decodeJwt, hash, verifyJwt } from '@narval/signature'
 import { Intent } from '@narval/transaction-request-intent'
@@ -120,6 +121,10 @@ export class OpenPolicyAgentEngine implements Engine<OpenPolicyAgentEngine> {
     const message = hash(evaluation.request)
 
     const principalCredential = await this.verifySignature(evaluation.authentication, message)
+
+    if (evaluation.metadata?.confirmation) {
+      await verifyConfirmationClaimProofOfPossession(evaluation)
+    }
 
     const approvalsCredential = await Promise.all(
       (evaluation.approvals || []).map((signature) => this.verifySignature(signature, message))

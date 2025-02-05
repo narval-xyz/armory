@@ -1,10 +1,10 @@
 import { REQUEST_HEADER_CLIENT_ID, REQUEST_HEADER_CLIENT_SECRET, secret } from '@narval/nestjs-shared'
 import { HttpSource, SourceType } from '@narval/policy-engine-shared'
-import { Alg, privateKeyToJwk } from '@narval/signature'
+import { Alg, SigningAlg, privateKeyToJwk, secp256k1PrivateKeyToPublicJwk } from '@narval/signature'
 import { ExecutionContext } from '@nestjs/common'
 import { mock } from 'jest-mock-extended'
 import { generatePrivateKey } from 'viem/accounts'
-import { ClientService } from '../../../../engine/core/service/client.service'
+import { ClientService } from '../../../../client/core/service/client.service'
 import { ApplicationException } from '../../../exception/application.exception'
 import { Client } from '../../../type/domain.type'
 import { ClientSecretGuard } from '../../client-secret.guard'
@@ -32,9 +32,18 @@ describe(ClientSecretGuard.name, () => {
       url: 'http://9.9.9.9:99/test-data-store'
     }
 
+    const clientSignerKey = generatePrivateKey()
     const client: Client = {
       clientId: CLIENT_ID,
-      clientSecret: secret.hash(clientSecret),
+      name: 'test-client',
+      configurationSource: 'dynamic',
+      baseUrl: null,
+      auth: {
+        disabled: false,
+        local: {
+          clientSecret: secret.hash(clientSecret)
+        }
+      },
       dataStore: {
         entity: {
           data: dataStoreSource,
@@ -47,8 +56,14 @@ describe(ClientSecretGuard.name, () => {
           keys: []
         }
       },
-      signer: {
-        privateKey: privateKeyToJwk(generatePrivateKey(), Alg.ES256K)
+      decisionAttestation: {
+        disabled: false,
+        signer: {
+          alg: SigningAlg.EIP191,
+          keyId: 'test-key-id',
+          publicKey: secp256k1PrivateKeyToPublicJwk(clientSignerKey),
+          privateKey: privateKeyToJwk(clientSignerKey, Alg.ES256K)
+        }
       },
       updatedAt: new Date(),
       createdAt: new Date()

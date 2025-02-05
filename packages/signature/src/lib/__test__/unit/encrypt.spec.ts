@@ -1,10 +1,10 @@
 import { rsaDecrypt, rsaEncrypt } from '../../encrypt'
-import { Alg, RsaPrivateKey } from '../../types'
+import { Alg } from '../../types'
 import { generateJwk, rsaPrivateKeyToPublicKey } from '../../utils'
 
 describe('encrypt / decrypt', () => {
   it('should encrypt & decrypt with RS256 key', async () => {
-    const rsaPrivate = await generateJwk<RsaPrivateKey>(Alg.RS256, { use: 'enc' })
+    const rsaPrivate = await generateJwk(Alg.RS256, { use: 'enc' })
     const data = 'myTestDataString'
 
     const rsaPublic = rsaPrivateKeyToPublicKey(rsaPrivate)

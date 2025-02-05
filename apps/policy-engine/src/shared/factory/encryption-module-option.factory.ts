@@ -36,12 +36,12 @@ export class EncryptionModuleOptionFactory {
     }
 
     if (keyringConfig.type === 'raw') {
-      if (!engine.masterKey) {
+      if (!engine.encryptionMasterKey) {
         throw new Error('Master key not set')
       }
 
-      const kek = generateKeyEncryptionKey(keyringConfig.masterPassword, engine.id)
-      const unencryptedMasterKey = await decryptMasterKey(kek, toBytes(engine.masterKey))
+      const kek = generateKeyEncryptionKey(keyringConfig.encryptionMasterPassword, engine.id)
+      const unencryptedMasterKey = await decryptMasterKey(kek, toBytes(engine.encryptionMasterKey))
 
       return {
         keyring: new RawAesKeyringNode({
@@ -53,7 +53,7 @@ export class EncryptionModuleOptionFactory {
       }
     } else if (keyringConfig.type === 'awskms') {
       // We have AWS KMS config so we'll use that instead as the MasterKey, which means we don't need a KEK separately
-      const keyring = new KmsKeyringNode({ generatorKeyId: keyringConfig.masterAwsKmsArn })
+      const keyring = new KmsKeyringNode({ generatorKeyId: keyringConfig.encryptionMasterAwsKmsArn })
       return { keyring }
     }
 

@@ -3,12 +3,12 @@ import {
   CreateClient,
   EvaluationRequest,
   EvaluationResponse,
-  PublicClient,
   SerializedEvaluationRequest
 } from '@narval/policy-engine-shared'
 import { HttpService } from '@nestjs/axios'
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { catchError, lastValueFrom, map, tap } from 'rxjs'
+import { PolicyEnginePublicClient } from '../../../client/core/type/client.type'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 
 export class PolicyEngineClientException extends ApplicationException {}
@@ -62,9 +62,7 @@ export class PolicyEngineClient {
     host: string
     data: CreateClient
     adminApiKey: string
-    clientId?: string
-    clientSecret?: string
-  }): Promise<PublicClient> {
+  }): Promise<PolicyEnginePublicClient> {
     this.logger.log('Sending create client request', option)
 
     return lastValueFrom(
@@ -74,7 +72,7 @@ export class PolicyEngineClient {
           method: 'POST',
           data: option.data,
           headers: {
-            ...this.getHeaders(option),
+            ...this.getHeaders(option.data),
             'x-api-key': option.adminApiKey
           }
         })
@@ -87,7 +85,7 @@ export class PolicyEngineClient {
               response: response.data
             })
           }),
-          map((response) => PublicClient.parse(response.data)),
+          map((response) => PolicyEnginePublicClient.parse(response.data)),
           catchError((error) => {
             throw new PolicyEngineClientException({
               message: 'Create client request failed',

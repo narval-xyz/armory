@@ -1,5 +1,5 @@
 import { AccessToken } from '@narval/policy-engine-shared'
-import { Jwk, JwsdHeader, Payload, SigningAlg, hash, hexToBase64Url, signJwsd } from '@narval/signature'
+import { Jwk, JwsdHeader, SigningAlg, hash, hexToBase64Url, signJwsd } from '@narval/signature'
 import assert from 'assert'
 import { InternalAxiosRequestConfig } from 'axios'
 import { ArmorySdkException } from '../exceptions'
@@ -19,7 +19,7 @@ type BuildJwsdHeader = {
   htm: Htm
   jwk: Jwk
   alg?: SigningAlg
-  accessToken: AccessToken
+  accessToken?: AccessToken
 }
 
 const buildJwsdHeader = (args: BuildJwsdHeader): JwsdHeader => {
@@ -34,6 +34,7 @@ const buildJwsdHeader = (args: BuildJwsdHeader): JwsdHeader => {
       }
     })
   }
+  const now = Math.floor(Date.now() / 1000) // Now in seconds
 
   return {
     alg,
@@ -41,14 +42,14 @@ const buildJwsdHeader = (args: BuildJwsdHeader): JwsdHeader => {
     typ: 'gnap-binding-jwsd',
     htm,
     uri,
-    created: new Date().getTime(),
-    ath: hexToBase64Url(hash(accessToken.value))
+    created: now,
+    ath: accessToken ? hexToBase64Url(hash(accessToken.value)) : undefined
   }
 }
 
 export type GetJwsdProof = {
-  payload: Payload
-  accessToken: AccessToken
+  payload: string | object // Request body
+  accessToken: AccessToken | undefined
   uri: string
   htm: Htm
   signer: Signer
@@ -67,9 +68,9 @@ export const getJwsdProof = async (args: GetJwsdProof): Promise<string> => {
   return parts.join('.')
 }
 
-export const getBearerToken = ({ value }: AccessToken): string => `GNAP ${value}`
+export const prefixGnapToken = ({ value }: AccessToken): string => `GNAP ${value}`
 
-export const parseToken = (value: string): string => value.replace('GNAP ', '')
+export const parseToken = (value: string): string => value.trim().replace(/^(GNAP|bearer)\s+/i, '')
 
 const getHtm = (method: string): Htm => {
   switch (method.toLowerCase()) {
@@ -90,23 +91,21 @@ export const interceptRequestAddDetachedJwsHeader =
     assert(config.url !== undefined, 'Missing request URL')
     assert(config.method !== undefined, 'Missing request method')
 
-    const bearerToken = config.headers['Authorization'] || config.headers['authorization']
+    const authorizationHeader = config.headers['Authorization'] || config.headers['authorization']
 
-    if (bearerToken) {
-      const token = parseToken(bearerToken)
-      const htm = getHtm(config.method)
-      const payload = config.data ? JSON.parse(config.data) : {}
+    const token = authorizationHeader ? parseToken(authorizationHeader) : undefined
+    const htm = getHtm(config.method)
+    const payload = config.data ? JSON.parse(config.data) : {}
 
-      const signature = await getJwsdProof({
-        accessToken: { value: token },
-        htm,
-        payload,
-        signer: signer,
-        uri: config.url
-      })
+    const signature = await getJwsdProof({
+      accessToken: token ? { value: token } : undefined,
+      htm,
+      payload,
+      signer: signer,
+      uri: config.url
+    })
 
-      config.headers[REQUEST_HEADER_DETACHED_JWS] = signature
-    }
+    config.headers[REQUEST_HEADER_DETACHED_JWS] = signature
 
     return config
   }

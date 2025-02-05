@@ -43,9 +43,11 @@ policy-engine/lint/check:
 
 policy-engine/format:
 	npx nx format:write --projects ${POLICY_ENGINE_PROJECT_NAME}
+	npx prisma format --schema ${POLICY_ENGINE_DATABASE_SCHEMA}
 
 policy-engine/format/check:
 	npx nx format:check --projects ${POLICY_ENGINE_PROJECT_NAME}
+	npx prisma format --schema ${POLICY_ENGINE_DATABASE_SCHEMA}
 
 # === Database ===
 
