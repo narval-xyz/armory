@@ -4,12 +4,12 @@ import {
   Approvals,
   AuthorizationRequest,
   AuthorizationRequestError,
+  AuthorizationRequestMetadata,
   Evaluation
 } from '@narval/policy-engine-shared'
 import {
   ApprovalRequirement as ApprovalRequirementModel,
-  AuthorizationRequestError as AuthorizationRequestErrorModel,
-  Prisma
+  AuthorizationRequestError as AuthorizationRequestErrorModel
 } from '@prisma/client/armory'
 import { ZodIssueCode, ZodSchema, z } from 'zod'
 import { ACTION_REQUEST } from '../../orchestration.constant'
@@ -33,10 +33,18 @@ const buildSharedAttributes = (model: AuthorizationRequestModel): Omit<Authoriza
     authentication: model.authnSig,
     approvals: z.array(z.string()).parse(model.approvals.filter(({ error }) => !error).map((approval) => approval.sig)),
     evaluations: (model.evaluationLog || []).map(decodeEvaluationLog),
-    metadata: model.metadata as Prisma.InputJsonObject,
-    errors: (model.errors || []).map(buildError),
     createdAt: model.createdAt,
-    updatedAt: model.updatedAt
+    updatedAt: model.updatedAt,
+    ...(model.errors && model.errors.length
+      ? {
+          errors: model.errors.map(buildError)
+        }
+      : {}),
+    ...(model.metadata
+      ? {
+          metadata: AuthorizationRequestMetadata.parse(model.metadata)
+        }
+      : {})
   }
 }
 

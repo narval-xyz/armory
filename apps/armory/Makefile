@@ -30,13 +30,15 @@ armory/build:
 # === Code format ===
 
 armory/format:
-	 npx nx format:write --projects ${ARMORY_PROJECT_NAME}
+	npx nx format:write --projects ${ARMORY_PROJECT_NAME}
+	npx prisma format --schema ${ARMORY_DATABASE_SCHEMA}
 
 armory/lint:
 	npx nx lint ${ARMORY_PROJECT_NAME} -- --fix
 
 armory/format/check:
-	 npx nx format:check --projects ${ARMORY_PROJECT_NAME}
+	npx nx format:check --projects ${ARMORY_PROJECT_NAME}
+	npx prisma format --schema ${ARMORY_DATABASE_SCHEMA}
 
 armory/lint/check:
 	npx nx lint ${ARMORY_PROJECT_NAME}

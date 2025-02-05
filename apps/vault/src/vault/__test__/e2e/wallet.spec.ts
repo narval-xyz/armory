@@ -1,13 +1,11 @@
 import { Permission, resourceId } from '@narval/armory-sdk'
-import { ConfigModule, ConfigService } from '@narval/config-module'
-import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
-import { LoggerModule, REQUEST_HEADER_CLIENT_ID, secret } from '@narval/nestjs-shared'
+import { REQUEST_HEADER_CLIENT_ID } from '@narval/nestjs-shared'
 import {
   Alg,
   Curves,
   Payload,
-  RsaPrivateKey,
   RsaPublicKey,
+  SMALLEST_RSA_MODULUS_LENGTH,
   SigningAlg,
   buildSignerEip191,
   generateJwk,
@@ -19,18 +17,17 @@ import {
   signJwt
 } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
-import { Test, TestingModule } from '@nestjs/testing'
+import { TestingModule } from '@nestjs/testing'
 import { generateMnemonic } from '@scure/bip39'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
 import { english } from 'viem/accounts'
-import { ClientModule } from '../../../client/client.module'
+import { VaultTest } from '../../../__test__/shared/vault.test'
 import { ClientService } from '../../../client/core/service/client.service'
-import { Config, load } from '../../../main.config'
+import { MainModule } from '../../../main.module'
+import { ProvisionService } from '../../../provision.service'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
-import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
 import { Client, Origin } from '../../../shared/type/domain.type'
-import { AppService } from '../../core/service/app.service'
 import { ImportService } from '../../core/service/import.service'
 import { KeyGenerationService } from '../../core/service/key-generation.service'
 
@@ -40,10 +37,9 @@ describe('Generate', () => {
   let app: INestApplication
   let module: TestingModule
   let testPrismaService: TestPrismaService
-  let appService: AppService
+  let provisionService: ProvisionService
   let clientService: ClientService
   let keyGenService: KeyGenerationService
-  let configService: ConfigService<Config>
   let importService: ImportService
 
   const clientId = uuid()
@@ -54,10 +50,39 @@ describe('Generate', () => {
 
   const client: Client = {
     clientId,
-    engineJwk: clientPublicJWK,
+    auth: {
+      disabled: false,
+      local: {
+        jwsd: {
+          maxAge: 600,
+          requiredComponents: ['htm', 'uri', 'created', 'ath']
+        },
+        allowedUsersJwksUrl: null,
+        allowedUsers: null
+      },
+      tokenValidation: {
+        disabled: false,
+        url: null,
+        jwksUrl: null,
+        verification: {
+          audience: null,
+          issuer: 'https://armory.narval.xyz',
+          maxTokenAge: 300,
+          requireBoundTokens: false, // DO NOT REQUIRE BOUND TOKENS; we're testing both payload.cnf bound tokens and unbound here.
+          allowBearerTokens: false,
+          allowWildcard: null
+        },
+        pinnedPublicKey: clientPublicJWK
+      }
+    },
+    name: 'test-client',
+    configurationSource: 'dynamic',
+    backupPublicKey: null,
+    baseUrl: null,
     createdAt: new Date(),
     updatedAt: new Date()
   }
+
   const getAccessToken = async (permissions: Permission[], opts: object = {}) => {
     const payload: Payload = {
       sub: 'test-root-user-uid',
@@ -77,30 +102,17 @@ describe('Generate', () => {
   }
 
   beforeAll(async () => {
-    module = await Test.createTestingModule({
-      imports: [
-        LoggerModule.forTest(),
-        ConfigModule.forRoot({
-          load: [load],
-          isGlobal: true
-        }),
-        ClientModule
-      ]
-    })
-      .overrideProvider(EncryptionModuleOptionProvider)
-      .useValue({
-        keyring: getTestRawAesKeyring()
-      })
-      .compile()
+    module = await VaultTest.createTestingModule({
+      imports: [MainModule]
+    }).compile()
 
     app = module.createNestApplication({ logger: false })
 
-    appService = module.get<AppService>(AppService)
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)
     clientService = module.get<ClientService>(ClientService)
-    configService = module.get<ConfigService<Config>>(ConfigService)
     keyGenService = module.get<KeyGenerationService>(KeyGenerationService)
     importService = module.get<ImportService>(ImportService)
+    provisionService = module.get<ProvisionService>(ProvisionService)
 
     await app.init()
   })
@@ -114,11 +126,7 @@ describe('Generate', () => {
   beforeEach(async () => {
     await testPrismaService.truncateAll()
 
-    await appService.save({
-      id: configService.get('app.id'),
-      masterKey: 'test-master-key',
-      adminApiKey: secret.hash('test-admin-api-key')
-    })
+    await provisionService.provision()
 
     await clientService.save(client)
   })
@@ -128,10 +136,8 @@ describe('Generate', () => {
       const accessToken = await getAccessToken([Permission.WALLET_READ])
       const secondClientId = uuid()
       await clientService.save({
-        clientId: secondClientId,
-        engineJwk: clientPublicJWK,
-        createdAt: new Date(),
-        updatedAt: new Date()
+        ...client,
+        clientId: secondClientId
       })
 
       const { keyId: firstKeyId } = await keyGenService.generateWallet(clientId, {
@@ -203,7 +209,10 @@ describe('Generate', () => {
     it('saves a backup when client got a backupKey', async () => {
       const accessToken = await getAccessToken([Permission.WALLET_CREATE])
       const keyId = 'backupKeyId'
-      const backupKey = await generateJwk<RsaPrivateKey>(Alg.RS256, { keyId })
+      const backupKey = await generateJwk(Alg.RS256, {
+        keyId,
+        modulusLength: SMALLEST_RSA_MODULUS_LENGTH
+      })
 
       const clientWithBackupKey: Client = {
         ...client,

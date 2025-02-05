@@ -7,13 +7,19 @@ import { instrumentTelemetry } from '@narval/open-telemetry'
 instrumentTelemetry({ serviceName: 'policy-engine' })
 
 import { ConfigService } from '@narval/config-module'
-import { LoggerService, withApiVersion, withCors, withLogger, withSwagger } from '@narval/nestjs-shared'
+import {
+  LoggerService,
+  securityOptions,
+  withApiVersion,
+  withCors,
+  withLogger,
+  withSwagger
+} from '@narval/nestjs-shared'
 import { INestApplication, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { json } from 'express'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
 import { Config } from './policy-engine.config'
-import { ADMIN_SECURITY, CLIENT_ID_SECURITY, CLIENT_SECRET_SECURITY } from './policy-engine.constant'
 import { PolicyEngineModule, ProvisionModule } from './policy-engine.module'
 import { ApplicationExceptionFilter } from './shared/filter/application-exception.filter'
 import { HttpExceptionFilter } from './shared/filter/http-exception.filter'
@@ -67,7 +73,7 @@ async function bootstrap() {
   // Increase the POST JSON payload size to support bigger data stores.
   application.use(json({ limit: '50mb' }))
 
-  // NOTE: Enable application shutdown lifecyle hooks to ensure connections are
+  // NOTE: Enable application shutdown lifecycle hooks to ensure connections are
   // close on exit.
   application.enableShutdownHooks()
 
@@ -83,7 +89,7 @@ async function bootstrap() {
           title: 'Policy Engine',
           description: 'Policy decision point for fine-grained authorization in web3.0',
           version: '1.0',
-          security: [ADMIN_SECURITY, CLIENT_ID_SECURITY, CLIENT_SECRET_SECURITY]
+          security: [securityOptions.adminApiKey, securityOptions.clientId, securityOptions.clientSecret]
         })
       ),
       switchMap((app) => app.listen(port))

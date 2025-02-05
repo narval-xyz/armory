@@ -77,9 +77,11 @@ services:
       - TSM_API_KEY=apikey0
       - TSM_PLAYER_COUNT=3
       - ADMIN_API_KEY=dde1fba05d6b0b1a40f2cd9f480f6dcc37a6980bcff3db54377a46b056dc472c # engine-admin-api-key
+      - CONFIG_FILE_ABSOLUTE_PATH=/config/policy-engine-config.local.yaml
     volumes:
       - ./packages:/app/packages
       - ./apps:/app/apps
+      - ./config:/config
     depends_on:
       postgres:
         condition: service_healthy
@@ -104,9 +106,11 @@ services:
       - TSM_API_KEY=apikey1
       - TSM_PLAYER_COUNT=3
       - ADMIN_API_KEY=dde1fba05d6b0b1a40f2cd9f480f6dcc37a6980bcff3db54377a46b056dc472c # engine-admin-api-key
+      - CONFIG_FILE_ABSOLUTE_PATH=/config/policy-engine-config.local.yaml
     volumes:
       - ./packages:/app/packages
       - ./apps:/app/apps
+      - ./config:/config
     depends_on:
       postgres:
         condition: service_healthy
@@ -131,9 +135,11 @@ services:
       - TSM_API_KEY=apikey2
       - TSM_PLAYER_COUNT=3
       - ADMIN_API_KEY=dde1fba05d6b0b1a40f2cd9f480f6dcc37a6980bcff3db54377a46b056dc472c # engine-admin-api-key
+      - CONFIG_FILE_ABSOLUTE_PATH=/config/policy-engine-config.local.yaml
     volumes:
       - ./packages:/app/packages
       - ./apps:/app/apps
+      - ./config:/config
     depends_on:
       postgres:
         condition: service_healthy

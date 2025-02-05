@@ -16,6 +16,7 @@ describe('decodeJwt', () => {
     const rawJwt = await signJwt(payload, key, { alg: 'ES256K' })
 
     const jwt = decodeJwt(rawJwt)
+
     expect(jwt).toEqual({
       header: {
         alg: 'ES256K',
@@ -33,5 +34,26 @@ describe('decodeJwt', () => {
 
   it('throws an error if token is in correct format but not valid base64url encoded data', async () => {
     expect(() => decodeJwt('invalid.invalid.invalid')).toThrow(JwtError)
+  })
+
+  it('does not strip arbitrary data from the payload', async () => {
+    const payloadWithArbitraryData = {
+      ...payload,
+      foo: 'foo',
+      bar: 'bar'
+    }
+    const rawJwt = await signJwt(payloadWithArbitraryData, key, { alg: 'ES256K' })
+
+    const jwt = decodeJwt(rawJwt)
+
+    expect(jwt).toEqual({
+      header: {
+        alg: 'ES256K',
+        kid: key.kid,
+        typ: 'JWT'
+      },
+      payload: payloadWithArbitraryData,
+      signature: rawJwt.split('.')[2]
+    })
   })
 })

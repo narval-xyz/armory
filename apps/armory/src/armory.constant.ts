@@ -1,10 +1,3 @@
-import {
-  REQUEST_HEADER_CLIENT_ID,
-  REQUEST_HEADER_CLIENT_SECRET,
-  adminApiKeySecurity,
-  clientIdSecurity,
-  clientSecretSecurity
-} from '@narval/nestjs-shared'
 import { AssetId } from '@narval/policy-engine-shared'
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common'
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
@@ -50,20 +43,6 @@ export const DEFAULT_HTTP_MODULE_PROVIDERS = [
   ...HTTP_EXCEPTION_FILTERS,
   ...HTTP_VALIDATION_PIPES
 ]
-
-//
-// Headers
-//
-
-export const REQUEST_HEADER_API_KEY = 'x-api-key'
-
-//
-// API Security
-//
-
-export const ADMIN_SECURITY = adminApiKeySecurity(REQUEST_HEADER_API_KEY)
-export const CLIENT_ID_SECURITY = clientIdSecurity(REQUEST_HEADER_CLIENT_ID)
-export const CLIENT_SECRET_SECURITY = clientSecretSecurity(REQUEST_HEADER_CLIENT_SECRET)
 
 //
 // Queues

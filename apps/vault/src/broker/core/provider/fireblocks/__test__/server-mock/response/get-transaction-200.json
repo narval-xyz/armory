@@ -1,0 +1,58 @@
+{
+  "id": "7ce5e75a-39cb-4d31-8a10-79d69c6f8e0e",
+  "assetId": "MATIC_POLYGON",
+  "source": {
+    "id": "4",
+    "type": "VAULT_ACCOUNT",
+    "name": "dev-2",
+    "subType": ""
+  },
+  "destination": {
+    "id": "3",
+    "type": "VAULT_ACCOUNT",
+    "name": "dev-1",
+    "subType": ""
+  },
+  "requestedAmount": 0.001,
+  "amount": 0.001,
+  "netAmount": 0.001,
+  "amountUSD": 0.00042585,
+  "fee": 0.002354982918981,
+  "networkFee": 0.002354982918981,
+  "createdAt": 1736775806138,
+  "lastUpdated": 1736775849692,
+  "status": "COMPLETED",
+  "txHash": "0xdd6bba7c8897d64e4dd21e4b395aa45ced7b9eb4b1cd356ad9ffbfa113a3fec1",
+  "subStatus": "CONFIRMED",
+  "sourceAddress": "0xe621c7D0D6711742B6B4aEE4cb30048d1Ef1d92e",
+  "destinationAddress": "0x6b1c79dBF7a7D90d6F4fD623393aFa3DfFd6bE4E",
+  "destinationAddressDescription": "",
+  "destinationTag": "",
+  "signedBy": ["da1e58d6-771c-1584-4eba-8b5ae8761eea"],
+  "createdBy": "ee425cf5-ca75-4537-b2ce-e1ace302e0a1",
+  "rejectedBy": "",
+  "addressType": "",
+  "note": "",
+  "exchangeTxId": "",
+  "feeCurrency": "MATIC_POLYGON",
+  "operation": "TRANSFER",
+  "numOfConfirmations": 1,
+  "amountInfo": {
+    "amount": "0.001",
+    "requestedAmount": "0.001",
+    "netAmount": "0.001",
+    "amountUSD": "0.00042585"
+  },
+  "feeInfo": {
+    "networkFee": "0.002354982918981",
+    "gasPrice": "112.14204376100001"
+  },
+  "signedMessages": [],
+  "destinations": [],
+  "blockInfo": {
+    "blockHeight": "66650299",
+    "blockHash": "0x62c064832c4a2ff9cc1e00c236427015cda4f639fd03ed62b0e7374bf652807a"
+  },
+  "index": 0,
+  "assetType": "BASE_ASSET"
+}

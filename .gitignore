@@ -55,6 +55,10 @@ Thumbs.db
 .env.production
 .env.test
 
+config/*
+!config/*.example.yaml
+!config/*.template.yaml
+
 /rego-build
 /apps/devtool/storage.json
 

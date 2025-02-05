@@ -12,7 +12,6 @@ import {
   Decision,
   EvaluationRequest,
   EvaluationResponse,
-  PublicClient,
   Request,
   Source,
   SourceType
@@ -26,6 +25,7 @@ import { v4 as uuid } from 'uuid'
 import { generatePrivateKey } from 'viem/accounts'
 import { generateSignTransactionRequest } from '../../../../../__test__/fixture/authorization-request.fixture'
 import { Config, load } from '../../../../../armory.config'
+import { PolicyEnginePublicClient } from '../../../../../client/core/type/client.type'
 import { PersistenceModule } from '../../../../../shared/module/persistence/persistence.module'
 import { TestPrismaService } from '../../../../../shared/module/persistence/service/test-prisma.service'
 import { PolicyEngineClient } from '../../../../http/client/policy-engine.client'
@@ -88,13 +88,26 @@ describe(ClusterService.name, () => {
       keys: [getPublicKey(privateKeyToJwk(generatePrivateKey()))]
     }
 
-    const createClientResponse: PublicClient = {
+    const createClientResponse: PolicyEnginePublicClient = {
       clientId,
-      clientSecret: secret.generate(),
+      name: 'Acme',
+      configurationSource: 'dynamic',
+      baseUrl: null,
+      auth: {
+        disabled: false,
+        local: {
+          clientSecret: secret.generate()
+        }
+      },
       createdAt: new Date(),
       updatedAt: new Date(),
-      signer: {
-        publicKey: getPublicKey(privateKeyToJwk(generatePrivateKey()))
+      decisionAttestation: {
+        disabled: false,
+        signer: {
+          alg: SigningAlg.EIP191,
+          keyId: 'acme-key-ie',
+          publicKey: getPublicKey(privateKeyToJwk(generatePrivateKey()))
+        }
       },
       dataStore: {
         entity: dataStoreConfig,
@@ -118,7 +131,7 @@ describe(ClusterService.name, () => {
         clientId,
         clientSecret: expect.any(String),
         url: nodeUrl,
-        publicKey: createClientResponse.signer.publicKey
+        publicKey: createClientResponse.decisionAttestation.signer?.publicKey
       })
     })
 

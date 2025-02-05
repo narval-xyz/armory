@@ -1,6 +1,6 @@
 import { JwtError } from './error'
-import { Header, Payload } from './schemas'
-import { type Jwsd, type Jwt } from './types'
+import { Header } from './schemas'
+import { Payload, type Jwsd, type Jwt } from './types'
 
 import { base64UrlToBytes } from './utils'
 

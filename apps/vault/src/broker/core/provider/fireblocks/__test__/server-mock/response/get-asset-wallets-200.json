@@ -1,0 +1,31 @@
+{
+  "assetWallets": [
+    {
+      "vaultId": "3483",
+      "assetId": "MATIC_POLYGON",
+      "total": "1065.275813068575650415",
+      "available": "1065.275813068575650415",
+      "pending": "0",
+      "staked": "0",
+      "frozen": "0",
+      "lockedAmount": "0",
+      "blockHeight": "65405786",
+      "blockHash": "0xa25d8a09a0fb05b3a417a8668b6044ab3d87d4e359aee1c339ad5763c163dea3",
+      "creationTime": "1716233725000"
+    },
+    {
+      "vaultId": "3483",
+      "assetId": "ETH-OPT",
+      "total": "0.001942589115042143",
+      "available": "0.001942589115042143",
+      "pending": "0",
+      "staked": "0",
+      "frozen": "0",
+      "lockedAmount": "0",
+      "blockHeight": "124638003",
+      "blockHash": "0x6cdcecb4c1190ad0ffbc6ba51d4c9115caf1622fd1b32685165fd3abe247de3e",
+      "creationTime": "1723119346000"
+    }
+  ],
+  "paging": {}
+}

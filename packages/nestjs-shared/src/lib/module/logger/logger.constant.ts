@@ -6,7 +6,8 @@ export const REDACT_KEYS = [
   /^pass$/i,
   /secret/i,
   /token/i,
-  /api[-._]?key/i
+  /api[-._]?key/i,
+  /access[-._]?key/i
 ]
 
 export const REDACT_REPLACE = '[REDACTED]'

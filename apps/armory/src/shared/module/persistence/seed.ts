@@ -56,9 +56,9 @@ async function main() {
   }
 
   try {
-    logger.log('Database germinated 🌱')
     await seeder.seed()
   } finally {
+    logger.log('✅ Database seeded')
     await application.close()
   }
 }

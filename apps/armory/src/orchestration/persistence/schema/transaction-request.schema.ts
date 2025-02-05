@@ -1,15 +1,4 @@
-import {
-  SerializedTransactionRequest,
-  TransactionRequest,
-  addressSchema,
-  hexSchema
-} from '@narval/policy-engine-shared'
-import { z } from 'zod'
-
-export const accessListSchema = z.object({
-  address: addressSchema,
-  storageKeys: z.array(hexSchema)
-})
+import { SerializedTransactionRequest, TransactionRequest } from '@narval/policy-engine-shared'
 
 export const readTransactionRequestSchema = TransactionRequest
 

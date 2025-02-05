@@ -1,0 +1,168 @@
+# Policy Engine config.yaml, v1
+
+#####
+# THIS FILE CONTAINS SECRETS; DO NOT COMMIT OUR CONFIG TO SOURCE CONTROL.
+#####
+
+# Config File Version
+version: '1'
+
+# Core service configuration
+env: development # Enum: development, test, production
+port: 3010
+cors: []
+# Base URL where the Engine is deployed. Used to verify jwsd request signatures.
+baseUrl: http://localhost:3010
+# Internal path to open-policy-agent resource files. Should always be this. Only change if you know what you're doing.
+resourcePath: './apps/policy-engine/src/resource'
+
+# Application identity and security
+app:
+  id: local-dev-engine-instance-1
+
+  auth:
+    # Disable all auth; only useful in dev
+    disabled: false
+    # Local authentication options, either signed requests or basic api key
+    local:
+      # [optional]: Sets the admin API key for client provisioning operations
+      #
+      # Key should be hashed, like this: `echo -n "engine-admin-api-key" | openssl dgst -sha256 | awk '{print $2}'`
+      # Plain text API key: engine-admin-api-key
+      adminApiKeyHash: 'dde1fba05d6b0b1a40f2cd9f480f6dcc37a6980bcff3db54377a46b056dc472c'
+
+# Encryption Key management configuration
+keyring:
+  # Either "raw" or "awskms"
+  type: raw
+  # If type=raw:
+  # A master password that uses PBKDF2 to derive the Key Encryption Key (KEK) used to encrypt the master key.
+  encryptionMasterPassword: unsafe-local-dev-master-password
+  # If type=raw, you can set the master key to be used here.
+  # It must be an AES-256 key encoded as a hex string, encrypted by the KEK derived from the masterPassword. Ensure you wrap the string in quotes otherwise it will be interpreted as a number.
+  # If not set, it will be generated during first-boot.
+  encryptionMasterKey: '0x02057802bb22a3d6a22dd01bbb71238992e70830577198a972c97d681467f2575a55f8009800030003617070001861726d6f72792e656e6372797074696f6e2d6d6f64756c6500156177732d63727970746f2d7075626c69632d6b65790044413464467572374b485a7561566a2f5341384d6e4741324a706b52614a756d71386f4162374537735367344470534a317756726f4e6e6175586f796a6c6d384a72513d3d0007707572706f7365000f646174612d656e6372797074696f6e000100146e617276616c2e61726d6f72792e656e67696e65002561726d6f72792e656e67696e652e6b656b000000800000000cb65c5e0f2e79a2fe104c8f100030b4d4e54b0b481bbc7110101fccd9514906cbfbf32549ef9b1c4578c0d4e64ca5ee57ea534bfdcb5c0aaacd41c52dba8902000010004398f6b5221c1a59738bbbcfa23457d2df8180d1929124c8e6e70b95f4e86319c22e0d2dc620c9033dd10dd97c556efeffffffff00000001000000000000000000000001000000207e92b845f7374c08d155138746061a30a2991e5cdc14d420c389185c0631e6888cf7404e677af76f3b2d00ee348d1bda0067306502304a210311734831cc24b1536acf42a9c3f69221173de1a2610c98b2c678d573b3c475aab6a17bd83f25cc229740d720c4023100fbfedabec5166003ec6584dcecf871dae0d48b6031fe2931f8f3489081893f7c80e5fbbcf6e62c844fa8f41e2e1efe7f'
+
+  # If type=awskms:
+  # The ARN of the AWS KMS key used as the Master Key.
+  encryptionMasterAwsKmsArn: null
+
+  # HMAC secret for integrity verification of data in the database. Ensure you wrap the string in quotes otherwise it will be interpreted as a number.
+  hmacSecret: '4ce6d3404a13c971202693b669668e49e2d6d7e190428d0edd99d1cec1536efb'
+
+# Decision Attestation configuration
+decisionAttestation:
+  protocol: simple # Either "simple" or "mpc"
+
+  # Only required when protocol=mpc
+  # This is the TSM SDK node configuration & requires the private MPC library to be installed.
+  # tsm:
+  #   url: https://tsm.example.com
+  #   apiKey: tsm-api-key-here
+  #   playerCount: 3
+
+# Declarative clients (tenants)
+clients:
+  # Each key is the client ID
+  dev-client-1:
+    name: 'Example Client'
+    # Override default baseUrl for this client, used for verifying domain-specific signatures
+    baseUrl: 'http://localhost:3010' # [optional]
+
+    # Whether to identify the principal from the request authentication signature
+    # If false, the principal id is provided.
+    identifyPrincipalFromRequest: true # TODO: implement
+
+    # The Client's Signer, used for generating the signatures on Policy Decisions.
+    decisionAttestation:
+      # Whether to turn off signed policy decisions
+      disabled: false
+      signer:
+        # [optional] The signing algorithm to sign with. Defaults to EIP191.
+        alg: 'EIP191' # or 'ES256K', 'ES256', 'EDDSA', 'RS256' #TODO: actually support the others!
+        # [optional] Unique identifier for the signer key.
+        # If only keyId is set, then the signing key will be generated using this for the kid.
+        keyId: 'key-2024-1'
+        # [optional] The public key for the signing key. Can not be used with `mpc` signing.protocol.
+        publicKey:
+          kid: 'key-2024-1' # If keyId is set, this should match.
+          kty: 'EC'
+          alg: 'ES256K'
+          crv: 'secp256k1'
+          x: 'kmDs8BM_h4YRZfUMGQhD5E9Ih8ZLOb6vdSx5aPVMdKY'
+          y: 'wqUIXS3YmZXxM_TRDUyTGE5pInwTJxCRtvRzjwRu32o'
+        # [optional] The private key for the signing key. Can not be used with `mpc` signing.protocol.
+        privateKey:
+          kid: 'key-2024-1' # If keyId is set, this should match.
+          kty: 'EC'
+          alg: 'ES256K'
+          crv: 'secp256k1'
+          x: 'kmDs8BM_h4YRZfUMGQhD5E9Ih8ZLOb6vdSx5aPVMdKY'
+          y: 'wqUIXS3YmZXxM_TRDUyTGE5pInwTJxCRtvRzjwRu32o'
+          d: 'hYCWM5W73pwRA0OqNKwMok8H1k_9OCxZOiYWhYI4b4Q'
+
+    # TODO: Add jwt signing options here
+
+    auth:
+      # Disable all auth; only useful in dev
+      disabled: false
+      # Local authentication options, either signed requests or basic api key
+      local:
+        # [optional] SHA256 hash of the client secret, passed in `x-client-secret` header
+        # echo -n "engine-client-secret" | openssl dgst -sha256 | awk '{print $2}'
+        # TODO: Do we even need this?
+        clientSecret: 'd8c56539ad31ecb12a1e7334b341a7b3d46dea0b076421add198325efb77f583'
+
+        # TODO: Add other auth & token validation details here
+
+    dataStore:
+      # Entity Data Store configuration - this is context data used in policy evaluation.
+      entity:
+        # The URL to fetch to load the Entity Data. It must include any authentication secrets in the url.
+        data:
+          type: HTTP # or HTTPS
+          # The dataSecret here must match the dataSecret in the Armory config.yaml
+          url: http://localhost:3005/v1/data/entities?clientId=client-123&dataSecret=data-secret-plaintext
+        # The URL to fetch for Signature of the Entity Data.
+        # Typically the same as the Data url, but possible to store the attestation signature separately.
+        signature:
+          type: HTTP # or HTTPS
+          # The dataSecret here must match the dataSecret in the Armory config.yaml
+          url: http://localhost:3005/v1/data/entities?clientId=client-123&dataSecret=data-secret-plaintext
+        # The pinned public keys for verifying the Entity signature
+        publicKeys:
+          - kid: 'data-key-1' # Must match the kid the signer puts in signature jwt header
+            kty: EC
+            crv: secp256k1
+            alg: ES256K
+            use: sig
+            # Can use an evm-encoded address instead of x+y, if signing data w/ a wallet (e.g. Metamask) using EIP191
+            addr: '0x04B12F0863b83c7162429f0Ebb0DfdA20E1aA97B'
+            # If you have the full public key, include the x+y even if also using Addr.
+            x: null
+            y: null
+      # Policy Data Store configuration - this is the policy set used for evaluation.
+      policy:
+        # The URL to fetch to load the Policy Data. It must include any authentication secrets in the url.
+        data:
+          type: HTTP # or HTTPS
+          # The dataSecret here must match the dataSecret in the Armory config.yaml
+          url: http://localhost:3005/v1/data/policies?clientId=client-123&dataSecret=data-secret-plaintext
+        # The URL to fetch for Signature of the Policy Data.
+        # Typically the same as the Data url, but possible to store the attestation signature separately.
+        signature:
+          type: HTTP # or HTTPS
+          # The dataSecret here must match the dataSecret in the Armory config.yaml
+          url: http://localhost:3005/v1/data/policies?clientId=client-123&dataSecret=data-secret-plaintext
+        # The pinned public keys for verifying the Policy signature
+        publicKeys:
+          - kid: 'data-key-1' # Must match the kid the signer puts in signature jwt header
+            kty: EC
+            crv: secp256k1
+            alg: ES256K
+            use: sig
+            # Can use an evm-encoded address instead of x+y, if signing data w/ a wallet (e.g. Metamask) using EIP191
+            addr: '0x04B12F0863b83c7162429f0Ebb0DfdA20E1aA97B'
+            # If you have the full public key, include the x+y even if also using Addr.
+            x: null
+            y: null

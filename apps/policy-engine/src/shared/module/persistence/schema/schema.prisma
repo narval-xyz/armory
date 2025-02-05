@@ -13,11 +13,48 @@ datasource db {
 }
 
 model Engine {
-  id          String @id
-  masterKey   String? @map("master_key")
-  adminApiKey String? @map("admin_api_key")
+  id          String  @id
+  // Encryption options, possibly set from Config file
+  encryptionKeyringType       String   @map("encryption_keyring_type") // raw | awskms
+  encryptionMasterKey         String?  @map("encryption_master_key") /// @encrypted by masterPassword KEK
+  encryptionMasterAwsKmsArn   String?  @map("encryption_master_aws_kms_arn") // only if type = awskms
+  // Auth Options, set from Config file
+  authDisabled                Boolean? @map("auth_disabled")
+  adminApiKeyHash             String?  @map("admin_api_key_hash") /// hash, not plaintext
 
   @@map("engine")
+}
+
+model Client {
+  clientId                String  @id @map("client_id")
+  name                    String  @map("name")
+  configurationSource     String  @map("configuration_source") // declarative | dynamic
+  baseUrl                 String? @map("base_url") // If you want to override the used for verifying jwsd/httpsig
+  authDisabled            Boolean @map("auth_disabled")
+  clientSecret            String? @map("client_secret") /// hash, not plaintext
+
+  // Data Store Config
+  dataStoreEntityDataUrl     String @map("data_store_entity_data_url")
+  dataStoreEntitySignatureUrl String @map("data_store_entity_signature_url")
+  dataStoreEntityPublicKeys  String @map("data_store_entity_public_keys") // stringified json array of public keys
+  dataStorePolicyDataUrl     String @map("data_store_policy_data_url")
+  dataStorePolicySignatureUrl String @map("data_store_policy_signature_url")
+  dataStorePolicyPublicKeys  String @map("data_store_policy_public_keys") // stringified json array of public keys
+
+
+  // Signer Config
+  decisionAttestationDisabled Boolean @map("decision_attestation_disabled")
+  signerAlg                 String? @map("signer_alg")
+  signerKeyId               String? @map("signer_key_id")
+  signerPublicKey           String? @map("signer_public_key")
+  signerPrivateKey          String? @map("signer_private_key")
+
+  createdAt DateTime @map("created_at")
+  updatedAt DateTime @map("updated_at")
+
+  integrity   String?   @map("_integrity")
+
+  @@map("client")
 }
 
 // TODO: (@wcalderipe, 12/03/23) use hstore extension for better performance.

@@ -1,0 +1,144 @@
+import { z } from 'zod'
+import { Provider } from './provider.type'
+
+export const NetworkFeeAttribution = {
+  ON_TOP: 'on_top',
+  DEDUCT: 'deduct'
+} as const
+export type NetworkFeeAttribution = (typeof NetworkFeeAttribution)[keyof typeof NetworkFeeAttribution]
+
+export const TransferPartyType = {
+  WALLET: 'wallet',
+  ACCOUNT: 'account',
+  ADDRESS: 'address'
+} as const
+export type TransferPartyType = (typeof TransferPartyType)[keyof typeof TransferPartyType]
+
+export const TransferParty = z.object({
+  id: z.string(),
+  type: z.nativeEnum(TransferPartyType)
+})
+export type TransferParty = z.infer<typeof TransferParty>
+
+export const Source = TransferParty
+export type Source = z.infer<typeof Source>
+
+export const AddressDestination = z.object({
+  address: z.string()
+})
+export type AddressDestination = z.infer<typeof AddressDestination>
+
+export const Destination = z.union([TransferParty, AddressDestination])
+export type Destination = z.infer<typeof Destination>
+
+export const TransferAsset = z
+  .object({
+    assetId: z.string().optional().describe('ID of the asset. Can be used instead of address+networkId.'),
+    externalAssetId: z
+      .string()
+      .optional()
+      .describe(
+        'ID of the asset on the provider. Can be used to directly specify the asset of the underlying provider.'
+      ),
+    address: z
+      .string()
+      .optional()
+      .describe(
+        'On-chain address of the asset. If assetId is null, then an empty address means the network Base Asset (e.g. BTC)'
+      ),
+    networkId: z.string().optional().describe('Network of the asset. Required if address is provided.')
+  })
+  .describe('The asset being transferred')
+export type TransferAsset = z.infer<typeof TransferAsset>
+
+export const SendTransfer = z.object({
+  transferId: z.string().optional().describe('Sets the transfer ID to an arbitrary value'),
+  source: Source,
+  destination: Destination,
+  amount: z.string(),
+  /**
+   * @deprecated use asset instead
+   */
+  assetId: z.string().optional().describe('@deprecated use asset instead'),
+  asset: TransferAsset,
+  networkFeeAttribution: z
+    .nativeEnum(NetworkFeeAttribution)
+    .optional()
+    .describe(
+      [
+        'Controls how network fees are charged.',
+        'Example: a request to transfer 1 ETH with networkFeeAttribution=ON_TOP would result in exactly 1 ETH received to the destination and just over 1 ETH spent by the source.',
+        'Note: This property is optional and its default always depend on the underlying provider.'
+      ].join('\n')
+    ),
+  customerRefId: z.string().optional(),
+  idempotenceId: z.string(),
+  memo: z.string().optional(),
+  provider: z.nativeEnum(Provider).optional(),
+  providerSpecific: z.unknown().optional()
+})
+export type SendTransfer = z.infer<typeof SendTransfer>
+
+export const TransferFee = z.object({
+  type: z.string(),
+  attribution: z.string().optional(),
+  amount: z.string(),
+  assetId: z.string()
+})
+export type TransferFee = z.infer<typeof TransferFee>
+
+export const TransferStatus = {
+  PROCESSING: 'processing',
+  SUCCESS: 'success',
+  FAILED: 'failed'
+} as const
+export type TransferStatus = (typeof TransferStatus)[keyof typeof TransferStatus]
+
+export const InternalTransfer = z.object({
+  assetExternalId: z.string().nullable(),
+  assetId: z.string().nullable(),
+  clientId: z.string(),
+  connectionId: z.string(),
+  createdAt: z.date(),
+  customerRefId: z.string().nullable(),
+  destination: Destination,
+  externalId: z.string(),
+  externalStatus: z.string().nullable(),
+  grossAmount: z.string(),
+  idempotenceId: z.string().nullable(),
+  memo: z.string().nullable(),
+  networkFeeAttribution: z.nativeEnum(NetworkFeeAttribution),
+  provider: z.nativeEnum(Provider),
+  providerSpecific: z.unknown().nullable(),
+  source: Source,
+  // The status is optional for an internal transfer because we query the
+  // provider to get the most recent status on reads.
+  //
+  // If we stored it, it would complicate our system by trying to keep
+  // distributed systems state in sync – an indexing problem. The Vault **is
+  // not an indexing solution**.
+  //
+  // NOTE: The status is not persisted in the database.
+  status: z.nativeEnum(TransferStatus).default(TransferStatus.PROCESSING).optional(),
+  transferId: z.string()
+})
+export type InternalTransfer = z.infer<typeof InternalTransfer>
+
+export const Transfer = InternalTransfer.extend({
+  // A transfer always has a status because we check with the provider to
+  // combine the information from the API and the database.
+  status: z.nativeEnum(TransferStatus),
+  fees: z.array(TransferFee)
+})
+export type Transfer = z.infer<typeof Transfer>
+
+export const isAddressDestination = (destination: Destination): destination is AddressDestination => {
+  return 'address' in destination
+}
+
+/**
+ * Ensures the provider specific is an object.
+ */
+export const isProviderSpecific = (value?: unknown): value is Record<string, unknown> => {
+  return typeof value === 'object' && value !== null
+}

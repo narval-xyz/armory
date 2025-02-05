@@ -287,6 +287,10 @@ export const buildSignerForAlg = async (jwk: Jwk) => {
     }
     case SigningAlg.RS256:
       return buildSignerRs256(privateKey)
+    case SigningAlg.ED25519: {
+      const privateKeyHex = await privateKeyToHex(privateKey)
+      return buildSignerEdDSA(privateKeyHex)
+    }
     default:
       throw new JwtError({
         message: 'Unsupported signing algorithm',

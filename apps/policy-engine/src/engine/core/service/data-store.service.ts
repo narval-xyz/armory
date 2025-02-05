@@ -153,7 +153,7 @@ export class DataStoreService {
   }): Promise<{ success: true } | { success: false; error: DataStoreException }> {
     try {
       const jwt = decodeJwt(params.signature)
-      const jwk = params.keys.find(({ kid }) => kid === jwt.header.kid)
+      const jwk = params.keys.find(({ kid }) => kid?.toLowerCase() === jwt.header.kid?.toLowerCase())
 
       if (!jwk) {
         return {
