@@ -1,6 +1,7 @@
 import { ConfigModule, ConfigService } from '@narval/config-module'
 import {
   Action,
+  ConfirmationClaimProofMethod,
   Criterion,
   Decision,
   Eip712TypedData,
@@ -14,10 +15,20 @@ import {
   Request,
   SignMessageAction,
   Then,
+  UserRole,
   ValueOperators,
   toHex
 } from '@narval/policy-engine-shared'
-import { SigningAlg, buildSignerEip191, hash, secp256k1PrivateKeyToJwk, signJwt } from '@narval/signature'
+import {
+  Alg,
+  SigningAlg,
+  buildSignerEip191,
+  generateJwk,
+  getPublicKey,
+  hash,
+  secp256k1PrivateKeyToJwk,
+  signJwt
+} from '@narval/signature'
 import { Path, PathValue } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { Config, load } from '../../../../policy-engine.config'
@@ -228,6 +239,61 @@ describe('OpenPolicyAgentEngine', () => {
 
       expect(response.decision).toEqual(Decision.PERMIT)
       expect(response.principal).toEqual(FIXTURE.CREDENTIAL.Alice)
+    })
+
+    it('throws when confirmation claim proof is invalid', async () => {
+      const e = await new OpenPolicyAgentEngine({
+        policies: [
+          {
+            id: 'test-permit-policy-uid',
+            description: 'test-policy',
+            when: [
+              {
+                criterion: Criterion.CHECK_PRINCIPAL_ROLE,
+                args: [UserRole.ROOT, UserRole.ADMIN]
+              }
+            ],
+            then: Then.PERMIT
+          }
+        ],
+        entities: FIXTURE.ENTITIES,
+        resourcePath: await getConfig('resourcePath')
+      }).load()
+
+      const request = {
+        action: Action.SIGN_MESSAGE,
+        nonce: 'test-nonce',
+        resourceId: FIXTURE.ACCOUNT.Engineering.id,
+        message: 'sign me'
+      }
+
+      const bindPrivateKeyOne = await generateJwk(Alg.EDDSA)
+      const bindPrivateKeyTwo = await generateJwk(Alg.EDDSA)
+
+      const evaluation: EvaluationRequest = {
+        authentication: await getJwt({
+          privateKey: FIXTURE.UNSAFE_PRIVATE_KEY.Alice,
+          sub: FIXTURE.USER.Alice.id,
+          request
+        }),
+        request,
+        metadata: {
+          confirmation: {
+            key: {
+              jwk: getPublicKey(bindPrivateKeyOne),
+              proof: ConfirmationClaimProofMethod.JWS,
+              jws: await signJwt(
+                {
+                  requestHash: hash(request)
+                },
+                bindPrivateKeyTwo
+              )
+            }
+          }
+        }
+      }
+
+      await expect(() => e.evaluate(evaluation)).rejects.toThrow('Invalid confirmation claim jws: Invalid signature')
     })
   })
 

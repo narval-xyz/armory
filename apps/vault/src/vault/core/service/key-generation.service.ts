@@ -96,7 +96,12 @@ export class KeyGenerationService {
       })
     }
 
-    const backup = await this.#maybeEncryptAndSaveBackup(clientId, keyId, mnemonic, client?.backupPublicKey)
+    const backup = await this.#maybeEncryptAndSaveBackup(
+      clientId,
+      keyId,
+      mnemonic,
+      client?.backupPublicKey || undefined
+    )
 
     await this.rootKeyRepository.save(clientId, {
       keyId,

@@ -1,10 +1,10 @@
-import { ConfigModule, ConfigService } from '@narval/config-module'
 import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
 import {
   LoggerModule,
   OpenTelemetryModule,
   REQUEST_HEADER_CLIENT_ID,
-  REQUEST_HEADER_CLIENT_SECRET
+  REQUEST_HEADER_CLIENT_SECRET,
+  secret
 } from '@narval/nestjs-shared'
 import {
   Action,
@@ -18,7 +18,7 @@ import {
   SourceType,
   Then
 } from '@narval/policy-engine-shared'
-import { PrivateKey, secp256k1PrivateKeyToJwk, secp256k1PrivateKeyToPublicJwk } from '@narval/signature'
+import { PrivateKey, SigningAlg, secp256k1PrivateKeyToJwk, secp256k1PrivateKeyToPublicJwk } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { randomBytes } from 'crypto'
@@ -27,8 +27,8 @@ import request from 'supertest'
 import { v4 as uuid } from 'uuid'
 import { generatePrivateKey } from 'viem/accounts'
 import { sepolia } from 'viem/chains'
-import { EngineService } from '../../../engine/core/service/engine.service'
-import { Config, load } from '../../../policy-engine.config'
+import { ClientService } from '../../../client/core/service/client.service'
+import { PolicyEngineModule } from '../../../policy-engine.module'
 import { KeyValueRepository } from '../../../shared/module/key-value/core/repository/key-value.repository'
 import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
@@ -44,8 +44,7 @@ import {
   generateSignUserOperationRequest
 } from '../../../shared/testing/evaluation.testing'
 import { Client } from '../../../shared/type/domain.type'
-import { ClientService } from '../../core/service/client.service'
-import { EngineModule } from '../../engine.module'
+import { ProvisionService } from '../../core/service/provision.service'
 
 describe('Evaluation', () => {
   let app: INestApplication
@@ -66,16 +65,12 @@ describe('Evaluation', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [
-        LoggerModule.forTest(),
-        ConfigModule.forRoot({
-          load: [load],
-          isGlobal: true
-        }),
-        OpenTelemetryModule.forTest(),
-        EngineModule
-      ]
+      imports: [PolicyEngineModule]
     })
+      .overrideModule(LoggerModule)
+      .useModule(LoggerModule.forTest())
+      .overrideModule(OpenTelemetryModule)
+      .useModule(OpenTelemetryModule.forTest())
       .overrideProvider(KeyValueRepository)
       .useValue(new InMemoryKeyValueRepository())
       .overrideProvider(EncryptionModuleOptionProvider)
@@ -86,8 +81,6 @@ describe('Evaluation', () => {
 
     app = module.createNestApplication()
 
-    const engineService = module.get<EngineService>(EngineService)
-    const configService = module.get<ConfigService<Config>>(ConfigService)
     clientService = module.get<ClientService>(ClientService)
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)
 
@@ -101,24 +94,34 @@ describe('Evaluation', () => {
       keys: [privateKey]
     }
 
-    await engineService.save({
-      id: configService.get('engine.id'),
-      masterKey: 'unsafe-test-master-key',
-      adminApiKey
-    })
+    const provisionService = module.get<ProvisionService>(ProvisionService)
+    await provisionService.provision(secret.hash(adminApiKey))
 
     const clientSignerKey = generatePrivateKey()
     client = await clientService.save(
       {
         clientId,
-        clientSecret: randomBytes(42).toString('hex'),
+        name: 'test-client',
+        configurationSource: 'dynamic',
+        baseUrl: null,
+        auth: {
+          disabled: false,
+          local: {
+            clientSecret: randomBytes(42).toString('hex')
+          }
+        },
         dataStore: {
           entity: dataStoreConfiguration,
           policy: dataStoreConfiguration
         },
-        signer: {
-          publicKey: secp256k1PrivateKeyToPublicJwk(clientSignerKey),
-          privateKey: secp256k1PrivateKeyToJwk(clientSignerKey)
+        decisionAttestation: {
+          disabled: false,
+          signer: {
+            alg: SigningAlg.EIP191,
+            keyId: 'test-key-id',
+            publicKey: secp256k1PrivateKeyToPublicJwk(clientSignerKey),
+            privateKey: secp256k1PrivateKeyToJwk(clientSignerKey)
+          }
         },
         createdAt: new Date(),
         updatedAt: new Date()
@@ -146,7 +149,7 @@ describe('Evaluation', () => {
       const { body } = await request(app.getHttpServer())
         .post('/evaluations')
         .set(REQUEST_HEADER_CLIENT_ID, client.clientId)
-        .set(REQUEST_HEADER_CLIENT_SECRET, client.clientSecret)
+        .set(REQUEST_HEADER_CLIENT_SECRET, client.auth.local?.clientSecret || '')
         .send(serializedPayload)
 
       expect(body).toMatchObject({
@@ -197,7 +200,7 @@ describe('Evaluation', () => {
           const { status, body } = await request(app.getHttpServer())
             .post('/evaluations')
             .set(REQUEST_HEADER_CLIENT_ID, client.clientId)
-            .set(REQUEST_HEADER_CLIENT_SECRET, client.clientSecret)
+            .set(REQUEST_HEADER_CLIENT_SECRET, client.auth.local?.clientSecret || '')
             .send(payload)
 
           expect(body).toEqual({
@@ -292,7 +295,7 @@ describe('Evaluation', () => {
           const { status, body } = await request(app.getHttpServer())
             .post('/evaluations')
             .set(REQUEST_HEADER_CLIENT_ID, client.clientId)
-            .set(REQUEST_HEADER_CLIENT_SECRET, client.clientSecret)
+            .set(REQUEST_HEADER_CLIENT_SECRET, client.auth.local?.clientSecret || '')
             .send(payload)
 
           expect(body).toMatchObject({

@@ -18,9 +18,23 @@ export const Curves = {
 export type Curves = (typeof Curves)[keyof typeof Curves]
 
 export const Alg = {
-  ES256K: 'ES256K', // secp256k1, an Ethereum EOA
-  ES256: 'ES256', // secp256r1, ecdsa but not ethereum
+  /**
+   * SECP256K1
+   *
+   * Examples:
+   * - Used by Ethereum
+   */
+  ES256K: 'ES256K',
+  /**
+   * SECP256R1, ECDSA but not Ethereum
+   */
+  ES256: 'ES256',
   RS256: 'RS256',
+  /**
+   * Examples:
+   * - Used by Solan
+   * - Uses SHA512 and doesn't require a pre-hashed payload
+   */
   EDDSA: 'EDDSA'
 } as const
 
@@ -28,7 +42,13 @@ export type Alg = (typeof Alg)[keyof typeof Alg]
 
 export const SigningAlg = {
   ES256K: 'ES256K',
-  EIP191: 'EIP191', // ecdsa on secp256k1 with keccak256 & data prefixed w/ \x19Ethereum Signed Message:\n + len(message)
+  /**
+   * ECDSA on SECP256K1 with KECCAK256 and data prefixed
+   *
+   * Examples:
+   * - \x19Ethereum Signed Message:\n + len(message)
+   */
+  EIP191: 'EIP191',
   ES256: 'ES256',
   RS256: 'RS256',
   ED25519: 'EDDSA'
@@ -341,7 +361,7 @@ export type JwtVerifyOptions = {
 
 export type JwsdVerifyOptions = {
   requestBody: object
-  accessToken: string
+  accessToken?: string
   uri: string
   htm: string
   maxTokenAge: number
@@ -403,3 +423,5 @@ export type EcdsaSignature = {
   s: Hex
   v: bigint
 }
+
+export type PemString = `-----BEGIN${string}`

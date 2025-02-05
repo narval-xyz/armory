@@ -1,6 +1,4 @@
-import { ConfigModule } from '@narval/config-module'
-import { EncryptionModuleOptionProvider } from '@narval/encryption-module'
-import { LoggerModule, REQUEST_HEADER_CLIENT_ID } from '@narval/nestjs-shared'
+import { REQUEST_HEADER_CLIENT_ID } from '@narval/nestjs-shared'
 import { Action, FIXTURE } from '@narval/policy-engine-shared'
 import {
   SigningAlg,
@@ -16,20 +14,17 @@ import {
   type Payload
 } from '@narval/signature'
 import { HttpStatus, INestApplication } from '@nestjs/common'
-import { Test, TestingModule } from '@nestjs/testing'
+import { TestingModule } from '@nestjs/testing'
 import request from 'supertest'
 import { v4 as uuid } from 'uuid'
 import { verifyMessage } from 'viem'
+import { VaultTest } from '../../../__test__/shared/vault.test'
 import { ClientService } from '../../../client/core/service/client.service'
-import { load } from '../../../main.config'
-import { KeyValueRepository } from '../../../shared/module/key-value/core/repository/key-value.repository'
-import { InMemoryKeyValueRepository } from '../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
+import { MainModule } from '../../../main.module'
+import { ProvisionService } from '../../../provision.service'
 import { TestPrismaService } from '../../../shared/module/persistence/service/test-prisma.service'
-import { getTestRawAesKeyring } from '../../../shared/testing/encryption.testing'
 import { Client, Origin, PrivateAccount } from '../../../shared/type/domain.type'
-import { AppService } from '../../core/service/app.service'
 import { AccountRepository } from '../../persistence/repository/account.repository'
-import { VaultModule } from '../../vault.module'
 
 const PRIVATE_KEY = '0x7cfef3303797cbc7515d9ce22ffe849c701b0f2812f999b0847229c47951fca5'
 
@@ -38,31 +33,83 @@ describe('Sign', () => {
   let module: TestingModule
   let testPrismaService: TestPrismaService
 
-  const adminApiKey = 'test-admin-api-key'
-
   const clientId = uuid()
   const clientIdWithoutWildcard = uuid()
 
   // Engine key used to sign the approval request
   const enginePrivateJwk = secp256k1PrivateKeyToJwk(PRIVATE_KEY)
   const clientPublicJWK = secp256k1PrivateKeyToPublicJwk(PRIVATE_KEY)
-
   const client: Client = {
     clientId,
-    engineJwk: clientPublicJWK,
+    auth: {
+      disabled: false,
+      local: {
+        jwsd: {
+          maxAge: 600,
+          requiredComponents: ['htm', 'uri', 'created', 'ath']
+        },
+        allowedUsersJwksUrl: null,
+        allowedUsers: null
+      },
+      tokenValidation: {
+        disabled: false,
+        url: null,
+        jwksUrl: null,
+        verification: {
+          audience: null,
+          issuer: 'https://armory.narval.xyz',
+          maxTokenAge: 300,
+          requireBoundTokens: false, // DO NOT REQUIRE BOUND TOKENS; we're testing both payload.cnf bound tokens and unbound here.
+          allowBearerTokens: false,
+          allowWildcard: [
+            'path.to.allow',
+            'transactionRequest.maxFeePerGas',
+            'transactionRequest.maxPriorityFeePerGas',
+            'transactionRequest.gas'
+          ]
+        },
+        pinnedPublicKey: clientPublicJWK
+      }
+    },
+    name: 'test-client',
+    configurationSource: 'dynamic',
+    backupPublicKey: null,
+    baseUrl: null,
     createdAt: new Date(),
-    updatedAt: new Date(),
-    allowWildcard: [
-      'path.to.allow',
-      'transactionRequest.maxFeePerGas',
-      'transactionRequest.maxPriorityFeePerGas',
-      'transactionRequest.gas'
-    ]
+    updatedAt: new Date()
   }
 
   const clientWithoutWildcard: Client = {
     clientId: clientIdWithoutWildcard,
-    engineJwk: clientPublicJWK,
+    auth: {
+      disabled: false,
+      local: {
+        jwsd: {
+          maxAge: 600,
+          requiredComponents: ['htm', 'uri', 'created', 'ath']
+        },
+        allowedUsersJwksUrl: null,
+        allowedUsers: null
+      },
+      tokenValidation: {
+        disabled: false,
+        url: null,
+        jwksUrl: null,
+        verification: {
+          audience: null,
+          issuer: 'https://armory.narval.xyz',
+          maxTokenAge: 300,
+          requireBoundTokens: true,
+          allowBearerTokens: false,
+          allowWildcard: null
+        },
+        pinnedPublicKey: clientPublicJWK
+      }
+    },
+    name: 'test-client',
+    configurationSource: 'dynamic',
+    backupPublicKey: null,
+    baseUrl: null,
     createdAt: new Date(),
     updatedAt: new Date()
   }
@@ -108,37 +155,20 @@ describe('Sign', () => {
   }
 
   beforeAll(async () => {
-    module = await Test.createTestingModule({
-      imports: [
-        LoggerModule.forTest(),
-        ConfigModule.forRoot({
-          load: [load],
-          isGlobal: true
-        }),
-        VaultModule
-      ]
-    })
-      .overrideProvider(KeyValueRepository)
-      .useValue(new InMemoryKeyValueRepository())
-      .overrideProvider(EncryptionModuleOptionProvider)
-      .useValue({
-        keyring: getTestRawAesKeyring()
-      })
-      .compile()
+    module = await VaultTest.createTestingModule({
+      imports: [MainModule]
+    }).compile()
 
     app = module.createNestApplication({ logger: false })
 
     testPrismaService = module.get<TestPrismaService>(TestPrismaService)
-
-    const appService = module.get<AppService>(AppService)
+    const provisionService = module.get<ProvisionService>(ProvisionService)
     const clientService = module.get<ClientService>(ClientService)
     const accountRepository = module.get<AccountRepository>(AccountRepository)
 
-    await appService.save({
-      id: 'test-app',
-      masterKey: 'unsafe-test-master-key',
-      adminApiKey
-    })
+    await testPrismaService.truncateAll()
+
+    await provisionService.provision()
 
     await clientService.save(client)
 
@@ -147,8 +177,6 @@ describe('Sign', () => {
     await accountRepository.save(clientId, account)
 
     await accountRepository.save(clientIdWithoutWildcard, account)
-
-    await testPrismaService.truncateAll()
 
     await app.init()
   })
@@ -189,13 +217,11 @@ describe('Sign', () => {
         .set('authorization', `GNAP ${accessToken}`)
         .send(payload)
 
-      expect(body).toEqual(
-        expect.objectContaining({
-          context: expect.any(Object),
-          message: 'Internal validation error',
-          statusCode: HttpStatus.UNPROCESSABLE_ENTITY
-        })
-      )
+      expect(body).toMatchObject({
+        context: expect.any(Object),
+        message: 'Validation error',
+        statusCode: HttpStatus.UNPROCESSABLE_ENTITY
+      })
       expect(status).toEqual(HttpStatus.UNPROCESSABLE_ENTITY)
     })
 

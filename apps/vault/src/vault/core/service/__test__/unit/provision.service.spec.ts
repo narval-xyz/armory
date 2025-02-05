@@ -2,20 +2,22 @@ import { ConfigService } from '@narval/config-module'
 import { LoggerModule, secret } from '@narval/nestjs-shared'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
+import { AppService } from '../../../../../app.service'
 import { Config } from '../../../../../main.config'
+import { ProvisionService } from '../../../../../provision.service'
 import { KeyValueRepository } from '../../../../../shared/module/key-value/core/repository/key-value.repository'
 import { KeyValueService } from '../../../../../shared/module/key-value/core/service/key-value.service'
 import { InMemoryKeyValueRepository } from '../../../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
-import { AppRepository } from '../../../../persistence/repository/app.repository'
-import { AppService } from '../../app.service'
-import { ProvisionService } from '../../provision.service'
+import { ProvisionException } from '../../../exception/provision.exception'
 
 const mockConfigService = (config: { keyring: Config['keyring']; engineId: string; adminApiKeyHash?: string }) => {
   const m = mock<ConfigService<Config>>()
 
   m.get.calledWith('keyring').mockReturnValue(config.keyring)
   m.get.calledWith('app.id').mockReturnValue(config.engineId)
-  m.get.calledWith('app.adminApiKeyHash').mockReturnValue(config.adminApiKeyHash)
+  m.get
+    .calledWith('app.auth.local')
+    .mockReturnValue(config.adminApiKeyHash ? { adminApiKeyHash: config.adminApiKeyHash } : null)
 
   return m
 }
@@ -23,26 +25,31 @@ const mockConfigService = (config: { keyring: Config['keyring']; engineId: strin
 describe(ProvisionService.name, () => {
   let module: TestingModule
   let provisionService: ProvisionService
-  let appService: AppService
+  let appServiceMock: MockProxy<AppService>
   let configServiceMock: MockProxy<ConfigService<Config>>
 
   const config = {
     engineId: 'test-engine-id',
     keyring: {
       type: 'raw',
-      masterPassword: 'test-master-password'
+      encryptionMasterPassword: 'test-master-password',
+      encryptionMasterKey: null,
+      hmacSecret: 'test-hmac-secret'
     } satisfies Config['keyring']
   }
 
   beforeEach(async () => {
     configServiceMock = mockConfigService(config)
+    appServiceMock = mock<AppService>()
 
     module = await Test.createTestingModule({
       imports: [LoggerModule.forTest()],
       providers: [
         ProvisionService,
-        AppService,
-        AppRepository,
+        {
+          provide: AppService,
+          useValue: appServiceMock
+        },
         KeyValueService,
         {
           provide: ConfigService,
@@ -56,7 +63,6 @@ describe(ProvisionService.name, () => {
     }).compile()
 
     provisionService = module.get(ProvisionService)
-    appService = module.get(AppService)
   })
 
   describe('on first boot', () => {
@@ -64,18 +70,22 @@ describe(ProvisionService.name, () => {
       const adminApiKey = 'test-admin-api-key'
 
       beforeEach(async () => {
-        configServiceMock.get.calledWith('app.adminApiKeyHash').mockReturnValue(secret.hash(adminApiKey))
+        configServiceMock.get
+          .calledWith('app.auth.local')
+          .mockReturnValue({ adminApiKeyHash: secret.hash(adminApiKey) })
+        appServiceMock.getApp.mockResolvedValue(null)
       })
 
       it('saves the activated app', async () => {
         await provisionService.provision()
 
-        const actualApp = await appService.getApp()
-
-        expect(actualApp).toEqual({
+        expect(appServiceMock.save).toHaveBeenCalledWith({
           id: config.engineId,
-          adminApiKey: secret.hash(adminApiKey),
-          masterKey: expect.any(String)
+          encryptionKeyringType: 'raw',
+          encryptionMasterKey: expect.any(String),
+          encryptionMasterAwsKmsArn: undefined,
+          adminApiKeyHash: secret.hash(adminApiKey),
+          authDisabled: undefined
         })
       })
     })
@@ -84,27 +94,29 @@ describe(ProvisionService.name, () => {
       it('saves the provisioned app', async () => {
         await provisionService.provision()
 
-        const actualApp = await appService.getApp()
-
-        expect(actualApp?.adminApiKey).toEqual(undefined)
-        expect(actualApp).toEqual({
+        expect(appServiceMock.save).toHaveBeenCalledWith({
           id: config.engineId,
-          masterKey: expect.any(String)
+          encryptionKeyringType: 'raw',
+          encryptionMasterKey: expect.any(String),
+          encryptionMasterAwsKmsArn: undefined,
+          adminApiKeyHash: null,
+          authDisabled: undefined
         })
       })
     })
   })
 
   describe('on boot', () => {
-    it('skips provision and returns the existing app', async () => {
-      const actualApp = await appService.save({
+    it('fails when masterEncryptionKey is not valid', async () => {
+      await appServiceMock.getApp.mockResolvedValue({
         id: config.engineId,
-        masterKey: 'test-master-key'
+        encryptionMasterKey: 'test-master-key',
+        encryptionKeyringType: 'raw',
+        encryptionMasterAwsKmsArn: null,
+        authDisabled: false
       })
 
-      const engine = await provisionService.provision()
-
-      expect(actualApp).toEqual(engine)
+      await expect(provisionService.provision()).rejects.toThrow(ProvisionException)
     })
   })
 })

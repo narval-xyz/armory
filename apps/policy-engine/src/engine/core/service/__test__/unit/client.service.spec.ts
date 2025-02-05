@@ -1,23 +1,23 @@
 import { EncryptionModule } from '@narval/encryption-module'
-import { LoggerModule, StatefulTraceService, TraceService, secret } from '@narval/nestjs-shared'
+import { LoggerModule, StatefulTraceService, TraceService } from '@narval/nestjs-shared'
 import { DataStoreConfiguration, FIXTURE, HttpSource, SourceType } from '@narval/policy-engine-shared'
-import { Alg, getPublicKey, privateKeyToJwk } from '@narval/signature'
+import { Alg, SigningAlg, getPublicKey, privateKeyToJwk, secp256k1PrivateKeyToPublicJwk } from '@narval/signature'
 import { Test } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
 import { generatePrivateKey } from 'viem/accounts'
+import { ClientService } from '../../../../../client/core/service/client.service'
+import { ClientRepository } from '../../../../../client/persistence/repository/client.repository'
 import { KeyValueRepository } from '../../../../../shared/module/key-value/core/repository/key-value.repository'
 import { EncryptKeyValueService } from '../../../../../shared/module/key-value/core/service/encrypt-key-value.service'
 import { InMemoryKeyValueRepository } from '../../../../../shared/module/key-value/persistence/repository/in-memory-key-value.repository'
 import { getTestRawAesKeyring } from '../../../../../shared/testing/encryption.testing'
 import { Client } from '../../../../../shared/type/domain.type'
-import { ClientRepository } from '../../../../persistence/repository/client.repository'
-import { ClientService } from '../../client.service'
 import { DataStoreService } from '../../data-store.service'
 import { SimpleSigningService } from '../../signing-basic.service'
 
 describe(ClientService.name, () => {
   let clientService: ClientService
-  let clientRepository: ClientRepository
+  let clientRepositoryMock: MockProxy<ClientRepository>
   let dataStoreServiceMock: MockProxy<DataStoreService>
 
   const clientId = 'test-client-id'
@@ -33,15 +33,30 @@ describe(ClientService.name, () => {
     keys: [getPublicKey(privateKeyToJwk(generatePrivateKey()))]
   }
 
+  const clientSignerKey = generatePrivateKey()
   const client: Client = {
     clientId,
-    clientSecret: secret.hash('test-client-secret'),
+    name: 'test-client',
+    configurationSource: 'dynamic',
+    baseUrl: null,
+    auth: {
+      disabled: false,
+      local: {
+        clientSecret: 'unsafe-client-secret'
+      }
+    },
     dataStore: {
       entity: dataStoreConfiguration,
       policy: dataStoreConfiguration
     },
-    signer: {
-      privateKey: privateKeyToJwk(generatePrivateKey(), Alg.ES256K)
+    decisionAttestation: {
+      disabled: false,
+      signer: {
+        alg: SigningAlg.EIP191,
+        keyId: 'test-key-id',
+        publicKey: secp256k1PrivateKeyToPublicJwk(clientSignerKey),
+        privateKey: privateKeyToJwk(clientSignerKey, Alg.ES256K)
+      }
     },
     createdAt: new Date(),
     updatedAt: new Date()
@@ -60,6 +75,7 @@ describe(ClientService.name, () => {
 
   beforeEach(async () => {
     dataStoreServiceMock = mock<DataStoreService>()
+    clientRepositoryMock = mock<ClientRepository>()
     dataStoreServiceMock.fetch.mockResolvedValue(stores)
 
     const module = await Test.createTestingModule({
@@ -71,7 +87,6 @@ describe(ClientService.name, () => {
       ],
       providers: [
         ClientService,
-        ClientRepository,
         EncryptKeyValueService,
         {
           provide: DataStoreService,
@@ -88,37 +103,35 @@ describe(ClientService.name, () => {
         {
           provide: TraceService,
           useClass: StatefulTraceService
+        },
+        {
+          provide: ClientRepository,
+          useValue: clientRepositoryMock
         }
       ]
     }).compile()
 
     clientService = module.get<ClientService>(ClientService)
-    clientRepository = module.get<ClientRepository>(ClientRepository)
   })
 
   describe('save', () => {
+    beforeEach(async () => {
+      clientRepositoryMock.save.mockResolvedValue(client)
+      clientRepositoryMock.findById.mockResolvedValue(client)
+    })
     it('does not hash the client secret because it is already hashed', async () => {
       await clientService.save(client)
 
       const actualClient = await clientService.findById(client.clientId)
 
-      expect(actualClient?.clientSecret).toEqual(client.clientSecret)
+      expect(actualClient?.auth.local?.clientSecret).toEqual(client.auth.local?.clientSecret)
     })
   })
 
   describe('syncDataStore', () => {
     beforeEach(async () => {
-      await clientRepository.save(client)
-    })
-
-    it('saves entity and policy stores', async () => {
-      expect(await clientRepository.findEntityStore(clientId)).toEqual(null)
-      expect(await clientRepository.findPolicyStore(clientId)).toEqual(null)
-
-      await clientService.syncDataStore(clientId)
-
-      expect(await clientRepository.findEntityStore(clientId)).toEqual(stores.entity)
-      expect(await clientRepository.findPolicyStore(clientId)).toEqual(stores.policy)
+      clientRepositoryMock.save.mockResolvedValue(client)
+      clientRepositoryMock.findById.mockResolvedValue(client)
     })
 
     it('fetches the data stores once', async () => {

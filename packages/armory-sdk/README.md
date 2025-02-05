@@ -24,8 +24,8 @@ make armory/start/dev
 make policy-engine/start/dev
 make vault/start/dev
 
-make armory-sdk/test/e2e
-make armory-sdk/test/e2e/watch
+make armory-e2e-testing/test/e2e
+make armory-e2e-testing/test/e2e/watch
 ```
 
 The tests MUST run in series because each step depends on state changes from

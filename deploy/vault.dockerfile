@@ -1,4 +1,4 @@
-FROM node:21 as build
+FROM node:21 AS build
 
 # Set the working directory
 WORKDIR /usr/src/app
@@ -19,7 +19,7 @@ RUN make vault/db/generate-types && \
     make vault/build && \
     rm -rf apps/ && rm -rf packages/
 
-FROM node:21-slim as final
+FROM node:21-slim AS final
 
 WORKDIR /usr/src/app
 RUN apt-get update && apt-get install -y openssl && apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -32,7 +32,7 @@ RUN chmod +x ./db-migrator.sh
 # Copy built application, which includes a pruned package.json
 # Then install just the dependencies we need for that.
 COPY --from=build /usr/src/app/dist ./dist
-RUN npm ci --prefix ./dist/apps/vault --only=production
+RUN npm ci --prefix ./dist/apps/vault --omit=dev
 COPY --from=build /usr/src/app/node_modules/@prisma/client/vault ./dist/apps/vault/node_modules/@prisma/client/vault
 
 ENV NODE_ENV=production

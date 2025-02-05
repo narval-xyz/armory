@@ -7,12 +7,18 @@ import { instrumentTelemetry } from '@narval/open-telemetry'
 instrumentTelemetry({ serviceName: 'vault' })
 
 import { ConfigService } from '@narval/config-module'
-import { LoggerService, withApiVersion, withCors, withLogger, withSwagger } from '@narval/nestjs-shared'
+import {
+  LoggerService,
+  securityOptions,
+  withApiVersion,
+  withCors,
+  withLogger,
+  withSwagger
+} from '@narval/nestjs-shared'
 import { INestApplication, ValidationPipe } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
 import { Config } from './main.config'
-import { ADMIN_API_KEY_SECURITY, GNAP_SECURITY } from './main.constant'
 import { MainModule, ProvisionModule } from './main.module'
 
 /**
@@ -57,9 +63,13 @@ async function bootstrap() {
         withSwagger({
           title: 'Vault',
           description:
-            'Secure storage for private keys and sensitive data, designed to protect your most critical assets in web3.0',
+            'Secure Enclave-backed authorization proxy for web3 secrets. Holds encrypted credentials and proxies API requests to custodians and wallet tech providers. Can also generate evm wallet private keys & sign transactions.',
           version: '1.0',
-          security: [GNAP_SECURITY, ADMIN_API_KEY_SECURITY]
+          security: [securityOptions.gnap, securityOptions.adminApiKey, securityOptions.detachedJws],
+          server: {
+            url: configService.get('baseUrl'),
+            description: 'Narval Vault Base Url'
+          }
         })
       ),
       switchMap((app) => app.listen(port))

@@ -1,14 +1,26 @@
+import { LoggerModule, OpenTelemetryModule } from '@narval/nestjs-shared'
 import {
+  Action,
+  DataStoreConfiguration,
   Decision,
+  EntityUtil,
+  EvaluationRequest,
   EvaluationResponse,
   FIXTURE,
   GrantPermissionAction,
   Request,
   SignTransactionAction
 } from '@narval/policy-engine-shared'
-import { nowSeconds } from '@narval/signature'
+import { Alg, PrivateKey, SigningAlg, decodeJwt, generateJwk, getPublicKey } from '@narval/signature'
+import { Test } from '@nestjs/testing'
+import { MockProxy, mock } from 'jest-mock-extended'
+import { ClientService } from '../../../../../client/core/service/client.service'
+import { OpenPolicyAgentEngine } from '../../../../../open-policy-agent/core/open-policy-agent.engine'
 import { ApplicationException } from '../../../../../shared/exception/application.exception'
-import { buildPermitTokenPayload } from '../../evaluation.service'
+import { Client } from '../../../../../shared/type/domain.type'
+import { OpenPolicyAgentEngineFactory } from '../../../factory/open-policy-agent-engine.factory'
+import { EvaluationService, buildPermitTokenPayload } from '../../evaluation.service'
+import { SimpleSigningService } from '../../signing-basic.service'
 
 const ONE_DAY = 86400
 
@@ -48,27 +60,26 @@ describe('buildPermitTokenPayload for signTransaction action', () => {
     request
   }
 
-  it('should throw an error if decision is not PERMIT', async () => {
+  it('throws an error if decision is not PERMIT', async () => {
     const evaluation: EvaluationResponse = { ...evalResponse, decision: Decision.FORBID }
     await expect(buildPermitTokenPayload('clientId', evaluation)).rejects.toThrow(ApplicationException)
   })
 
-  it('should throw an error if principal is missing', async () => {
+  it('throws an error if principal is missing', async () => {
     const evaluation: EvaluationResponse = { ...evalResponse, principal: undefined }
     await expect(buildPermitTokenPayload('clientId', evaluation)).rejects.toThrow(ApplicationException)
   })
 
-  it('should throw an error if request is missing', async () => {
+  it('throws an error if request is missing', async () => {
     const evaluation: EvaluationResponse = { ...evalResponse, request: undefined }
     await expect(buildPermitTokenPayload('clientId', evaluation)).rejects.toThrow(ApplicationException)
   })
 
-  it('should return a jwt payload if all conditions are met', async () => {
+  it('returns a jwt payload if all conditions are met', async () => {
     const payload = await buildPermitTokenPayload('clientId', evalResponse)
 
     expect(payload).toEqual({
       cnf,
-      iat: nowSeconds(),
       requestHash: '0x608abe908cffeab1fc33edde6b44586f9dacbc9c6fe6f0a13fa307237290ce5a',
       hashWildcard: [
         'transactionRequest.gas',
@@ -96,29 +107,26 @@ describe('buildPermitTokenPayload for grantPermission action', () => {
       issuer: 'clientId.armory.narval.xyz'
     }
   }
-  it('should throw an error if decision is not PERMIT', async () => {
+  it('throws an error if decision is not PERMIT', async () => {
     const evaluation: EvaluationResponse = { ...evalResponse, decision: Decision.FORBID }
     await expect(buildPermitTokenPayload('clientId', evaluation)).rejects.toThrow(ApplicationException)
   })
 
-  it('should throw an error if principal is missing', async () => {
+  it('throws an error if principal is missing', async () => {
     const evaluation: EvaluationResponse = { ...evalResponse, principal: undefined }
     await expect(buildPermitTokenPayload('clientId', evaluation)).rejects.toThrow(ApplicationException)
   })
 
-  it('should throw an error if request is missing', async () => {
+  it('throws an error if request is missing', async () => {
     const evaluation: EvaluationResponse = { ...evalResponse, request: undefined }
     await expect(buildPermitTokenPayload('clientId', evaluation)).rejects.toThrow(ApplicationException)
   })
 
-  it('should return a jwt payload if all conditions are met', async () => {
+  it('returns a jwt payload if all conditions are met', async () => {
     const payload = await buildPermitTokenPayload('clientId', evalResponse)
-    const iat = nowSeconds()
 
     expect(payload).toEqual({
       cnf,
-      iat,
-      exp: iat + ONE_DAY,
       iss: 'clientId.armory.narval.xyz',
       sub: 'test-alice-user-uid',
       access: [
@@ -127,6 +135,155 @@ describe('buildPermitTokenPayload for grantPermission action', () => {
           permissions: ['wallet:import']
         }
       ]
+    })
+  })
+})
+
+describe(EvaluationService.name, () => {
+  let service: EvaluationService
+  let client: Client
+  let clientSignerPrivateKey: PrivateKey
+  let openPolicyAgentEngineMock: MockProxy<OpenPolicyAgentEngine>
+
+  const evaluationResponse: EvaluationResponse = {
+    decision: Decision.PERMIT,
+    request: {
+      action: Action.SIGN_MESSAGE,
+      nonce: '99',
+      resourceId: 'test-resource-id',
+      message: 'sign me'
+    },
+    accessToken: {
+      value: ''
+    },
+    principal: FIXTURE.CREDENTIAL.Bob
+  }
+
+  beforeEach(async () => {
+    clientSignerPrivateKey = await generateJwk(Alg.ES256K)
+
+    client = {
+      clientId: 'test-client-id',
+      name: 'test-client-name',
+      configurationSource: 'dynamic',
+      baseUrl: null,
+      auth: {
+        disabled: false,
+        local: {
+          clientSecret: 'test-client-secret'
+        }
+      },
+      dataStore: {
+        entity: {} as DataStoreConfiguration,
+        policy: {} as DataStoreConfiguration
+      },
+      decisionAttestation: {
+        disabled: false,
+        signer: {
+          publicKey: getPublicKey(clientSignerPrivateKey),
+          privateKey: clientSignerPrivateKey,
+          alg: SigningAlg.EIP191,
+          keyId: 'test-key-id'
+        }
+      },
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+
+    openPolicyAgentEngineMock = mock<OpenPolicyAgentEngine>()
+    openPolicyAgentEngineMock.evaluate.mockResolvedValue(evaluationResponse)
+
+    const openPolicyAgentEngineFactoryMock = mock<OpenPolicyAgentEngineFactory>()
+    openPolicyAgentEngineFactoryMock.create.mockResolvedValue(openPolicyAgentEngineMock)
+
+    const clientServiceMock = mock<ClientService>()
+    clientServiceMock.findById.mockResolvedValue(client)
+    clientServiceMock.findEntityStore.mockResolvedValue({
+      data: EntityUtil.empty(),
+      signature: ''
+    })
+    clientServiceMock.findPolicyStore.mockResolvedValue({
+      data: [],
+      signature: ''
+    })
+
+    const module = await Test.createTestingModule({
+      imports: [LoggerModule.forTest(), OpenTelemetryModule.forTest()],
+      providers: [
+        EvaluationService,
+        {
+          provide: OpenPolicyAgentEngineFactory,
+          useValue: openPolicyAgentEngineFactoryMock
+        },
+        {
+          provide: 'SigningService',
+          useClass: SimpleSigningService
+        },
+        {
+          provide: ClientService,
+          useValue: clientServiceMock
+        }
+      ]
+    }).compile()
+
+    service = module.get(EvaluationService)
+  })
+
+  describe('evaluate', () => {
+    describe('when confirmation (cnf) claim metadata is given', () => {
+      let bindPrivateKey: PrivateKey
+
+      let request: EvaluationRequest
+      let response: EvaluationResponse
+
+      beforeEach(async () => {
+        bindPrivateKey = await generateJwk(Alg.EDDSA)
+
+        const action = {
+          action: Action.SIGN_MESSAGE,
+          nonce: '99',
+          resourceId: 'test-resource-id',
+          message: 'sign me'
+        }
+
+        request = {
+          authentication: 'fake-jwt',
+          metadata: {
+            confirmation: {
+              key: {
+                jwk: getPublicKey(bindPrivateKey)
+              }
+            }
+          },
+          approvals: [],
+          request: action,
+          feeds: []
+        }
+
+        response = {
+          decision: Decision.PERMIT,
+          request: action,
+          metadata: request.metadata,
+          accessToken: {
+            value: ''
+          },
+          principal: FIXTURE.CREDENTIAL.Bob
+        }
+
+        openPolicyAgentEngineMock.evaluate.mockResolvedValue(response)
+      })
+
+      it('adds the public key as the cnf in the access token', async () => {
+        const response = await service.evaluate(client.clientId, request)
+
+        if (response.accessToken) {
+          const jwt = decodeJwt(response.accessToken.value)
+
+          expect(jwt.payload.cnf).toEqual(getPublicKey(bindPrivateKey))
+        } else {
+          fail('expect response to contain an access token')
+        }
+      })
     })
   })
 })

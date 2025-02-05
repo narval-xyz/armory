@@ -29,26 +29,21 @@ const baseEntities: Partial<Entities> = {
       accountType: 'eoa'
     }
   ],
-  userGroups: [
+  groups: [
     {
-      id: 'ug-treasury-group'
+      id: 'treasury-group'
     }
   ],
-  userGroupMembers: [
+  groupMembers: [
     {
-      groupId: 'ug-treasury-group',
+      type: 'user',
+      groupId: 'treasury-group',
       userId: '2-member-user-q'
-    }
-  ],
-  accountGroups: [
+    },
     {
-      id: 'ag-treasury-group'
-    }
-  ],
-  accountGroupMembers: [
-    {
-      accountId: 'acct-treasury-account-a',
-      groupId: 'ag-treasury-group'
+      type: 'account',
+      groupId: 'treasury-group',
+      accountId: 'acct-treasury-account-a'
     }
   ],
   addressBook: []

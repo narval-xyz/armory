@@ -1,3 +1,4 @@
+import { ConfigModule } from '@narval/config-module'
 import {
   LoggerModule,
   MetricService,
@@ -7,7 +8,9 @@ import {
 } from '@narval/nestjs-shared'
 import { Test, TestingModule } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
+import { load } from '../../../../../main.config'
 import { Origin, PrivateAccount } from '../../../../../shared/type/domain.type'
+import { EncryptionKeyService } from '../../../../../transit-encryption/core/service/encryption-key.service'
 import { AccountRepository } from '../../../../persistence/repository/account.repository'
 import { ImportRepository } from '../../../../persistence/repository/import.repository'
 import { ImportService } from '../../import.service'
@@ -27,7 +30,14 @@ describe('ImportService', () => {
     importRepositoryMock = mock<ImportRepository>()
 
     const module: TestingModule = await Test.createTestingModule({
-      imports: [LoggerModule.forTest(), OpenTelemetryModule.forTest()],
+      imports: [
+        LoggerModule.forTest(),
+        OpenTelemetryModule.forTest(),
+        ConfigModule.forRoot({
+          load: [load],
+          isGlobal: true
+        })
+      ],
       providers: [
         ImportService,
         {
@@ -49,6 +59,10 @@ describe('ImportService', () => {
         {
           provide: KeyGenerationService,
           useValue: {}
+        },
+        {
+          provide: EncryptionKeyService,
+          useValue: mock<EncryptionKeyService>()
         }
       ]
     }).compile()

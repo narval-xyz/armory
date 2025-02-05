@@ -10,21 +10,29 @@ import { buildSignerEip191, signJwt } from '../../sign'
 import {
   Alg,
   Header,
+  Hex,
   Jwk,
   RsaPrivateKey,
   Secp256k1PrivateKey,
   SigningAlg,
   p256PublicKeySchema,
+  rsaPublicKeySchema,
   secp256k1PublicKeySchema
 } from '../../types'
 import {
+  SMALLEST_RSA_MODULUS_LENGTH,
   ed25519polyfilled,
   ellipticPrivateKeyToHex,
   generateJwk,
+  privateJwkToPem,
   privateKeyToHex,
   privateKeyToJwk,
+  privateKeyToPem,
+  privateRsaPemToJwk,
   publicKeyToHex,
   publicKeyToJwk,
+  publicKeyToPem,
+  publicRsaPemToJwk,
   requestWithoutWildcardFields,
   rsaPrivateKeyToPublicKey
 } from '../../utils'
@@ -120,7 +128,8 @@ describe('isHeader', () => {
 
 describe('generateKeys', () => {
   it('generate a valid RSA key pair and return it as a JWK', async () => {
-    const key = await generateJwk(Alg.RS256)
+    // IMPORTANT: Uses a small length to increase the generation speed on tests.
+    const key = await generateJwk(Alg.RS256, { modulusLength: SMALLEST_RSA_MODULUS_LENGTH })
     expect(rsaPrivateKeySchema.safeParse(key).success).toBe(true)
   })
 
@@ -171,7 +180,7 @@ describe('generateKeys', () => {
   })
   describe('rsaPrivateKeyToPublicKey', () => {
     it('converts private to public', async () => {
-      const privateKey = await generateJwk<RsaPrivateKey>(Alg.RS256, { use: 'enc' })
+      const privateKey = await generateJwk(Alg.RS256, { use: 'enc' })
       const publicKey = rsaPrivateKeyToPublicKey(privateKey)
       expect(publicKey).toEqual({
         alg: Alg.RS256,
@@ -298,6 +307,83 @@ describe('privateKeyToJwk', () => {
   //   const jwk = privateKeyToJwk(hex, Alg.RS256)
   //   expect(rsaPrivateKeySchema.safeParse(jwk).success).toBe(true)
   // })
+})
+
+describe('publicJwkToPem', () => {
+  const privateJwk = {
+    kty: 'RSA',
+    alg: 'RS256',
+    kid: '0x52920ad0d19d7779106bd9d9d600d26c4b976cdb3cbc49decb7fdc29db00b8e9',
+    n: 'xNdTjWL9hGa4bz4tLKbmFZ4yjQsQzW35-CMS0kno3403jEqg5y2Cs6sLVyPBX4N2hdK5ERPytpf1PrThHqB-eEO6LtEWpENBgFuNIf8DRHrv0tne7dLNxf7sx1aocGRrkgIk4Ws6Is4Ot3whm3-WihmDGnHoogE-EPwVkkSc2FYPXYlNq4htCZXC8_MUI3LuXry2Gn4tna5HsYSehYhfKDD-nfSajeWxdNUv_3wOeSCr9ICm9Udlo7hpIUHQgnX3Nz6kvfGYuweLGoj_ot-oEUCIdlbQqmrfStAclugbM5NI6tY__6wD0z_4ZBjToupXCBlXbYsde6_ZG9xPmYSykw',
+    e: 'AQAB',
+    d: 'QU4rIzpXX8jwob-gHzNUHJH6tX6ZWX6GM0P3p5rrztc8Oag8z9XyigdSYNu0-SpVdTqfOcJDgT7TF7XNBms66k2WBJhMCb1iiuJU5ZWEkQC0dmDgLEkHCgx0pAHlKjy2z580ezEm_YsdqNRfFgbze-fQ7kIiazU8UUhBI-DtpHv7baBgsfqEfQ5nCTiURUPmmpiIU74-ZIJWZjBXTOoJNH0EIsJK9IpZzxpeC9mTMTsWTcHKiR3acze1qf-9I97v461TTZ8e33N6YINyr9I4HZuvxlCJdV_lOM3fLvYM9gPvgkPozhVWL3VKR6xa9JpGGHrCRgH92INuviBB_SmF8Q',
+    p: '9BNku_-t4Df9Dg7M2yjiNgZgcTNKrDnNqexliIUAt67q0tGmSBubjxeI5unDJZ_giXWUR3q-02v7HT5GYx-ZVgKk2lWnbrrm_F7UZW-ueHzeVvQcjDXTk0z8taXzrDJgnIwZIaZ2XSG3P-VPOrXCaMba8GzSq38Gpzi4g3lTO9s',
+    q: 'znUtwrqdnVew14_aFjNTRgzOQNN8JhkjzJy3aTSLBScK5NbiuUUZBWs5dQ7Nv7aAoDss1-o9XVQZ1DVV-o9UufJtyrPNcvTnC0cWRrtJrSN5YiuUbECU3Uj3OvGxnhx9tsmhDHnMTo50ObPYUbHcIkNaXkf2FVgL84y1JRWdPak',
+    dp: 'UNDrFeS-6fMf8zurURXkcQcDf_f_za8GDjGcHOwNJMTiNBP-_vlFNMgSKINWfmrFqj4obtKRxOeIKlKoc8HOv8_4TeL2oY95VC8CHOQx3Otbo2cI3NQlziw7sNnWKTo1CyDIYYAAyS2Uw69l4Ia2bIMLk3g0-VwCE_SQA9h0Wuk',
+    dq: 'VBe6ieSFKn97UnIPfJdvRcsVf6YknUgEIuV6d2mlbnXWpBs6wgf5BxIDl0BuYbYuchVoUJHiaM9Grf8DhEk5U3wBaF0QQ9CpAxjzY-AJRHJ8kJX7oJQ1jmSX_vRPSn2EXx2FcZVyuFSh1pcAd1YgufwBJQHepBb21z7q0a4aG_E',
+    qi: 'KhZpFs6xfyRIjbJV8Q9gWxqF37ONayIzBpgio5mdAQlZ-FUmaWZ2_2VWP2xvsP48BmwFXydHqewHBqGnZYCQ1ZHXJgD_-KKEejoqS5AJN1pdI0ZKjs7UCfZ4RJ4DH5p0_35gpuKRzzdvcIhl1CjIC5W8o7nhwmLBJ_QAo9e4t9U'
+  }
+  const publicJwk = rsaPublicKeySchema.parse(privateJwk)
+  it('does pem -> hex round trip for RSA keys', async () => {
+    const pem = await publicKeyToPem(publicJwk, Alg.RS256)
+
+    const backToJwk = await publicRsaPemToJwk(pem, { kid: publicJwk.kid })
+
+    expect(backToJwk).toEqual(publicJwk)
+  })
+  it('does pem -> jwk', async () => {
+    const pem = `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxNdTjWL9hGa4bz4tLKbm
+FZ4yjQsQzW35+CMS0kno3403jEqg5y2Cs6sLVyPBX4N2hdK5ERPytpf1PrThHqB+
+eEO6LtEWpENBgFuNIf8DRHrv0tne7dLNxf7sx1aocGRrkgIk4Ws6Is4Ot3whm3+W
+ihmDGnHoogE+EPwVkkSc2FYPXYlNq4htCZXC8/MUI3LuXry2Gn4tna5HsYSehYhf
+KDD+nfSajeWxdNUv/3wOeSCr9ICm9Udlo7hpIUHQgnX3Nz6kvfGYuweLGoj/ot+o
+EUCIdlbQqmrfStAclugbM5NI6tY//6wD0z/4ZBjToupXCBlXbYsde6/ZG9xPmYSy
+kwIDAQAB
+-----END PUBLIC KEY-----`
+
+    const newJwk = await publicRsaPemToJwk(pem, { kid: publicJwk.kid })
+    expect(newJwk).toEqual(publicJwk)
+  })
+})
+
+describe('privateJwkToPem', () => {
+  it('maps round-trip private rsa key to pem', async () => {
+    const privateKey = await generateJwk(Alg.RS256, { modulusLength: SMALLEST_RSA_MODULUS_LENGTH })
+    const pem = await privateJwkToPem(privateKey)
+
+    const roundTripJwk = await privateRsaPemToJwk(pem)
+
+    expect(roundTripJwk).toEqual(privateKey)
+  })
+
+  it('throws when privateJwkToPem fails', async () => {
+    const invalidJwk = { kty: 'RSA' } as RsaPrivateKey
+
+    await expect(privateKeyToPem(invalidJwk, Alg.RS256)).rejects.toThrow()
+  })
+})
+
+describe('privateKeyToPem', () => {
+  it('maps round-trip private rsa jwk to pem', async () => {
+    const privateKey = await generateJwk(Alg.RS256, { modulusLength: SMALLEST_RSA_MODULUS_LENGTH })
+    const pem = await privateKeyToPem(privateKey, Alg.RS256)
+    const roundTripJwk = await privateRsaPemToJwk(pem)
+
+    expect(roundTripJwk).toEqual(privateKey)
+  })
+
+  it('throws error when invalid hex is provided', async () => {
+    const invalidHex = 'invalid-hex' as Hex
+    await expect(privateKeyToPem(invalidHex, Alg.RS256)).rejects.toThrow()
+  })
+
+  it('throws error when invalid jwk is provided', async () => {
+    // Missing required JWK parameters
+    const invalidJwk = { kty: 'RSA' } as Jwk
+
+    await expect(privateKeyToPem(invalidJwk, Alg.RS256)).rejects.toThrow()
+  })
 })
 
 describe('hashRequestWithoutWildcardFields', () => {

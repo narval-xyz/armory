@@ -1,0 +1,15 @@
+{
+  "addresses": [
+    {
+      "assetId": "MATIC_POLYGON",
+      "address": "0x6b1c79dBF7a7D90d6F4fD623393aFa3DfFd6bE4E",
+      "description": "",
+      "tag": "",
+      "type": "Permanent",
+      "legacyAddress": "",
+      "enterpriseAddress": "",
+      "bip44AddressIndex": 0,
+      "userDefined": false
+    }
+  ]
+}

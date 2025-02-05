@@ -409,7 +409,6 @@ describe('Authorization Request', () => {
       idempotencyKey: '8dcbb7ad-82a2-4eca-b2f0-b1415c1d4a17',
       evaluations: [],
       approvals: [],
-      errors: [],
       createdAt: new Date(),
       updatedAt: new Date()
     }

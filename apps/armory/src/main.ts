@@ -7,14 +7,20 @@ import { instrumentTelemetry } from '@narval/open-telemetry'
 instrumentTelemetry({ serviceName: 'armory' })
 
 import { ConfigService } from '@narval/config-module'
-import { LoggerService, withApiVersion, withCors, withLogger, withSwagger } from '@narval/nestjs-shared'
+import {
+  LoggerService,
+  securityOptions,
+  withApiVersion,
+  withCors,
+  withLogger,
+  withSwagger
+} from '@narval/nestjs-shared'
 import { ClassSerializerInterceptor, INestApplication, ValidationPipe } from '@nestjs/common'
 import { NestFactory, Reflector } from '@nestjs/core'
 import compression from 'compression'
 import { json } from 'express'
 import { lastValueFrom, map, of, switchMap } from 'rxjs'
 import { Config } from './armory.config'
-import { ADMIN_SECURITY, CLIENT_ID_SECURITY, CLIENT_SECRET_SECURITY } from './armory.constant'
 import { ArmoryModule } from './armory.module'
 import { ApplicationExceptionFilter } from './shared/filter/application-exception.filter'
 import { HttpExceptionFilter } from './shared/filter/http-exception.filter'
@@ -103,7 +109,7 @@ async function bootstrap(): Promise<void> {
           title: 'Armory',
           description: 'Authentication and authorization system for web3.0',
           version: '1.0',
-          security: [ADMIN_SECURITY, CLIENT_ID_SECURITY, CLIENT_SECRET_SECURITY]
+          security: [securityOptions.clientId, securityOptions.clientSecret, securityOptions.adminApiKey]
         })
       ),
       switchMap((app) => app.listen(port))

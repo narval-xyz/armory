@@ -25,14 +25,14 @@ const loadArmoryMpcSigningService = () => {
 }
 
 export const signingServiceFactory = async (configService: ConfigService<Config>): Promise<SigningService> => {
-  const protocol = configService.get('signingProtocol')
+  const protocol = configService.get('decisionAttestation.protocol')
 
   if (protocol === 'simple') {
     return new SimpleSigningService()
   }
 
   if (protocol === 'mpc') {
-    const tsm = configService.get('tsm')
+    const tsm = configService.get('decisionAttestation.tsm')
 
     if (!tsm) {
       throw new Error('Missing TSM config')
