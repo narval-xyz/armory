@@ -6,7 +6,7 @@ import { Reflector } from '@nestjs/core'
 import { z } from 'zod'
 import { ClientService } from '../../client/core/service/client.service'
 import { Config } from '../../main.config'
-import { PermissionGuard } from '../decorator/permission-guard.decorator'
+import { RequiredPermission } from '../decorator/permission-guard.decorator'
 import { ApplicationException } from '../exception/application.exception'
 import { Client, VaultPermission } from '../type/domain.type'
 
@@ -105,7 +105,7 @@ export class AuthorizationGuard implements CanActivate {
 
     // Get the Permissions (scopes) required from the request decorator, if it exists.
     const { request: requestHash } = req.body
-    const permissions: VaultPermission[] | undefined = this.reflector.get(PermissionGuard, context.getHandler())
+    const permissions: VaultPermission[] | undefined = this.reflector.get(RequiredPermission, context.getHandler())
     const access =
       permissions && permissions.length > 0
         ? [

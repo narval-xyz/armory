@@ -119,7 +119,7 @@ const getAccessToken = async (request: unknown, opts: object = {}) => {
   return signJwt(payload, enginePrivateJwk, { alg: SigningAlg.EIP191 }, signer)
 }
 
-describe('AuthorizationGuard', () => {
+describe(AuthorizationGuard.name, () => {
   let mockClientService = mock<ClientService>()
   let mockConfigService = mock<ConfigService<Config>>()
 
@@ -132,11 +132,6 @@ describe('AuthorizationGuard', () => {
     mockConfigService = mock<ConfigService<Config>>()
     mockLogger = mock<LoggerService>()
     mockReflector = mock<Reflector>()
-  })
-
-  it('should be defined', () => {
-    const guard = new AuthorizationGuard(mockClientService, mockConfigService, mockReflector, mockLogger)
-    expect(guard).toBeDefined()
   })
 
   describe('canActivate', () => {
@@ -276,7 +271,7 @@ describe('AuthorizationGuard', () => {
       await expect(guard.canActivate(context)).resolves.toEqual(true)
     })
 
-    it('should throw when token validation is enabled and missing accessToken', async () => {
+    it('throws when token validation is enabled and missing accessToken', async () => {
       expect.assertions(2)
       const client = getBaseClient()
       mockClientService.findById.mockResolvedValue(client)
@@ -331,7 +326,7 @@ describe('AuthorizationGuard', () => {
       await expect(guard.canActivate(context)).rejects.toThrow('No engine key configured')
     })
 
-    it('should throw when requieBoundTokens is true and token is not bound', async () => {
+    it('throws when requieBoundTokens is true and token is not bound', async () => {
       const userPrivateJwk = secp256k1PrivateKeyToJwk(FIXTURE.UNSAFE_PRIVATE_KEY.Alice)
       const client = getBaseClient()
       mockClientService.findById.mockResolvedValue(client)
@@ -416,6 +411,91 @@ describe('AuthorizationGuard', () => {
       const context = mockExecutionContext({ request: mockRequest })
 
       await expect(guard.canActivate(context)).resolves.toEqual(true)
+    })
+
+    it('passes when token contains required permissions', async () => {
+      const userPrivateJwk = secp256k1PrivateKeyToJwk(FIXTURE.UNSAFE_PRIVATE_KEY.Alice)
+      const userJwk = secp256k1PublicKeyToJwk(FIXTURE.VIEM_ACCOUNT.Alice.publicKey)
+      const client = getBaseClient()
+      mockClientService.findById.mockResolvedValue(client)
+
+      // Mock the reflector to return permissions
+      mockReflector.get.mockReturnValue(['WALLET_READ'])
+
+      const guard = new AuthorizationGuard(mockClientService, mockConfigService, mockReflector, mockLogger)
+      const payload = {
+        value: 'test-value'
+      }
+
+      const accessToken = await getAccessToken(payload, {
+        sub: 'user-1',
+        cnf: userJwk,
+        access: [
+          {
+            resource: 'vault',
+            permissions: ['WALLET_READ']
+          }
+        ]
+      })
+      const jwsd = await getJwsd({
+        userPrivateJwk,
+        requestUrl: '/test',
+        payload,
+        accessToken
+      })
+
+      const mockRequest = {
+        headers: { 'x-client-id': 'test-client', authorization: `GNAP ${accessToken}`, 'detached-jws': jwsd },
+        body: payload,
+        url: '/test',
+        method: 'POST'
+      }
+      const context = mockExecutionContext({ request: mockRequest })
+
+      await expect(guard.canActivate(context)).resolves.toEqual(true)
+    })
+
+    it('throws when token does not contain required permissions', async () => {
+      const userPrivateJwk = secp256k1PrivateKeyToJwk(FIXTURE.UNSAFE_PRIVATE_KEY.Alice)
+      const userJwk = secp256k1PublicKeyToJwk(FIXTURE.VIEM_ACCOUNT.Alice.publicKey)
+      const client = getBaseClient()
+      mockClientService.findById.mockResolvedValue(client)
+
+      // Mock the reflector to return permissions
+      mockReflector.get.mockReturnValue(['WALLET_READ'])
+
+      const guard = new AuthorizationGuard(mockClientService, mockConfigService, mockReflector, mockLogger)
+      const payload = {
+        value: 'test-value'
+      }
+
+      // Token with different permission than required
+      const accessToken = await getAccessToken(payload, {
+        sub: 'user-1',
+        cnf: userJwk,
+        access: [
+          {
+            resource: 'vault',
+            permissions: ['WALLET_WRITE']
+          }
+        ]
+      })
+      const jwsd = await getJwsd({
+        userPrivateJwk,
+        requestUrl: '/test',
+        payload,
+        accessToken
+      })
+
+      const mockRequest = {
+        headers: { 'x-client-id': 'test-client', authorization: `GNAP ${accessToken}`, 'detached-jws': jwsd },
+        body: payload,
+        url: '/test',
+        method: 'POST'
+      }
+      const context = mockExecutionContext({ request: mockRequest })
+
+      await expect(guard.canActivate(context)).rejects.toThrow('Invalid permissions')
     })
   })
 })

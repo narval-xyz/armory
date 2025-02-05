@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { addressSchema } from './address.schema'
-import { Alg, Curves, KeyTypes, Use } from './types'
+import { Alg, Curves, KeyTypes, Payload, Use } from './types'
 
 // Base JWK Schema
 export const jwkBaseSchema = z.object({
@@ -184,33 +184,6 @@ export const JwsdHeader = z.object({
     .describe(
       "The hash of the access token. The value MUST be the result of Base64url encoding (with no padding) the SHA-256 digest of the ASCII encoding of the associated access token's value."
     )
-})
-
-/**
- * Defines the payload of JWT.
- *
- * @param {string} requestHash - The hashed request.
- * @param {string} [iss] - The issuer of the JWT.
- * @param {number} [iat] - The time the JWT was issued.
- * @param {number} [exp] - The time the JWT expires.
- * @param {string} sub - The subject of the JWT.
- * @param {string} [aud] - The audience of the JWT.
- * @param {string[]} [hashWildcard] - A list of paths that were not hashed in the request.
- * @param {string} [jti] - The JWT ID.
- * @param {Jwk} cnf - The client-bound key.
- *
- */
-export const Payload = z.object({
-  sub: z.string().optional(),
-  iat: z.number().optional(),
-  exp: z.number().optional(),
-  iss: z.string().optional(),
-  aud: z.string().optional(),
-  jti: z.string().optional(),
-  cnf: publicKeySchema.optional(),
-  requestHash: z.string().optional(),
-  hashWildcard: z.array(z.string()).optional(),
-  data: z.string().optional()
 })
 
 export const Jwt = z.object({
