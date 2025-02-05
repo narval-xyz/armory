@@ -1,0 +1,35 @@
+{
+  "data": [
+    {
+      "id": "toBeConnected",
+      "type": "crypto",
+      "crypto": {
+        "address": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+        "networkId": "ETH",
+        "assetType": "ETH"
+      }
+    },
+    {
+      "id": "neverChanges",
+      "type": "crypto",
+      "crypto": {
+        "address": "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+        "networkId": "BTC",
+        "assetType": "BTC"
+      }
+    },
+    {
+      "id": "toBeUpdated",
+      "type": "crypto",
+      "crypto": {
+        "address": "0x8Bc2B8F33e5AeF847B8973Fa669B948A3028D6bd",
+        "networkId": "ETH",
+        "assetType": "USDC",
+        "memo": "new memo"
+      }
+    }
+  ],
+  "page": {
+    "next": null
+  }
+}

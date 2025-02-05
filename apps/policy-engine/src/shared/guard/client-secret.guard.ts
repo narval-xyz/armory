@@ -1,6 +1,6 @@
 import { REQUEST_HEADER_CLIENT_ID, REQUEST_HEADER_CLIENT_SECRET, secret } from '@narval/nestjs-shared'
 import { CanActivate, ExecutionContext, HttpStatus, Injectable } from '@nestjs/common'
-import { ClientService } from '../../engine/core/service/client.service'
+import { ClientService } from '../../client/core/service/client.service'
 import { ApplicationException } from '../exception/application.exception'
 
 @Injectable()
@@ -26,6 +26,6 @@ export class ClientSecretGuard implements CanActivate {
 
     const client = await this.clientService.findById(clientId)
 
-    return client?.clientSecret === secret.hash(clientSecret)
+    return client?.auth.local?.clientSecret === secret.hash(clientSecret)
   }
 }

@@ -338,11 +338,22 @@ export function verifyJwsdHeader(
       context: { header, opts }
     })
   }
+
+  // Ensure the token isn't too old. We also check the created timestamp wasn't created "in the future" (with 3s grace period);
+  // A future created stamp generally means milliseconds was used instead of seconds
   const now = nowSeconds()
   if (jwsdHeader.created && now - jwsdHeader.created > opts.maxTokenAge) {
     throw new JwtError({
       message: 'JWS is too old, created field is too far in the past',
-      context: { header, opts }
+      context: { header, opts, now }
+    })
+  }
+  // Allow for some clock skew (e.g., 15 seconds)
+  const ALLOWED_CLOCK_SKEW = 15
+  if (jwsdHeader.created && now - jwsdHeader.created < -ALLOWED_CLOCK_SKEW) {
+    throw new JwtError({
+      message: 'JWS is too old, created field is too far in the future, did you use milliseconds instead of seconds?',
+      context: { header, opts, now }
     })
   }
 
@@ -415,7 +426,7 @@ export async function verifyJwsd(jws: string, jwk: PublicKey, opts: JwsdVerifyOp
     htm: opts.htm,
     uri: opts.uri,
     maxTokenAge: opts.maxTokenAge,
-    ath: hexToBase64Url(hash(opts.accessToken))
+    ath: opts.accessToken ? hexToBase64Url(hash(opts.accessToken)) : undefined
   })
 
   await verifySignature(jwsToVerify, key, header.alg)

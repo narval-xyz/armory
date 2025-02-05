@@ -1,0 +1,363 @@
+{
+  "data": [
+    {
+      "assets": [],
+      "depositAddress": {
+        "address": "3Hy7Mb34EoXmdVQwdhAj1QZqD5kpH1voR8",
+        "addressId": "0ba932183dea75b8edef26c8fa806d04",
+        "addressSignaturePayload": "7b225465787441646472657373223a22334879374d623334456f586d645651776468416a31515a7144356b704831766f5238227d",
+        "addressID": "0ba932183dea75b8edef26c8fa806d04",
+        "signature": "0d6648a227057244b287240b385227f4c2220a61504801074b9f3be4a9a1ec07fc452fe958cc70b6bd2e3f83fb013808237aeaa761c3b078330d8a659004fd0c"
+      },
+      "isArchived": false,
+      "isDefault": false,
+      "networkId": "BTC",
+      "type": "WALLET",
+      "vaultId": "084ff57c0984420efac31723579c94fc",
+      "vaultName": "Vault 1",
+      "walletId": "145ff5b10e0e208b9c3adab0a9531f0c",
+      "walletName": "secondWalletThroughApi!"
+    },
+    {
+      "assets": [],
+      "depositAddress": {
+        "address": "0x81a1e40F018E411063768B04695Fd1a3c4CE11fD",
+        "addressId": "952837ceae2e623bc2ff0bb747887acf",
+        "addressSignaturePayload": "7b225465787441646472657373223a22307838316131653430463031384534313130363337363842303436393546643161336334434531316644227d",
+        "addressID": "952837ceae2e623bc2ff0bb747887acf",
+        "signature": "a1f5d2f5724fd83d4cbbcd4873ce3fef3ec6911255069ead07eaf4ff24200c214fd08e39ba17d67b88b4ba362219a79d5669719e7ae9797ec660188dcee4e20f"
+      },
+      "isArchived": false,
+      "isDefault": true,
+      "networkId": "ETH_ZKSYNC_T",
+      "type": "WALLET",
+      "vaultId": "084ff57c0984420efac31723579c94fc",
+      "vaultName": "Vault 1",
+      "walletId": "234963c4c39cb528ac3b8fa9c9db5280",
+      "walletName": "ZKsync Sepolia Testnet Wallet 1"
+    },
+    {
+      "assets": [],
+      "depositAddress": {
+        "address": "3FNGj14FtsLZxyUXhogb5gofi28Ft22Y22",
+        "addressId": "5b3d879c618ff14796b7b96351c862f2",
+        "addressSignaturePayload": "7b225465787441646472657373223a2233464e476a31344674734c5a78795558686f676235676f6669323846743232593232227d",
+        "addressID": "5b3d879c618ff14796b7b96351c862f2",
+        "signature": "25e229c81fc671d046bf205053061a2755d8ab2102ce5150b8a2c59e45dade12a5967d2029fea0717cf599eb4a56ef27be1c20f84bb76ae98d0df02b0a0cd806"
+      },
+      "isArchived": false,
+      "isDefault": false,
+      "networkId": "BTC",
+      "type": "WALLET",
+      "vaultId": "084ff57c0984420efac31723579c94fc",
+      "vaultName": "Vault 1",
+      "walletId": "307258c6006b367a7aa3d5d3665c64b0",
+      "walletName": "secondWalletThroughApi!"
+    },
+    {
+      "assets": [],
+      "depositAddress": {
+        "address": "0x81a1e40F018E411063768B04695Fd1a3c4CE11fD",
+        "addressId": "6e4c8306027028ad0d35248059e0eac7",
+        "addressSignaturePayload": "7b225465787441646472657373223a22307838316131653430463031384534313130363337363842303436393546643161336334434531316644227d",
+        "addressID": "6e4c8306027028ad0d35248059e0eac7",
+        "signature": "a1f5d2f5724fd83d4cbbcd4873ce3fef3ec6911255069ead07eaf4ff24200c214fd08e39ba17d67b88b4ba362219a79d5669719e7ae9797ec660188dcee4e20f"
+      },
+      "isArchived": false,
+      "isDefault": true,
+      "networkId": "ETH_ARBITRUM_T",
+      "type": "WALLET",
+      "vaultId": "084ff57c0984420efac31723579c94fc",
+      "vaultName": "Vault 1",
+      "walletId": "655d4d4524bbd1cefbf2c0cdd9ebdece",
+      "walletName": "Arbitrum Sepolia Testnet Wallet 1"
+    },
+    {
+      "assets": [
+        {
+          "assetType": "BTC_S",
+          "availableBalance": {
+            "assetType": "BTC_S",
+            "currentPrice": "100571.636951942",
+            "currentUSDValue": "502.86",
+            "quantity": "0.005"
+          },
+          "totalBalance": {
+            "assetType": "BTC_S",
+            "currentPrice": "100571.636951942",
+            "currentUSDValue": "502.86",
+            "quantity": "0.005"
+          }
+        }
+      ],
+      "depositAddress": {
+        "address": "2N18VkRep3F2z7Ggm8W94nkKdARMfEM3EWa",
+        "addressId": "96bf95f1b59d50d9d1149057e8c0f9fd",
+        "addressSignaturePayload": "7b225465787441646472657373223a22324e3138566b5265703346327a3747676d385739346e6b4b6441524d66454d33455761227d",
+        "addressID": "96bf95f1b59d50d9d1149057e8c0f9fd",
+        "signature": "95c4ae4f5ab905bea2d385da09cb87c45bc0be138ba624d06e65ffa7468fd21220c63535abf2e8723ede3e649be65a4a69b183b7cd7d6a592b452f4b9d0ea603"
+      },
+      "isArchived": false,
+      "isDefault": true,
+      "networkId": "BTC_S",
+      "type": "WALLET",
+      "vaultId": "084ff57c0984420efac31723579c94fc",
+      "vaultName": "Vault 1",
+      "walletId": "6a46a1977959e0529f567e8e927e3895",
+      "walletName": "Bitcoin Signet Wallet 1"
+    },
+    {
+      "assets": [],
+      "depositAddress": {
+        "address": "0x27211c05145FDc3c916e3377DB1a257364c5380B",
+        "addressId": "e2a48a472cf729eb8874fc518a8e4cbd",
+        "addressSignaturePayload": "7b225465787441646472657373223a22307832373231316330353134354644633363393136653333373744423161323537333634633533383042227d",
+        "addressID": "e2a48a472cf729eb8874fc518a8e4cbd",
+        "signature": "55ab7af2138ada8bb2bbc7a57a219e0d45f92317d949ac508f3890a57057b15c9b83c0d39c96633bea5916668460f191a2f63b452a6b7e5c409e0e010b92b20c"
+      },
+      "isArchived": false,
+      "isDefault": true,
+      "networkId": "ETH",
+      "type": "WALLET",
+      "vaultId": "084ff57c0984420efac31723579c94fc",
+      "vaultName": "Vault 1",
+      "walletId": "7f81de30acbe98e3f6895eb12ab7d16f",
+      "walletName": "Ethereum Wallet 1"
+    },
+    {
+      "assets": [],
+      "depositAddress": {
+        "address": "3DbSPwCQF9kWqpCHWjHuTY8uBu9PqHStUr",
+        "addressId": "a569b247f3dfa59fbd4df08d4814132c",
+        "addressSignaturePayload": "7b225465787441646472657373223a22334462535077435146396b5771704348576a48755459387542753950714853745572227d",
+        "addressID": "a569b247f3dfa59fbd4df08d4814132c",
+        "signature": "b4d92f68663365a9931d2ca934635ac6c844e0a73b45c8f25779f6bd330ea6700807fb6c72014d159534902219924586b28db6fabcd982caf73bd533f11b3802"
+      },
+      "isArchived": false,
+      "isDefault": true,
+      "networkId": "BTC",
+      "type": "WALLET",
+      "vaultId": "084ff57c0984420efac31723579c94fc",
+      "vaultName": "Vault 1",
+      "walletId": "97f83a7fae3563895f50e2cbe4b9906c",
+      "walletName": "firstWalletThroughApi!"
+    },
+    {
+      "assets": [],
+      "depositAddress": {
+        "address": "0x27211c05145FDc3c916e3377DB1a257364c5380B",
+        "addressId": "e49984c07576e86c622fd28fe44537ee",
+        "addressSignaturePayload": "7b225465787441646472657373223a22307832373231316330353134354644633363393136653333373744423161323537333634633533383042227d",
+        "addressID": "e49984c07576e86c622fd28fe44537ee",
+        "signature": "55ab7af2138ada8bb2bbc7a57a219e0d45f92317d949ac508f3890a57057b15c9b83c0d39c96633bea5916668460f191a2f63b452a6b7e5c409e0e010b92b20c"
+      },
+      "isArchived": false,
+      "isDefault": true,
+      "networkId": "POL_POLYGON",
+      "type": "WALLET",
+      "vaultId": "084ff57c0984420efac31723579c94fc",
+      "vaultName": "Vault 1",
+      "walletId": "aba218a001728a6dd12b71cff2f8b5c0",
+      "walletName": "Polygon Wallet 1"
+    },
+    {
+      "assets": [],
+      "depositAddress": {
+        "address": "3MeQ1PQZhnsJQUfHydE4dtpkri36gvrb8y",
+        "addressId": "9f5fe77af96429160103d24a61f9c4cb",
+        "addressSignaturePayload": "7b225465787441646472657373223a22334d65513150515a686e734a51556648796445346474706b72693336677672623879227d",
+        "addressID": "9f5fe77af96429160103d24a61f9c4cb",
+        "signature": "046642e46ba6d34c6318ecc25bb7b09f45d36a6ea352302b61ecbb3ef78c527aa33f47a886df351ccbb5cfcf40feb62b21d890c71e66babfd5d5bfe77556410c"
+      },
+      "isArchived": false,
+      "isDefault": false,
+      "networkId": "BTC",
+      "type": "WALLET",
+      "vaultId": "084ff57c0984420efac31723579c94fc",
+      "vaultName": "Vault 1",
+      "walletId": "ae7abb325366f0623f9e192cd491436f",
+      "walletName": "secondWalletThroughApi!"
+    },
+    {
+      "assets": [],
+      "depositAddress": {
+        "address": "3299b5fNXQortckqRRo7sAa7mgQcVotYPT",
+        "addressId": "6639c74804e5599860e9f5d8d55c03fb",
+        "addressSignaturePayload": "7b225465787441646472657373223a22333239396235664e58516f7274636b7152526f37734161376d675163566f74595054227d",
+        "addressID": "6639c74804e5599860e9f5d8d55c03fb",
+        "signature": "f295be507f3dcae9aa8a83b2e39b0341c6db16759f2e14bf9067aaf1714db76f61ff97119c032b085b737cfae438548880fbe6ff789b314415f1ca228e5b410d"
+      },
+      "isArchived": false,
+      "isDefault": false,
+      "networkId": "BTC",
+      "type": "WALLET",
+      "vaultId": "084ff57c0984420efac31723579c94fc",
+      "vaultName": "Vault 1",
+      "walletId": "bf4538760915a5022d23f64b988cfedd",
+      "walletName": "secondWalletThroughApi!"
+    },
+    {
+      "assets": [],
+      "depositAddress": {
+        "address": "3N86DziokoWESv1ZmEVC5ZCYVUnmhFhBNp",
+        "addressId": "7421b5541e928fe2dc35e5f95453c330",
+        "addressSignaturePayload": "7b225465787441646472657373223a22334e3836447a696f6b6f57455376315a6d455643355a435956556e6d684668424e70227d",
+        "addressID": "7421b5541e928fe2dc35e5f95453c330",
+        "signature": "a42054cfea8d836d93643538ba087c248a973b6fb0c490453d29f0e2b7e8b2a264a063097382a9085836d975fd0eb6770e61fdf3203f12b44573dc55fbb0cf09"
+      },
+      "isArchived": false,
+      "isDefault": false,
+      "networkId": "BTC",
+      "type": "WALLET",
+      "vaultId": "084ff57c0984420efac31723579c94fc",
+      "vaultName": "Vault 1",
+      "walletId": "c3753da1db3d040f2ee295f6f3a91e0c",
+      "walletName": "firstWalletThroughApi!"
+    },
+    {
+      "assets": [],
+      "depositAddress": {
+        "address": "0x6F28B85E1246ce5A4af89c5C94C0C661D6Cd031a",
+        "addressId": "f031997f52f848838b1f3b4eb1aa83fa",
+        "addressSignaturePayload": "7b225465787441646472657373223a22307836463238423835453132343663653541346166383963354339344330433636314436436430333161227d",
+        "addressID": "f031997f52f848838b1f3b4eb1aa83fa",
+        "signature": "f3197acd348734317a1b9fa0817f533d93ed2407545cd5606e6c95046ecc0bb4d719d54404fe94a02bd57def3add81cdee9547d93515f32913242e6f26937a0a"
+      },
+      "isArchived": false,
+      "isDefault": false,
+      "networkId": "POL_POLYGON",
+      "type": "WALLET",
+      "vaultId": "084ff57c0984420efac31723579c94fc",
+      "vaultName": "Vault 1",
+      "walletId": "c4e5e0936fc1bd3646c3b0af9b2e729b",
+      "walletName": "Polygon Wallet 2"
+    },
+    {
+      "assets": [],
+      "depositAddress": {
+        "address": "3FGW9JswZNkrLtSfkqfVMekNg1T7tuAkxe",
+        "addressId": "99a5dc014105cc59304813f8540ccc56",
+        "addressSignaturePayload": "7b225465787441646472657373223a2233464757394a73775a4e6b724c7453666b7166564d656b4e673154377475416b7865227d",
+        "addressID": "99a5dc014105cc59304813f8540ccc56",
+        "signature": "ba0044130fb6668c3bdb24eb51c21ff956829f65b14cd43e7ae288fb20aeb6dce65cb86fbee18cbc92da8f9215630f7c916227f473fa9103edef30020f0d5a08"
+      },
+      "isArchived": false,
+      "isDefault": false,
+      "networkId": "BTC",
+      "type": "WALLET",
+      "vaultId": "084ff57c0984420efac31723579c94fc",
+      "vaultName": "Vault 1",
+      "walletId": "c8e6f9f5e09aeb4f5bbf43bf34ba909e",
+      "walletName": "firstWalletThroughApi!"
+    },
+    {
+      "assets": [],
+      "depositAddress": {
+        "address": "0x81a1e40F018E411063768B04695Fd1a3c4CE11fD",
+        "addressId": "6d58eaac11543ba7477294d6981cf897",
+        "addressSignaturePayload": "7b225465787441646472657373223a22307838316131653430463031384534313130363337363842303436393546643161336334434531316644227d",
+        "addressID": "6d58eaac11543ba7477294d6981cf897",
+        "signature": "a1f5d2f5724fd83d4cbbcd4873ce3fef3ec6911255069ead07eaf4ff24200c214fd08e39ba17d67b88b4ba362219a79d5669719e7ae9797ec660188dcee4e20f"
+      },
+      "isArchived": false,
+      "isDefault": true,
+      "networkId": "ETHSEP",
+      "type": "WALLET",
+      "vaultId": "084ff57c0984420efac31723579c94fc",
+      "vaultName": "Vault 1",
+      "walletId": "d30a5c8cb83f0be46d7669f81d776a62",
+      "walletName": "Ethereum Sepolia Wallet 1"
+    },
+    {
+      "assets": [],
+      "depositAddress": {
+        "address": "0x6F28B85E1246ce5A4af89c5C94C0C661D6Cd031a",
+        "addressId": "4407a91a23f49ca8160af0708373c53a",
+        "addressSignaturePayload": "7b225465787441646472657373223a22307836463238423835453132343663653541346166383963354339344330433636314436436430333161227d",
+        "addressID": "4407a91a23f49ca8160af0708373c53a",
+        "signature": "f3197acd348734317a1b9fa0817f533d93ed2407545cd5606e6c95046ecc0bb4d719d54404fe94a02bd57def3add81cdee9547d93515f32913242e6f26937a0a"
+      },
+      "isArchived": false,
+      "isDefault": false,
+      "networkId": "ETH",
+      "type": "WALLET",
+      "vaultId": "084ff57c0984420efac31723579c94fc",
+      "vaultName": "Vault 1",
+      "walletId": "daa5ead0f7f164d2de3c2fb83610f447",
+      "walletName": "Ethereum Wallet 2"
+    },
+    {
+      "assets": [],
+      "depositAddress": {
+        "address": "3FWW3qkJjpdMZLHc1TDpbaNhYDxW3oYpdA",
+        "addressId": "dea22db33e3a40784a75971b73558258",
+        "addressSignaturePayload": "7b225465787441646472657373223a223346575733716b4a6a70644d5a4c48633154447062614e6859447857336f59706441227d",
+        "addressID": "dea22db33e3a40784a75971b73558258",
+        "signature": "abbfe2b34c8980b8c6bef797095afbaa9a62cd9197eaaf72a84bfbca755645a04c9d547862e66fdc72a07c9db24edd8c9f99f7fbceb7fe9cd06bdefe74203103"
+      },
+      "isArchived": false,
+      "isDefault": false,
+      "networkId": "BTC",
+      "type": "WALLET",
+      "vaultId": "084ff57c0984420efac31723579c94fc",
+      "vaultName": "Vault 1",
+      "walletId": "fa2d82db5fab74ed0c1eec3e57eba2fb",
+      "walletName": "secondWalletThroughApi!"
+    },
+    {
+      "assets": [],
+      "depositAddress": {
+        "address": "DDzPFiqWrHHYFRQQnh9ka83PYaVrn5zSsE",
+        "addressId": "59ec6d5ed7be498d54f8cb268011846b",
+        "addressSignaturePayload": "7b225465787441646472657373223a2244447a504669715772484859465251516e68396b61383350596156726e357a537345227d",
+        "addressID": "59ec6d5ed7be498d54f8cb268011846b",
+        "signature": "7b122a9c5b2579b74db77262bc66e2a52e68f5d7246cd94f3f1bb9e381661d8ba5023f32b3d5cc0b04f7dfa3aaaa52fba91c080777b9396f2e314e70c52c8f05"
+      },
+      "isArchived": false,
+      "isDefault": true,
+      "networkId": "DOGE",
+      "type": "WALLET",
+      "vaultId": "084ff57c0984420efac31723579c94fc",
+      "vaultName": "Vault 1",
+      "walletId": "fdd93f7a1f41b98bd6672edfa301803c",
+      "walletName": "Doge"
+    },
+    {
+      "assets": [
+        {
+          "assetType": "ETHHOL",
+          "availableBalance": {
+            "assetType": "ETHHOL",
+            "currentPrice": "3801.93297363249",
+            "currentUSDValue": "3798.13",
+            "quantity": "0.998998527910122"
+          },
+          "totalBalance": {
+            "assetType": "ETHHOL",
+            "currentPrice": "3801.93297363249",
+            "currentUSDValue": "3798.13",
+            "quantity": "0.998998527910122"
+          }
+        }
+      ],
+      "depositAddress": {
+        "address": "0x4BB7c65f821Ffcd1CAFEF3276E8eDa44474A08D3",
+        "addressId": "3d3b31a695fcbdf1c8a16c5df62c6516",
+        "addressSignaturePayload": "7b225465787441646472657373223a22307834424237633635663832314666636431434146454633323736453865446134343437344130384433227d",
+        "addressID": "3d3b31a695fcbdf1c8a16c5df62c6516",
+        "signature": "68a971bec8f22480202413fef93e0b0cbc7b6daf43c4c17cc1ed1948dd97742ec9a1a28336f2eaa95c32fd8ce342f00b62fefae00cf7d6a609d1bb21646a9e0d"
+      },
+      "isArchived": false,
+      "isDefault": true,
+      "networkId": "ETHHOL",
+      "type": "WALLET",
+      "vaultId": "62547351cea99e827bcd43a513c40e7c",
+      "vaultName": "Vault 2",
+      "walletId": "ec9a04d05472e417ceb06e32c66834d1",
+      "walletName": "Ethereum Holešky Wallet 1"
+    }
+  ],
+  "page": {
+    "next": null
+  }
+}

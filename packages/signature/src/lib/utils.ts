@@ -4,7 +4,7 @@ import * as ed25519 from '@noble/ed25519'
 import { sha256 as sha256Hash } from '@noble/hashes/sha256'
 import { sha512 } from '@noble/hashes/sha512'
 import { subtle } from 'crypto'
-import { exportJWK, generateKeyPair } from 'jose'
+import { exportJWK, exportPKCS8, exportSPKI, generateKeyPair, importJWK, importPKCS8, importSPKI, KeyLike } from 'jose'
 import { cloneDeep, omit } from 'lodash'
 import { toHex } from 'viem'
 import { publicKeyToAddress } from 'viem/utils'
@@ -31,12 +31,13 @@ import {
   P256PublicKey,
   PrivateKey,
   PublicKey,
+  publicKeySchema,
+  RsaKey,
   RsaPrivateKey,
   RsaPublicKey,
   Secp256k1PrivateKey,
   Secp256k1PublicKey,
-  Use,
-  publicKeySchema
+  Use
 } from './types'
 import { validateJwk } from './validate'
 
@@ -237,6 +238,10 @@ export const stringToBase64Url = (str: string): string => {
   return base64ToBase64Url(Buffer.from(str).toString('base64'))
 }
 
+export const base64UrlToString = (base64Url: string): string => {
+  return Buffer.from(base64UrlToBase64(base64Url), 'base64').toString('utf-8')
+}
+
 export const rsaKeyToKid = (jwk: Jwk) => {
   // Concatenate the 'n' and 'e' values, splitted by ':'
   const dataToHash = `${jwk.n}:${jwk.e}`
@@ -361,28 +366,57 @@ export const privateKeyToHex = async (jwk: Jwk): Promise<Hex> => {
   }
 }
 
-export const privateKeyToJwk = (key: Hex, alg: Alg = Alg.ES256K, keyId?: string): PrivateKey => {
+type AlgToPrivateKeyType = {
+  [Alg.ES256K]: Secp256k1PrivateKey
+  [Alg.ES256]: P256PrivateKey
+  [Alg.EDDSA]: Ed25519PrivateKey
+  [Alg.RS256]: RsaPrivateKey
+}
+
+export const privateKeyToJwk = <A extends Alg>(
+  key: Hex,
+  alg: A = Alg.ES256K as A,
+  keyId?: string
+): AlgToPrivateKeyType[A] => {
   switch (alg) {
     case Alg.ES256K:
-      return secp256k1PrivateKeyToJwk(key, keyId)
+      return secp256k1PrivateKeyToJwk(key, keyId) as AlgToPrivateKeyType[A]
     case Alg.ES256:
-      return p256PrivateKeyToJwk(key, keyId)
+      return p256PrivateKeyToJwk(key, keyId) as AlgToPrivateKeyType[A]
     case Alg.EDDSA:
-      return ed25519PrivateKeyToJwk(key, keyId)
+      return ed25519PrivateKeyToJwk(key, keyId) as AlgToPrivateKeyType[A]
     case Alg.RS256:
       throw new JwtError({
         message: 'Conversion from Hex to JWK not supported for RSA keys'
       })
+    default:
+      throw new JwtError({
+        message: `Unsupported algorithm: ${alg}`
+      })
   }
 }
+
+export const DEFAULT_RSA_MODULUS_LENGTH = 4096
+
+/**
+ * The smallest modulus lenght required by jose package. Useful to speed
+ * up tests.
+ *
+ * IMPORTANT: DO NOT use it in production.
+ */
+export const SMALLEST_RSA_MODULUS_LENGTH = 2048
 
 const generateRsaPrivateKey = async (
   opts: {
     keyId?: string
+    /**
+     * IMPORTANT: Increasing the length will significantly increase the
+     * generation time.
+     */
     modulusLength?: number
     use?: Use
   } = {
-    modulusLength: 2048
+    modulusLength: DEFAULT_RSA_MODULUS_LENGTH
   }
 ): Promise<RsaPrivateKey> => {
   const { privateKey } = await generateKeyPair(Alg.RS256, {
@@ -417,39 +451,157 @@ export const rsaPrivateKeyToPublicKey = (jwk: RsaPrivateKey) => {
   return publicKey
 }
 
-export const generateJwk = async <T = Jwk>(
-  alg: Alg,
+export const generateJwk = async <A extends Alg>(
+  alg: A,
   opts?: {
     keyId?: string
+    /**
+     * Increase the length of the RSA key.
+     *
+     * IMPORTANT: Increasing the length will significantly increase the
+     * generation time.
+     */
     modulusLength?: number
+    /**
+     * RSA Only.
+     */
     use?: Use
   }
-): Promise<T> => {
+): Promise<AlgToPrivateKeyType[A]> => {
   switch (alg) {
     case Alg.ES256K: {
       const privateKeyK1 = toHex(secp256k1.utils.randomPrivateKey())
-      return secp256k1PrivateKeyToJwk(privateKeyK1, opts?.keyId) as T
+      return secp256k1PrivateKeyToJwk(privateKeyK1, opts?.keyId) as AlgToPrivateKeyType[A]
     }
     case Alg.ES256: {
       const privateKeyP256 = toHex(p256.utils.randomPrivateKey())
-      return p256PrivateKeyToJwk(privateKeyP256, opts?.keyId) as T
+      return p256PrivateKeyToJwk(privateKeyP256, opts?.keyId) as AlgToPrivateKeyType[A]
     }
     case Alg.RS256: {
       const jwk = await generateRsaPrivateKey(opts)
-      return jwk as T
+      return jwk as AlgToPrivateKeyType[A]
     }
     case Alg.EDDSA: {
       const privateKeyEd25519 = toHex(ed25519.utils.randomPrivateKey())
-      return ed25519PrivateKeyToJwk(privateKeyEd25519, opts?.keyId) as T
+      return ed25519PrivateKeyToJwk(privateKeyEd25519, opts?.keyId) as AlgToPrivateKeyType[A]
     }
     default:
       throw new Error(`Unsupported algorithm: ${alg}`)
   }
 }
 
+export const publicJwkToPem = async (jwk: Jwk): Promise<string> => {
+  switch (jwk.kty) {
+    case KeyTypes.RSA:
+      return publicRsaJwkToPem(jwk as RsaKey)
+    default:
+      throw new Error('Unsupported key type')
+  }
+}
+
+export const publicHexToPem = async (publicKey: Hex, alg: Alg): Promise<string> => {
+  switch (alg) {
+    case Alg.RS256:
+      return publicRsaJwkToPem(publicKeyToJwk(publicKey, alg) as RsaKey)
+    default:
+      throw new Error('Unsupported algorithm')
+  }
+}
+
+export const publicKeyToPem = async (publicKey: Jwk | Hex, alg: Alg): Promise<string> => {
+  if (typeof publicKey === 'string') {
+    return publicHexToPem(publicKey, alg)
+  }
+
+  return publicJwkToPem(publicKey)
+}
+
+export const publicRsaJwkToPem = async (rsaJwk: RsaKey): Promise<string> => {
+  const jk = (await importJWK(rsaJwk, 'RS256')) as KeyLike
+  const k = await exportSPKI(jk)
+  return k
+}
+
+export const publicRsaPemToJwk = async (pem: string, opts?: { kid?: string }): Promise<RsaPublicKey> => {
+  const jk = await importSPKI(pem, 'RS256', {
+    extractable: true
+  })
+  const key = await exportJWK(jk)
+
+  return rsaPublicKeySchema.parse({
+    ...key,
+    alg: 'RS256',
+    kid: opts?.kid || rsaKeyToKid({ n: key.n, e: key.e })
+  })
+}
+
+export const publicPemToJwk = <T = Jwk>(pem: string, alg: Alg, kid?: string): T => {
+  switch (alg) {
+    case Alg.RS256:
+      return publicRsaPemToJwk(pem, { kid }) as T
+    default:
+      throw new Error('Unsupported algorithm')
+  }
+}
+
+export const privateJwkToPem = async (jwk: Jwk): Promise<string> => {
+  switch (jwk.kty) {
+    case KeyTypes.RSA:
+      return privateRsaJwkToPem(jwk as RsaKey)
+    default:
+      throw new Error('Unsupported key type')
+  }
+}
+
+export const privateRsaJwkToPem = async (rsaJwk: RsaKey): Promise<string> => {
+  const jk = (await importJWK(rsaJwk, 'RS256')) as KeyLike
+  const k = await exportPKCS8(jk)
+  return k
+}
+
+export const privateRsaPemToJwk = async (pem: string, opts?: { kid?: string }): Promise<RsaPrivateKey> => {
+  const jk = await importPKCS8(pem, 'RS256', {
+    extractable: true
+  })
+
+  const key = await exportJWK(jk)
+
+  return rsaPrivateKeySchema.parse({
+    ...key,
+    alg: 'RS256',
+    kid: opts?.kid || rsaKeyToKid({ n: key.n, e: key.e })
+  })
+}
+
+export const privateKeyToPem = async (privateKey: Jwk | Hex, alg: Alg): Promise<string> => {
+  if (typeof privateKey === 'string') {
+    return privateHexToPem(privateKey, alg)
+  }
+
+  return privateJwkToPem(privateKey)
+}
+
+export const privateHexToPem = async (privateKey: Hex, alg: Alg): Promise<string> => {
+  switch (alg) {
+    case Alg.RS256:
+      return privateRsaJwkToPem(privateKeyToJwk(privateKey, alg) as RsaKey)
+    default:
+      throw new Error('Unsupported algorithm')
+  }
+}
+
 export const nowSeconds = (): number => Math.floor(Date.now() / 1000)
 
-export const getPublicKey = (key: Jwk): PublicKey => publicKeySchema.parse(key)
+type AlgToPublicKeyType = {
+  ES256K: Secp256k1PublicKey
+  ES256: P256PublicKey
+  EDDSA: Ed25519PublicKey
+  RS256: RsaPublicKey
+}
+
+export const getPublicKey = <A extends NonNullable<Jwk['alg']>>(key: Jwk & { alg: A }): AlgToPublicKeyType[A] => {
+  return publicKeySchema.parse(key) as AlgToPublicKeyType[A]
+}
 
 export const requestWithoutWildcardFields = (
   request: object,

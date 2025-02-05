@@ -1,3 +1,4 @@
+import { publicKeySchema } from '@narval/signature'
 import { ZodTypeAny, z } from 'zod'
 import { credentialEntitySchema } from '../schema/entity.schema'
 import { ChainAccountId } from '../util/caip.util'
@@ -143,12 +144,40 @@ export type Feed<Data> = {
   data?: Data
 }
 
+export const ConfirmationClaimProofMethod = {
+  JWS: 'jws'
+} as const
+export type ConfirmationClaimProofMethod =
+  (typeof ConfirmationClaimProofMethod)[keyof typeof ConfirmationClaimProofMethod]
+
+export const ConfirmationClaim = z
+  .object({
+    key: z.object({
+      jwk: publicKeySchema.describe(
+        'JSON Web Key that will be used to bind the access token. This ensures only the holder of the corresponding private key can use the token.'
+      ),
+      proof: z
+        .literal(ConfirmationClaimProofMethod.JWS)
+        .optional()
+        .describe(
+          'Specifies the proof method for demonstrating possession of the private key corresponding to the jwk'
+        ),
+      jws: z
+        .string()
+        .optional()
+        .describe('The actual JSON Web Signature value that proves the client possesses the private key.')
+    })
+  })
+  .describe('Option to bind the access token to a given public key.')
+export type ConfirmationClaim = z.infer<typeof ConfirmationClaim>
+
 export const EvaluationMetadata = z
   .object({
     audience: z.union([z.string(), z.array(z.string())]).optional(),
     issuer: z.string().optional(),
     issuedAt: z.number().optional(),
-    expiresIn: z.number().optional()
+    expiresIn: z.number().optional(),
+    confirmation: ConfirmationClaim.optional()
   })
   .describe('Metadata for the grant permission access token')
 export type EvaluationMetadata = z.infer<typeof EvaluationMetadata>
@@ -167,7 +196,6 @@ export const EvaluationRequest = z.object({
     ),
   metadata: EvaluationMetadata.optional()
 })
-
 export type EvaluationRequest = z.infer<typeof EvaluationRequest>
 
 export const SerializedEvaluationRequest = EvaluationRequest.extend({

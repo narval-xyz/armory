@@ -1,26 +1,16 @@
 import { resourceId } from '@narval/armory-sdk'
 import { LoggerService, MetricService, OTEL_ATTR_CLIENT_ID } from '@narval/nestjs-shared'
 import { Hex } from '@narval/policy-engine-shared'
-import {
-  Alg,
-  RsaPrivateKey,
-  RsaPublicKey,
-  generateJwk,
-  privateKeyToJwk,
-  publicKeyToHex,
-  rsaDecrypt,
-  rsaPrivateKeyToPublicKey
-} from '@narval/signature'
+import { RsaPublicKey, privateKeyToJwk, publicKeyToHex } from '@narval/signature'
 import { HttpStatus, Inject, Injectable } from '@nestjs/common'
 import { Counter } from '@opentelemetry/api'
-import { decodeProtectedHeader } from 'jose'
 import { isHex } from 'viem'
 import { privateKeyToAddress } from 'viem/accounts'
 import { ApplicationException } from '../../../shared/exception/application.exception'
 import { Origin, PrivateAccount } from '../../../shared/type/domain.type'
+import { EncryptionKeyService } from '../../../transit-encryption/core/service/encryption-key.service'
 import { ImportWalletDto } from '../../http/rest/dto/import-wallet.dto'
 import { AccountRepository } from '../../persistence/repository/account.repository'
-import { ImportRepository } from '../../persistence/repository/import.repository'
 import { getRootKey } from '../util/key-generation.util'
 import { KeyGenerationService } from './key-generation.service'
 
@@ -32,8 +22,8 @@ export class ImportService {
 
   constructor(
     private accountRepository: AccountRepository,
-    private importRepository: ImportRepository,
     private keyGenerationService: KeyGenerationService,
+    private encryptionKeyService: EncryptionKeyService,
     private logger: LoggerService,
     @Inject(MetricService) private metricService: MetricService
   ) {
@@ -42,13 +32,9 @@ export class ImportService {
   }
 
   async generateEncryptionKey(clientId: string): Promise<RsaPublicKey> {
-    const privateKey = await generateJwk<RsaPrivateKey>(Alg.RS256, { use: 'enc' })
-    const publicKey = rsaPrivateKeyToPublicKey(privateKey)
+    const encryptionKey = await this.encryptionKeyService.generate(clientId)
 
-    // Save the privateKey
-    await this.importRepository.save(clientId, privateKey)
-
-    return publicKey
+    return encryptionKey.publicKey
   }
 
   async importPrivateKey(clientId: string, privateKey: Hex, accountId?: string): Promise<PrivateAccount> {
@@ -72,26 +58,7 @@ export class ImportService {
   }
 
   async #decrypt(clientId: string, encryptedData: string): Promise<string> {
-    const header = decodeProtectedHeader(encryptedData)
-    const kid = header.kid
-
-    if (!kid) {
-      throw new ApplicationException({
-        message: 'Missing kid in JWE header',
-        suggestedHttpStatusCode: HttpStatus.BAD_REQUEST
-      })
-    }
-
-    const encryptionPrivateKey = await this.importRepository.findById(clientId, kid)
-
-    if (!encryptionPrivateKey) {
-      throw new ApplicationException({
-        message: 'Encryption Key Not Found',
-        suggestedHttpStatusCode: HttpStatus.NOT_FOUND
-      })
-    }
-
-    return rsaDecrypt(encryptedData, encryptionPrivateKey.jwk)
+    return this.encryptionKeyService.decrypt(clientId, encryptedData)
   }
 
   async importEncryptedPrivateKey(

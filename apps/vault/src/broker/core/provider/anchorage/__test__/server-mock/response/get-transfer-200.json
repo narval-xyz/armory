@@ -1,0 +1,28 @@
+{
+  "data": {
+    "amount": {
+      "assetType": "BTC_S",
+      "currentPrice": "104576.34",
+      "currentUSDValue": "1.05",
+      "quantity": "0.00001"
+    },
+    "assetType": "BTC_S",
+    "blockchainTxId": "71ffe98ce4f51b4d12c77626dc455c9223f68b215c631f45ff05958623761e23",
+    "createdAt": "2024-12-18T14:04:10.519Z",
+    "destination": {
+      "id": "afb308d207a76f029257ea6d9d7d58ab",
+      "type": "WALLET"
+    },
+    "endedAt": "2024-12-18T14:08:13.618Z",
+    "fee": {
+      "assetType": "BTC_S",
+      "quantity": "0.00001771"
+    },
+    "source": {
+      "id": "6a46a1977959e0529f567e8e927e3895",
+      "type": "WALLET"
+    },
+    "status": "COMPLETED",
+    "transferId": "60a0676772fdbd7a041e9451c61c3cb6b28ee901186e40ac99433308604e2e20"
+  }
+}

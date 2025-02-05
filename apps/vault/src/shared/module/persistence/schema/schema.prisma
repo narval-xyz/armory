@@ -1,11 +1,11 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "debian-openssl-1.1.x", "debian-openssl-3.0.x"]
   // Output into a separate subdirectory so multiple schemas can be used in a
   // monorepo.
   //
   // Reference: https://github.com/nrwl/nx-recipes/tree/main/nestjs-prisma
-  output   = "../../../../../../../node_modules/@prisma/client/vault"
+  output        = "../../../../../../../node_modules/@prisma/client/vault"
 }
 
 datasource db {
@@ -14,9 +14,15 @@ datasource db {
 }
 
 model Vault {
-  id          String @id
-  masterKey   String? @map("master_key")
-  adminApiKey String? @map("admin_api_key")
+  id                          String   @id
+  // Encryption options, possibly set from Config file
+  encryptionKeyringType       String   @map("encryption_keyring_type") // raw | awskms
+  encryptionMasterKeySpelling String?  @map("enncryption_master_key") /// @encrypted by masterPassword KEK @ignore
+  encryptionMasterKey         String?  @map("encryption_master_key") /// @encrypted by masterPassword KEK
+  encryptionMasterAwsKmsArn   String?  @map("encryption_master_aws_kms_arn") // only if type = awskms
+  // Auth Options, set from Config file
+  authDisabled                Boolean? @map("auth_disabled")
+  adminApiKeyHash             String?  @map("admin_api_key_hash") /// hash, not plaintext
 
   @@map("vault")
 }
@@ -24,10 +30,289 @@ model Vault {
 // TODO: (@wcalderipe, 12/03/23) use hstore extension for better performance.
 // See https://www.postgresql.org/docs/9.1/hstore.html
 model KeyValue {
-  key         String @id
-  clientId    String? @map("client_id")
-  collection  String
-  value       String
+  key        String  @id
+  clientId   String? @map("client_id")
+  collection String
+  value      String
 
   @@map("key_value")
+}
+
+model TransitEncryptionKey {
+  id         String @id @default(cuid())
+  clientId   String @map("client_id")
+  privateKey String @map("private_key") // @encrypted stringified JSON
+  publicKey  String @map("public_key") // stringified JSON
+
+  createdAt DateTime @default(now())
+
+  @@map("transit_encryption_key")
+}
+
+model Client {
+  clientId                String  @id @map("client_id")
+  name                    String  @map("name")
+  configurationSource     String  @map("configuration_source") // declarative | dynamic
+  authDisabled            Boolean @map("auth_disabled")
+  tokenValidationDisabled Boolean @map("token_validation_disabled")
+  backupPublicKey         String? @map("backup_public_key") // Stringified JSON
+  baseUrl                 String? @map("base_url") // If you want to override the used for verifying jwsd/httpsig
+
+  // JWT Token Validation
+  authorizationServerUrl          String? @map("authorization_server_url")
+  authorizationIssuer             String? @map("authorization_issuer")
+  authorizationAudience           String? @map("authorization_audience")
+  authorizationMaxTokenAge        Int?    @map("authorization_max_token_age")
+  authorizationJwksUrl            String? @map("authorization_jwks_url")
+  authorizationPinnedPublicKey    String? @map("authorization_pinned_public_key") // Stringified JSON
+  authorizationRequireBoundTokens Boolean @map("authorization_require_bound_tokens")
+  authorizationAllowBearerTokens  Boolean @map("authorization_allow_bearer_tokens")
+  authorizationAllowWildcards     String? @map("authorization_allow_wildcards")
+
+  // Local Authentication Methods
+  // Optionally restrict to specific user credentials from a JWKS endpoint
+  localAuthAllowedUsersJwksUrl String? @map("local_auth_allowed_users_jwks_url")
+  localAuthJwsdEnabled         Boolean @map("local_auth_jwsd_enabled") // Do we allow JWSD?
+  jwsdMaxAge                   Int?    @map("jwsd_max_age")
+  jwsdRequiredComponents       String? @map("jwsd_required_components") // comma-separated list: htm,uri,ath,created
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  localAuthAllowedUsers ClientLocalAuthAllowedUser[]
+
+  @@map("client")
+}
+
+model ClientLocalAuthAllowedUser {
+  id        String @id // clientId:userId, to be globally unique
+  userId    String @map("user_id")
+  clientId  String @map("client_id")
+  publicKey String @map("public_key") // Stringified JSON
+  client    Client @relation(fields: [clientId], references: [clientId])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("client_local_auth_allowed_user")
+}
+
+model ProviderWallet {
+  id           String   @id
+  label        String?
+  clientId     String   @map("client_id")
+  provider     String
+  externalId   String   @map("external_id")
+  connectionId String   @map("connection_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  connection           ProviderConnection? @relation(fields: [connectionId], references: [id])
+  accounts             ProviderAccount[]
+  sourceTransfers      ProviderTransfer[]  @relation("SourceWallet")
+  destinationTransfers ProviderTransfer[]  @relation("DestinationWallet")
+
+  @@unique([clientId, connectionId, externalId])
+  @@index([createdAt, clientId])
+  @@map("provider_wallet")
+}
+
+model ProviderAccount {
+  id           String   @id
+  label        String?
+  clientId     String   @map("client_id")
+  connectionId String   @map("connection_id")
+  externalId   String   @map("external_id")
+  provider     String
+  walletId     String?  @map("wallet_id")
+  networkId    String   @map("network_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  connection ProviderConnection @relation(fields: [connectionId], references: [id])
+  wallet     ProviderWallet?    @relation(fields: [walletId], references: [id])
+  addresses  ProviderAddress[]
+
+  sourceTransfers      ProviderTransfer[] @relation("SourceAccount")
+  destinationTransfers ProviderTransfer[] @relation("DestinationAccount")
+
+  @@unique([clientId, connectionId, externalId])
+  @@index([createdAt, clientId])
+  @@map("provider_account")
+}
+
+model ProviderAddress {
+  id           String   @id
+  clientId     String   @map("client_id")
+  connectionId String   @map("connection_id")
+  provider     String
+  externalId   String   @map("external_id")
+  accountId    String   @map("account_id")
+  address      String
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  connection ProviderConnection @relation(fields: [connectionId], references: [id])
+  account    ProviderAccount    @relation(fields: [accountId], references: [id])
+
+  sourceTransfers      ProviderTransfer[] @relation("SourceAddress")
+  destinationTransfers ProviderTransfer[] @relation("DestinationAddress")
+
+  @@unique([clientId, connectionId, externalId])
+  @@index([createdAt, clientId])
+  @@map("provider_address")
+}
+
+model ProviderConnection {
+  id          String    @id
+  clientId    String    @map("client_id")
+  provider    String
+  url         String?
+  label       String?
+  credentials String? // @encrypted stringified JSON
+  status      String
+  integrity   String?   @map("_integrity")
+  // IMPORTANT: Don't default DateTime to `now()` on this table because the
+  // integrity column needs to hash all data at the application level.
+  createdAt   DateTime  @map("created_at")
+  updatedAt   DateTime  @map("updated_at")
+  revokedAt   DateTime? @map("revoked_at")
+
+  wallets     ProviderWallet[]
+  scopedSyncs ProviderScopedSync[]
+  accounts    ProviderAccount[]
+  addresses   ProviderAddress[]
+  transfers   ProviderTransfer[]
+  syncs       ProviderSync[]
+
+  @@index([createdAt, clientId])
+  @@map("provider_connection")
+}
+
+model ProviderSync {
+  id           String    @id
+  clientId     String    @map("client_id")
+  connectionId String    @map("connection_id")
+  status       String
+  errorName    String?   @map("error_name")
+  errorMessage String?   @map("error_message")
+  errorTraceId String?   @map("error_trace_id")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  completedAt  DateTime? @map("completed_at")
+
+  connection ProviderConnection @relation(fields: [connectionId], references: [id])
+
+  @@map("provider_sync")
+}
+
+model ProviderScopedSync {
+  id           String @id
+  clientId     String @map("client_id")
+  connectionId String @map("connection_id")
+  status       String
+  rawAccounts  String @map("raw_accounts")
+
+  errorName    String?   @map("error_name")
+  errorMessage String?   @map("error_message")
+  errorTraceId String?   @map("error_trace_id")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  completedAt  DateTime? @map("completed_at")
+
+  failedRawAccounts String? @map("failed_raw_accounts")
+
+  connection ProviderConnection @relation(fields: [connectionId], references: [id])
+
+  @@map("provider_scoped_sync")
+}
+
+model ProviderTransfer {
+  id                    String   @id
+  assetId               String?  @map("asset_id")
+  assetExternalId       String?  @map("asset_external_id")
+  clientId              String   @map("client_id")
+  createdAt             DateTime @default(now()) @map("created_at")
+  customerRefId         String?  @map("customer_ref_id")
+  destinationAccountId  String?  @map("destination_account_id")
+  destinationAddressId  String?  @map("destination_address_id")
+  destinationAddressRaw String?  @map("destination_address_raw")
+  destinationWalletId   String?  @map("destination_wallet_id")
+  externalId            String   @map("external_id")
+  grossAmount           String   @map("gross_amount")
+  idempotenceId         String?  @map("idempotence_id")
+  memo                  String?
+  networkFeeAttribution String   @map("network_fee_attribution")
+  provider              String
+  providerSpecific      String?  @map("provider_specific")
+  sourceAccountId       String?  @map("source_account_id")
+  sourceAddressId       String?  @map("source_address_id")
+  sourceWalletId        String?  @map("source_wallet_id")
+  connectionId          String   @map("connection_id")
+
+  connection         ProviderConnection @relation(fields: [connectionId], references: [id])
+  sourceWallet       ProviderWallet?    @relation("SourceWallet", fields: [sourceWalletId], references: [id])
+  sourceAccount      ProviderAccount?   @relation("SourceAccount", fields: [sourceAccountId], references: [id])
+  sourceAddress      ProviderAddress?   @relation("SourceAddress", fields: [sourceAddressId], references: [id])
+  destinationWallet  ProviderWallet?    @relation("DestinationWallet", fields: [destinationWalletId], references: [id])
+  destinationAccount ProviderAccount?   @relation("DestinationAccount", fields: [destinationAccountId], references: [id])
+  destinationAddress ProviderAddress?   @relation("DestinationAddress", fields: [destinationAddressId], references: [id])
+
+  @@unique([clientId, externalId])
+  @@unique([clientId, idempotenceId])
+  @@index([createdAt, clientId])
+  @@map("provider_transfer")
+}
+
+model Network {
+  id        String   @id
+  coinType  Int?     @map("coin_type")
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  externalNetworks ProviderNetwork[]
+  assets           Asset[]
+
+  @@map("network")
+}
+
+model ProviderNetwork {
+  externalId String   @map("external_id")
+  networkId  String   @map("network_id")
+  provider   String
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  network Network? @relation(fields: [networkId], references: [id])
+
+  @@id([provider, externalId])
+  // Prevent duplication of provider supported network.
+  @@unique([provider, networkId])
+  @@map("provider_network")
+}
+
+model Asset {
+  id        String   @id
+  name      String
+  symbol    String?
+  decimals  Int?
+  networkId String   @map("network_id")
+  onchainId String?  @map("onchain_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  network        Network         @relation(fields: [networkId], references: [id])
+  externalAssets ProviderAsset[]
+
+  @@unique([networkId, onchainId])
+  @@map("asset")
+}
+
+model ProviderAsset {
+  assetId    String   @map("asset_id")
+  provider   String
+  externalId String   @map("external_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  asset Asset @relation(fields: [assetId], references: [id])
+
+  @@id([provider, externalId])
+  @@unique([provider, assetId])
+  @@map("provider_asset")
 }

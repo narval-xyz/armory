@@ -9,9 +9,9 @@ import {
 import { LoggerService } from '@narval/nestjs-shared'
 import { toBytes } from '@narval/policy-engine-shared'
 import { Injectable } from '@nestjs/common'
+import { AppService } from '../../app.service'
 import { Config } from '../../main.config'
-import { ENCRYPTION_KEY_NAME, ENCRYPTION_KEY_NAMESPACE, ENCRYPTION_WRAPPING_SUITE } from '../../main.constant'
-import { AppService } from '../../vault/core/service/app.service'
+import { ENCRYPTION_KEY_NAME, ENCRYPTION_KEY_NAMESPACE, ENCRYPTION_WRAPPING_SUITE } from '../constant'
 
 @Injectable()
 export class EncryptionModuleOptionFactory {
@@ -36,12 +36,12 @@ export class EncryptionModuleOptionFactory {
     }
 
     if (keyringConfig.type === 'raw') {
-      if (!app.masterKey) {
+      if (!app.encryptionMasterKey) {
         throw new Error('Master key not set')
       }
 
-      const kek = generateKeyEncryptionKey(keyringConfig.masterPassword, app.id)
-      const unencryptedMasterKey = await decryptMasterKey(kek, toBytes(app.masterKey))
+      const kek = generateKeyEncryptionKey(keyringConfig.encryptionMasterPassword, app.id)
+      const unencryptedMasterKey = await decryptMasterKey(kek, toBytes(app.encryptionMasterKey))
 
       return {
         keyring: new RawAesKeyringNode({
@@ -53,7 +53,7 @@ export class EncryptionModuleOptionFactory {
       }
     } else if (keyringConfig.type === 'awskms') {
       // We have AWS KMS config so we'll use that instead as the MasterKey, which means we don't need a KEK separately
-      const keyring = new KmsKeyringNode({ generatorKeyId: keyringConfig.masterAwsKmsArn })
+      const keyring = new KmsKeyringNode({ generatorKeyId: keyringConfig.encryptionMasterAwsKmsArn })
       return { keyring }
     }
 
