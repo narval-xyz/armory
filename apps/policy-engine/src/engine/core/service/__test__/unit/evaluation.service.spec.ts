@@ -11,7 +11,7 @@ import {
   Request,
   SignTransactionAction
 } from '@narval/policy-engine-shared'
-import { Alg, PrivateKey, SigningAlg, decodeJwt, generateJwk, getPublicKey, nowSeconds } from '@narval/signature'
+import { Alg, PrivateKey, SigningAlg, decodeJwt, generateJwk, getPublicKey } from '@narval/signature'
 import { Test } from '@nestjs/testing'
 import { MockProxy, mock } from 'jest-mock-extended'
 import { ClientService } from '../../../../../client/core/service/client.service'
@@ -80,7 +80,6 @@ describe('buildPermitTokenPayload for signTransaction action', () => {
 
     expect(payload).toEqual({
       cnf,
-      iat: nowSeconds(),
       requestHash: '0x608abe908cffeab1fc33edde6b44586f9dacbc9c6fe6f0a13fa307237290ce5a',
       hashWildcard: [
         'transactionRequest.gas',
@@ -125,12 +124,9 @@ describe('buildPermitTokenPayload for grantPermission action', () => {
 
   it('returns a jwt payload if all conditions are met', async () => {
     const payload = await buildPermitTokenPayload('clientId', evalResponse)
-    const iat = nowSeconds()
 
     expect(payload).toEqual({
       cnf,
-      iat,
-      exp: iat + ONE_DAY,
       iss: 'clientId.armory.narval.xyz',
       sub: 'test-alice-user-uid',
       access: [
